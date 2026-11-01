@@ -1,6 +1,13 @@
-# PROJECT NEXUS — Cinematic Fleet & Solar Campaign Alpha V1.3
+# PROJECT NEXUS — Detailed Fleet & Solar Campaign Alpha V1.7
 
 **Status:** verifizierbarer Godot-Quellcode-Prototyp, **kein** fertiges GTA-6-/COD-AAA-Spiel. Ziel: eigene fotorealistische Open-World-Erlebniswelt mit Rettung, Einsatzkraeften, Fahrzeugen, Fraktionen, Bauberufen, Planetenerkundung und langfristiger Story.
+
+## V1.7 neue Grafik- und Fahrzeugmerkmale
+
+- Alle 123 Datenprofile bleiben; fünf Fahrzeuggrundtypen haben erheblich detailliertere eigenständige prozedurale 3D-Grundmodelle (Räder, Felgen, Innenräume, Scheinwerfer, Spezialmaschinen).
+- Berührungsfreundliche Fahrzeughalle mit drehbarer 3D-Showroom-Vorschau und technischen Daten.
+- Neue Build-Regressionstests unter `tests/vehicle_detail_smoke.gd` und `tests/validate_v17.py`.
+- Siehe `docs/V1_7_VEHICLE_GRAPHICS.md` und `docs/V1_7_GRAPHICS_ACCEPTANCE.md`.
 
 ## Jetzt im Quellcode
 
