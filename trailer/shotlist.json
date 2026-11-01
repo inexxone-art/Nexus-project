@@ -1,0 +1,68 @@
+{
+  "project": "PROJECT NEXUS",
+  "version": "1.4",
+  "frame_rate": 30,
+  "width": 1920,
+  "height": 1080,
+  "disclosure": "IN-ENGINE FOOTAGE · WORK IN PROGRESS",
+  "intro_seconds": 3,
+  "outro_seconds": 8,
+  "shots": [
+    {
+      "id": "terra_dawn",
+      "duration": 8,
+      "source": "captures/gameplay/terra_dawn.mp4",
+      "description": "Terra: alpines Tal, Dorf und Natur im Sonnenaufgang",
+      "title": "EINE WELT. UNENDLICHE MÖGLICHKEITEN."
+    },
+    {
+      "id": "mountain_rescue",
+      "duration": 8,
+      "source": "captures/gameplay/mountain_rescue.mp4",
+      "description": "Wetterumschwung, Helikopter und Bergrettung",
+      "title": "JEDE ENTSCHEIDUNG HAT FOLGEN."
+    },
+    {
+      "id": "city_emergency",
+      "duration": 8,
+      "source": "captures/gameplay/city_emergency.mp4",
+      "description": "Nachtstadt, Einsatzfahrzeuge und reagierende NPCs",
+      "title": "EINE LEBENDIGE WELT."
+    },
+    {
+      "id": "sector31_action",
+      "duration": 8,
+      "source": "captures/gameplay/sector31_action.mp4",
+      "description": "Sektor 31: verifizierter Kampf-Gameplay-Ausschnitt",
+      "title": "MISSIONEN VERÄNDERN SICH."
+    },
+    {
+      "id": "construction_fleet",
+      "duration": 8,
+      "source": "captures/gameplay/construction_fleet.mp4",
+      "description": "Bagger, LKW, Straße und nachvollziehbare Bau-Fortschritte",
+      "title": "BAUE DEINE EIGENE ZUKUNFT."
+    },
+    {
+      "id": "spaceport_launch",
+      "duration": 8,
+      "source": "captures/gameplay/spaceport_launch.mp4",
+      "description": "Raumhafen, Raumschiff und Sternenkarte",
+      "title": "ENTDECKE DAS SONNENSYSTEM."
+    },
+    {
+      "id": "six_planets",
+      "duration": 8,
+      "source": "captures/gameplay/six_planets.mp4",
+      "description": "Gegenüberstellung der sechs unterschiedlichen Planeten",
+      "title": "SECHS WELTEN. EIN GEHEIMNIS."
+    },
+    {
+      "id": "umbra_finale",
+      "duration": 8,
+      "source": "captures/gameplay/umbra_finale.mp4",
+      "description": "Umbra: mysteriöse Anlage und Frage am Ende des Kapitels",
+      "title": "WER HAT NEXUS ERSCHAFFEN?"
+    }
+  ]
+}
