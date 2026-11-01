@@ -3,6 +3,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "UObject/ConstructorHelpers.h"
+#include "TimerManager.h"
 
 ANexusBridge::ANexusBridge()
 {
@@ -27,6 +28,7 @@ void ANexusBridge::BeginPlay()
         Segment->SetStaticMesh(Mesh);
         Segment->SetRelativeLocation(FVector(-3758.3f+I*683.3f,0,0));
         if(NaniteBridgeSegment.IsNull()) Segment->SetRelativeScale3D(FVector(6.83f,10.5f,0.9f));
+        OriginalLocalTransforms.Add(Segment->GetRelativeTransform());
         Segment->SetCollisionProfileName(TEXT("PhysicsActor"));
         Segment->SetSimulatePhysics(false);
         AddInstanceComponent(Segment);
@@ -34,31 +36,41 @@ void ANexusBridge::BeginPlay()
         Segments.Add(Segment);
     }
 }
+void ANexusBridge::ReleaseSpan(int32 Index)
+{
+    if(!bCollapsed || !Segments.IsValidIndex(Index)) return;
+    auto* Piece=Segments[Index];
+    if(!Piece)return;
+    Piece->SetSimulatePhysics(true);
+    Piece->WakeAllRigidBodies();
+    const float Sign=(Index%2)?1.f:-1.f;
+    Piece->AddImpulse(FVector(Sign*17000.f,Sign*11000.f,-85000.f),NAME_None,true);
+    Piece->AddAngularImpulseInRadians(FVector(3100.f*Sign,1650.f,660.f),NAME_None,true);
+}
 void ANexusBridge::Collapse()
 {
-    if(bCollapsed) return;
+    if(bCollapsed)return;
     bCollapsed=true;
-    for(int32 I=0;I<Segments.Num();++I)
+    ReleaseSpan(0);
+    if(!GetWorld())return;
+    for(int32 I=1;I<Segments.Num();++I)
     {
-        UStaticMeshComponent* Piece=Segments[I];
-        if(!Piece) continue;
-        Piece->SetSimulatePhysics(true);
-        Piece->WakeAllRigidBodies();
-        const float Direction=(I%2?1.f:-1.f);
-        Piece->AddImpulse(FVector(Direction*17000.f,Direction*12000.f,-90000.f),NAME_None,true);
-        Piece->AddAngularImpulseInRadians(FVector(3400.f*Direction,1700.f,600.f),NAME_None,true);
+        FTimerHandle Handle;
+        FTimerDelegate Task=FTimerDelegate::CreateUObject(this,&ANexusBridge::ReleaseSpan,I);
+        GetWorld()->GetTimerManager().SetTimer(Handle,Task,0.11f*I,false);
     }
 }
 void ANexusBridge::Reconstruct()
 {
     bCollapsed=false;
+    if(GetWorld())GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
     for(int32 I=0;I<Segments.Num();++I)
     {
         auto* Piece=Segments[I];
-        if(!Piece) continue;
+        if(!Piece)continue;
         Piece->SetSimulatePhysics(false);
-        Piece->SetWorldTransform(FTransform(GetActorRotation(),GetActorLocation()+FVector(-3758.3f+I*683.3f,0,0), NaniteBridgeSegment.IsNull()?FVector(6.83f,10.5f,0.9f):FVector::OneVector));
-        Piece->SetPhysicsLinearVelocity(FVector::ZeroVector);
-        Piece->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
+        Piece->AttachToComponent(Base,FAttachmentTransformRules::KeepWorldTransform);
+        if(OriginalLocalTransforms.IsValidIndex(I))
+            Piece->SetRelativeTransform(OriginalLocalTransforms[I]);
     }
 }
