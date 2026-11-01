@@ -14,6 +14,7 @@ var loadout_label: Label
 var equipped: int = 0
 const SLOTS: PackedStringArray = ["Sturmgewehr","Pistole","Rettungswerkzeug","Bauwerkzeug"]
 var triggered: bool = false
+var bridge_entered: bool = false
 var radio_pending: bool = false
 
 func setup(owner_world: Node3D) -> void:
@@ -88,8 +89,12 @@ func _process(_delta: float) -> void:
     if bridge.stage == "ready" and not triggered and world.vehicle_in_use != null:
         var car: NexusVehicle = world.vehicle_in_use
         var point: Vector3 = car.global_position
-        var on_exit: bool = absf(point.x-175.0) < 12.5 and ((point.z >= 210.0 and point.z <= 232.0) or (point.z <= 125.0 and point.z >= 103.0))
-        if car.category != "Helikopter" and absf(car.speed) > 3.0 and on_exit:
+        # The car must first cross the actual bridge before a collapse can happen behind it.
+        # Entering only the approach area cannot trip the accident.
+        if absf(point.x-175.0) < 11.5 and point.z >= 132.0 and point.z <= 205.0:
+            bridge_entered = true
+        var leaving_bridge: bool = absf(point.x-175.0) < 12.5 and ((point.z >= 210.0 and point.z <= 230.0) or (point.z <= 126.0 and point.z >= 105.0))
+        if car.category != "Helikopter" and absf(car.speed) > 3.0 and bridge_entered and leaving_bridge:
             triggered = true
             if bridge.start_disaster():
                 rescue.trigger()
@@ -173,13 +178,14 @@ func switch_slot(slot: int) -> void:
     _refresh()
 
 func get_data() -> Dictionary:
-    return {"rescue":rescue.get_data(),"industry":industry.get_data(),"equipped":equipped,"triggered":triggered}
+    return {"rescue":rescue.get_data(),"industry":industry.get_data(),"equipped":equipped,"triggered":triggered,"bridge_entered":bridge_entered}
 
 func restore_data(data: Dictionary) -> void:
     rescue.restore_data(data.get("rescue",{}))
     industry.restore_data(data.get("industry",{}))
     equipped = clampi(int(data.get("equipped",0)),0,SLOTS.size()-1)
     triggered = bool(data.get("triggered",rescue.phase != "dormant"))
+    bridge_entered = bool(data.get("bridge_entered",false))
     if rescue.phase == "choice":
         radio_pending = true
     role_dialog.hide()
