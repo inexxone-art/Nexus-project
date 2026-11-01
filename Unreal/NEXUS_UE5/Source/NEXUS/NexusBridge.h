@@ -17,6 +17,8 @@ public:
     UPROPERTY(VisibleAnywhere) TObjectPtr<USceneComponent> Base;
     UPROPERTY(BlueprintReadOnly) TArray<TObjectPtr<UStaticMeshComponent>> Segments;
     UPROPERTY(BlueprintReadOnly) bool bCollapsed=false;
+    TArray<FTransform> OriginalLocalTransforms;
+    void ReleaseSpan(int32 Index);
     UFUNCTION(BlueprintCallable) void Collapse();
     UFUNCTION(BlueprintCallable) void Reconstruct();
     UFUNCTION(BlueprintCallable) float GetBridgeHeight() const { return 1950.f; }
