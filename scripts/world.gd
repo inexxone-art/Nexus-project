@@ -33,8 +33,10 @@ const MEGAMAP_SCRIPT = preload("res://scripts/nexus_megamap_v27.gd")
 const HEIGHTFIELD_SCRIPT = preload("res://scripts/nexus_terrain_v26.gd")
 const V35_OPERATIONS_SCRIPT = preload("res://scripts/nexus_v35_operations.gd")
 const V36_HUD_SCRIPT = preload("res://scripts/nexus_v36_reference_hud.gd")
+const V37_GRAPHICS_SCRIPT = preload("res://scripts/nexus_adlerklamm_graphics_v37.gd")
 var nexus_v35: NexusV35Operations
 var reference_hud: NexusV36ReferenceHUD
+var graphics_v37: NexusAdlerklammGraphicsV37
 var mega_map: NexusMegaMapV27
 var world_structure: NexusWorldStructure
 var legacy: NexusLegacy
@@ -146,6 +148,9 @@ func _ready() -> void:
     add_child(world_structure)
     mega_map = MEGAMAP_SCRIPT.new()
     add_child(mega_map)
+    graphics_v37 = V37_GRAPHICS_SCRIPT.new()
+    add_child(graphics_v37)
+    graphics_v37.bind_game(self)
     story = STORY_SCRIPT.new()
     add_child(story)
     world_operations = WORLD_OPS_SCRIPT.new()

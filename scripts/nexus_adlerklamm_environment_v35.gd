@@ -4,6 +4,7 @@ class_name NexusAdlerklammEnvironmentV35
 ## Rock PBR uses the checked-in production texture set, not a generated preview.
 const PRODUCTION = preload("res://scripts/nexus_production_assets.gd")
 const TERRAIN = preload("res://scripts/nexus_terrain_v26.gd")
+const RIVER_V37 = preload("res://shaders/nexus_river_v37.gdshader")
 var rock_count: int = 0
 var grass_count: int = 0
 var river: MeshInstance3D
@@ -104,28 +105,11 @@ func _build_river() -> void:
     river.name = "Adlerklamm river channel | animated surface"
     var plane := PlaneMesh.new()
     plane.size = Vector2(104,15)
-    plane.subdivide_width = 28
-    plane.subdivide_depth = 8
+    plane.subdivide_width = 92
+    plane.subdivide_depth = 18
     river.mesh = plane
     river.position = Vector3(163,-36.8,168)
     var material := ShaderMaterial.new()
-    var shader := Shader.new()
-    shader.code = """
-shader_type spatial;
-render_mode cull_disabled, depth_draw_opaque;
-uniform vec4 deep_water : source_color = vec4(0.065,0.19,0.23,1.0);
-uniform vec4 foam : source_color = vec4(0.71,0.83,0.85,1.0);
-void vertex() {
-    VERTEX.y += 0.12*sin(VERTEX.x*1.2+TIME*2.0)+0.07*cos(VERTEX.z*2.4-TIME*1.6);
-}
-void fragment() {
-    float wave = sin(UV.x*91.0-TIME*4.5)*sin(UV.y*23.0+TIME*1.5);
-    float streak = smoothstep(0.64,0.93,0.5+0.5*wave);
-    ALBEDO = mix(deep_water.rgb,foam.rgb,streak*0.37);
-    METALLIC = 0.1;
-    ROUGHNESS = 0.18+0.22*(1.0-streak);
-}
-"""
-    material.shader = shader
+    material.shader = RIVER_V37
     river.material_override = material
     add_child(river)
