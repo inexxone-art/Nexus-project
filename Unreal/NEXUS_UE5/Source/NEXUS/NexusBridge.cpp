@@ -14,12 +14,15 @@ ANexusBridge::ANexusBridge()
 UStaticMesh* ANexusBridge::GetSegmentMesh() const
 {
     if(!NaniteBridgeSegment.IsNull()) if(auto* Mesh=NaniteBridgeSegment.LoadSynchronous()) return Mesh;
+    if(auto* Art=LoadObject<UStaticMesh>(nullptr,
+        TEXT("/Game/AAA/Geometry/Hero/SM_NEXUS_BridgeSpan_6p83m.SM_NEXUS_BridgeSpan_6p83m"))) return Art;
     return LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"));
 }
 void ANexusBridge::BeginPlay()
 {
     Super::BeginPlay();
     UStaticMesh* Mesh=GetSegmentMesh();
+    const bool bFallbackBox=Mesh && Mesh->GetPathName().StartsWith(TEXT("/Engine/BasicShapes"));
     for(int32 I=0;I<12;++I)
     {
         UStaticMeshComponent* Segment=NewObject<UStaticMeshComponent>(this,*FString::Printf(TEXT("PhysicallyFracturableSpan_%02d"),I));
@@ -27,7 +30,7 @@ void ANexusBridge::BeginPlay()
         Segment->SetMobility(EComponentMobility::Movable);
         Segment->SetStaticMesh(Mesh);
         Segment->SetRelativeLocation(FVector(-3758.3f+I*683.3f,0,0));
-        if(NaniteBridgeSegment.IsNull()) Segment->SetRelativeScale3D(FVector(6.83f,10.5f,0.9f));
+        if(bFallbackBox) Segment->SetRelativeScale3D(FVector(6.83f,10.5f,0.9f));
         OriginalLocalTransforms.Add(Segment->GetRelativeTransform());
         Segment->SetCollisionProfileName(TEXT("PhysicsActor"));
         Segment->SetSimulatePhysics(false);
