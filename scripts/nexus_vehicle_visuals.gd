@@ -21,7 +21,9 @@ var width: float = 1.85
 var length: float = 4.6
 var mats: Dictionary = {}
 const HERO_DETAILS = preload("res://scripts/nexus_hero_vehicles.gd")
+const PRODUCTION = preload("res://scripts/nexus_production_assets.gd")
 var hero_details: Node3D
+var imported_model: Node3D
 
 func set_vehicle(definition: Dictionary, vehicle_category: String) -> void:
     spec = definition.duplicate(true)
@@ -32,6 +34,29 @@ func set_vehicle(definition: Dictionary, vehicle_category: String) -> void:
     var palette := {"Panzer":"66705c", "Bagger":"e6ac32", "Helikopter":"b9c7ce", "LKW":"b6a08a", "Rettung":"f2efe6", "Sportwagen":"a73732", "Traktor":"4a6b3e"}
     base_color = Color(str(spec.get("color", palette.get(vehicle_category,"496f83"))))
 
+func _bind_imported_rig(root: Node3D) -> void:
+    # Optional Blender/GLB node conventions. Missing bones do not crash the car.
+    for wheel_name in ["Wheel_FL", "Wheel_FR", "Wheel_RL", "Wheel_RR"]:
+        var wheel: Node = root.find_child(wheel_name, true, false)
+        if wheel is Node3D:
+            wheel_spinners.append(wheel as Node3D)
+    for steering_name in ["Steer_FL", "Steer_FR"]:
+        var pivot: Node = root.find_child(steering_name, true, false)
+        if pivot is Node3D:
+            front_steer.append(pivot as Node3D)
+    var main: Node = root.find_child("Rotor_Main", true, false)
+    if main is Node3D:
+        rotor_main = main as Node3D
+    var tail: Node = root.find_child("Rotor_Tail", true, false)
+    if tail is Node3D:
+        rotor_tail = tail as Node3D
+    var boom: Node = root.find_child("Boom", true, false)
+    if boom is Node3D:
+        boom_pivot = boom as Node3D
+    var bucket: Node = root.find_child("Bucket", true, false)
+    if bucket is Node3D:
+        bucket_pivot = bucket as Node3D
+
 func _infer_kind(category: String) -> String:
     if category == "Panzer": return "tank"
     if category == "Bagger": return "excavator"
@@ -41,6 +66,11 @@ func _infer_kind(category: String) -> String:
 
 func _ready() -> void:
     name = "NEXUS Fahrzeugdesign | " + str(spec.get("name",kind))
+    imported_model = PRODUCTION.create_hero_instance(str(spec.get("id", "")))
+    if imported_model != null:
+        add_child(imported_model)
+        _bind_imported_rig(imported_model)
+        return  # No duplicate procedural meshes; existing driving collision is kept.
     match kind:
         "tank": _build_tank()
         "excavator": _build_excavator()

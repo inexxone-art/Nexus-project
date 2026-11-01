@@ -24,8 +24,14 @@ const MOBILE_SCRIPT = preload("res://scripts/nexus_mobile_controls.gd")
 const QUALITY_SUITE_SCRIPT = preload("res://scripts/nexus_quality_suite.gd")
 const LEGACY_SCRIPT = preload("res://scripts/nexus_legacy.gd")
 const LEGACY_PANEL_SCRIPT = preload("res://scripts/nexus_legacy_panel.gd")
+const EPISODE_SCRIPT = preload("res://scripts/nexus_episode_one.gd")
+const SHIP_WALK_SCRIPT = preload("res://scripts/nexus_ship_walkthrough.gd")
+const WEATHER_SURFACE_SCRIPT = preload("res://scripts/nexus_weather_surface.gd")
+const PRODUCTION_ASSETS = preload("res://scripts/nexus_production_assets.gd")
 var legacy: NexusLegacy
 var legacy_panel: NexusLegacyPanel
+var episode_one: NexusEpisodeOne
+var ship_walkthrough: NexusShipWalkthrough
 var last_world_hour: float = 9.0
 const AUDIO_SCRIPT = preload("res://scripts/nexus_audio_director.gd")
 const PERFORMANCE_SCRIPT = preload("res://scripts/nexus_performance_panel.gd")
@@ -40,6 +46,7 @@ var living_panel: NexusLivingPanel
 var visual_polish: NexusCinematicPolish
 var coop: NexusCoopPreview
 var fleet_menu: NexusFleetMenu
+var weather_surface: NexusWeatherSurface
 var world_operations: NexusWorldOperations
 var fleet_spawn_count: int = 0
 const SAVE_PATH = "user://nexus_alpine_v08.json" # Backwards-compatible with V0.8 saves
@@ -99,6 +106,10 @@ func _ready() -> void:
     world_clock.name = "Wetter und Tageszeit"
     add_child(world_clock)
     world_clock.configure(sky_light, get_node("WorldEnvironment"))
+    weather_surface = WEATHER_SURFACE_SCRIPT.new()
+    weather_surface.name = "Realistic Wet Asphalt"
+    add_child(weather_surface)
+    weather_surface.set_clock(world_clock)
     root_objects = Node3D.new()
     root_objects.name = "Persistente Objekte"
     add_child(root_objects)
@@ -135,6 +146,14 @@ func _ready() -> void:
     player = PLAYER_SCRIPT.new()
     player.global_position = Vector3(4, 0.4, 7)
     add_child(player)
+    episode_one = EPISODE_SCRIPT.new()
+    episode_one.objective_changed.connect(_on_episode_objective)
+    episode_one.chapter_completed.connect(_on_episode_complete)
+    episode_one.player_hit.connect(_on_episode_damage)
+    add_child(episode_one)
+    episode_one.bind_player(player)
+    ship_walkthrough = SHIP_WALK_SCRIPT.new()
+    add_child(ship_walkthrough)
     quality_suite = QUALITY_SUITE_SCRIPT.new()
     add_child(quality_suite)
     quality_suite.bind_world(self)
@@ -183,12 +202,25 @@ func surface_material(color: Color, texture_name: String = "", uv: float = 1.0, 
     m.roughness = 0.88 if metallic <= 0.0 else 0.42
     m.metallic = metallic
     if texture_name != "":
-        m.albedo_texture = load("res://assets/" + texture_name + ".png")
+        var key: String = texture_name
+        if key.begins_with("nexus_pbr_"):
+            key = key.trim_prefix("nexus_pbr_")
+        match key:
+            "wet_street": key = "asphalt"
+            "stone", "alpine": key = "rock"
+            "forest": key = "grass"
+        var production_albedo: Texture2D = PRODUCTION_ASSETS.surface_texture(key, "albedo")
+        m.albedo_texture = production_albedo if production_albedo != null else load("res://assets/" + texture_name + ".png")
         m.uv1_scale = Vector3(uv, uv, 1.0)
-        if texture_name.begins_with("nexus_pbr_"):
+        var production_normal: Texture2D = PRODUCTION_ASSETS.surface_texture(key, "normal")
+        if production_normal != null or texture_name.begins_with("nexus_pbr_"):
             m.normal_enabled = true
-            m.normal_texture = load("res://assets/%s_normal.png" % texture_name)
-            m.normal_scale = 0.6
+            m.normal_texture = production_normal if production_normal != null else load("res://assets/%s_normal.png" % texture_name)
+            m.normal_scale = 0.55
+        var production_roughness: Texture2D = PRODUCTION_ASSETS.surface_texture(key, "roughness")
+        if production_roughness != null:
+            m.roughness_texture = production_roughness
+            m.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
     return m
 
 func add_box(parent: Node3D, name_text: String, center: Vector3, size: Vector3, mat: Material, solid: bool = false) -> Node3D:
@@ -291,20 +323,52 @@ func _make_land() -> void:
     # Scenic alpine mountains are now generated as continuous ridges by cinematic_landscape.gd.
 
 func _make_roads() -> void:
-    var road = surface_material(Color("8b8b85"), "nexus_pbr_wet_street", 16)
+    var road: Material = weather_surface.make_road_material(16.0)
     add_box(self, "Forststrasse Ost-West", Vector3(0, 0.015, 0), Vector3(180, 0.025, 7.5), road)
     add_box(self, "Zufahrt zum Saegewerk", Vector3(-40, 0.019, -42), Vector3(7.5, 0.024, 85), road)
     add_box(self, "Zufahrt zur Stadt", Vector3(55, 0.019, 55), Vector3(7.5, 0.024, 110), road)
 
 func _make_house(pos: Vector3, w: float, d: float, roof_color: Color, label_text: String) -> void:
-    var plaster = surface_material(Color("e3d8c2"), "plaster", 1.5)
-    var wood_mat = surface_material(Color("9c7751"), "wood", 2)
-    var roof = surface_material(roof_color, "roof", 2)
-    add_box(root_objects, label_text, pos + Vector3(0, 2.1, 0), Vector3(w, 4.2, d), plaster, true)
-    add_box(root_objects, "Dach " + label_text, pos + Vector3(0, 4.45, 0), Vector3(w + 0.8, 0.55, d + 1.0), roof)
-    add_box(root_objects, "Tuer", pos + Vector3(-w * 0.21, 1.13, d * 0.51), Vector3(1.1, 2.25, 0.12), wood_mat)
-    for side in [-1, 1]:
-        add_box(root_objects, "Fenster", pos + Vector3(side * w * 0.29, 2.7, d * 0.52), Vector3(1.0, 0.9, 0.09), surface_material(Color("719da6")))
+    # Local house node makes varied orientation possible without breaking colliders.
+    var house := Node3D.new()
+    house.name = label_text
+    house.position = pos
+    house.rotation.y = deg_to_rad(float((int(pos.x + pos.z) % 7) - 3) * 1.8)
+    root_objects.add_child(house)
+    var plaster: Material = surface_material(Color("e3d8c2"), "plaster", 1.5)
+    var timber: Material = surface_material(Color("775843"), "wood", 2.0)
+    var roof: Material = surface_material(roof_color, "roof", 2.0)
+    var glass := surface_material(Color("769caa"), "", 1.0, 0.08)
+    glass.roughness = 0.18
+    glass.clearcoat_enabled = true
+    var stone: Material = surface_material(Color("898a83"), "nexus_pbr_stone", 2.0)
+    add_box(house, "Fundamentstein", Vector3(0,0.42,0), Vector3(w+0.3,0.84,d+0.3), stone, true)
+    add_box(house, "Verputztes Haus", Vector3(0,2.45,0), Vector3(w,4.2,d), plaster, true)
+    # Sloped two-sided roof with ridge: the reference village must not look like a box grid.
+    var run: float = w*0.5 + 0.46
+    var rise: float = 1.45
+    var slope: float = atan2(rise,run)
+    var length_sloped: float = sqrt(run*run + rise*rise)
+    for side in [-1.0,1.0]:
+        var panel: Node3D = add_box(house,"Geneigtes Ziegeldach",Vector3(side*run*0.5,5.22+rise*0.5,0),Vector3(length_sloped+0.24,0.22,d+1.1),roof)
+        panel.rotation.z = -slope*side
+        add_box(house,"Dachrinne",Vector3(side*run,4.98,0),Vector3(0.10,0.12,d+1.0),stone)
+        for z in [-d*0.5+0.30,d*0.5-0.30]:
+            add_box(house,"Holz-Eckbalken",Vector3(side*(w*0.5+0.04),2.6,z),Vector3(0.20,3.95,0.18),timber)
+    add_box(house,"Hauseingang",Vector3(-w*0.22,1.36,d*0.5+0.08),Vector3(1.12,2.30,0.12),timber)
+    for floor in [1.7,3.46]:
+        for side in [-1.0,1.0]:
+            var x: float = side*w*0.26
+            add_box(house,"Eingelassenes Fensterglas",Vector3(x,floor,d*0.5+0.062),Vector3(1.10,0.90,0.08),glass)
+            add_box(house,"Fensterkreuz H",Vector3(x,floor,d*0.5+0.11),Vector3(1.18,0.055,0.08),timber)
+            add_box(house,"Fensterkreuz V",Vector3(x,floor,d*0.5+0.11),Vector3(0.06,0.98,0.08),timber)
+            add_box(house,"Fensterbank",Vector3(x,floor-0.51,d*0.5+0.23),Vector3(1.26,0.12,0.34),stone)
+    add_box(house,"Balkonbruestung",Vector3(0.0,3.10,d*0.5+0.84),Vector3(w*0.70,0.12,0.12),timber)
+    for i in range(6):
+        var x: float = -w*0.33 + w*0.132*float(i)
+        add_box(house,"Balkonstrebe",Vector3(x,2.75,d*0.5+0.84),Vector3(0.08,0.72,0.08),timber)
+    add_box(house,"Schornstein",Vector3(w*0.24,6.03,-d*0.19),Vector3(0.75,2.05,0.78),stone)
+    add_box(house,"Schornsteinabdeckung",Vector3(w*0.24,7.08,-d*0.19),Vector3(0.91,0.12,0.90),stone)
 
 func _make_village() -> void:
     for i in range(9):
@@ -581,6 +645,31 @@ func _process(delta: float) -> void:
         tow_log.global_position = vehicle_in_use.global_position + vehicle_in_use.global_transform.basis.z * 5 + Vector3(0, 0.7, 0)
     _update_hud()
 
+func _on_episode_objective(message: String) -> void:
+    _say("BERGLICHT: " + message)
+    if audio_director != null:
+        audio_director.notify()
+
+func _on_episode_complete(reward: int) -> void:
+    completed_jobs += 1
+    if legacy != null:
+        legacy.award_activity("story","Operation Berglicht: Einsatz abgeschlossen",220)
+        legacy.record_decision("berglicht_final","Notstrom, Bergrettung und Signal erfolgreich gesichert",6)
+    if living != null:
+        living.apply_field_operation("Rettung","Alpental")
+    _say("Kapitel abgeschlossen | +%d EUR | Der freie Spielmodus geht weiter" % reward)
+
+func _on_episode_damage(amount: float) -> void:
+    if player == null or not player.take_damage(amount):
+        return
+    if player.health <= 0.0:
+        player.global_position = EPISODE_SCRIPT.HUB + Vector3(0,1,8)
+        player.receive_medical_help(100.0)
+        coins = maxi(0,coins-50)
+        _say("Du wurdest zur Einsatzbasis gebracht. Behandlungskosten: bis zu 50 EUR")
+    else:
+        _say("Drohnenbeschuss | Gesundheit: %d%%" % roundi(player.health))
+
 func _on_director_event(description: String) -> void:
     if quality_suite != null:
         var lower := description.to_lower()
@@ -654,6 +743,12 @@ func shoot_training() -> void:
         return
     var start: Vector3 = view_camera.global_position
     var end: Vector3 = start - view_camera.global_basis.z * 110.0
+    if episode_one != null:
+        var episode_hit: Dictionary = episode_one.shoot(start,end,get_world_3d().direct_space_state)
+        if bool(episode_hit.get("handled",false)):
+            _say(str(episode_hit.get("message","Abwehrdrohne getroffen")))
+            if audio_director != null: audio_director.notify()
+            return
     var outcome: Dictionary = quality_suite.practice_shot(start,end,get_world_3d().direct_space_state)
     if bool(outcome.get("handled",false)):
         _say(str(outcome.get("message","Training")))
@@ -669,7 +764,7 @@ func _update_hud() -> void:
     var status = "ZU FUSS" if vehicle_in_use == null else "%s | %d km/h | Diesel %d%%" % [vehicle_in_use.category, roundi(abs(vehicle_in_use.speed) * 3.6), roundi(vehicle_in_use.fuel)]
     if drone_active:
         status = "FPV-DROHNE | Akku %d%% | %s" % [roundi(drone.battery), drone.state_notice]
-    hud.text = "PROJECT NEXUS | LEGACY SYSTEMS V2.1\n%s | Geld: %d EUR | %s\nHolz %d  Eisen %d  Oel %d  Gold %d  Ernte %d\nTreibstoff %d  Papier %d  Meteorit %d | Forschung %d\nBaumstaemme: %d | Auftraege: %d" % [status, coins, world_clock.describe(), wood, iron, oil, gold, crops, refined_fuel, paper, meteor, tech_level, sold_logs, completed_jobs]
+    hud.text = "PROJECT NEXUS | OPERATION BERGLICHT V2.2\n%s | Geld: %d EUR | %s\nHolz %d  Eisen %d  Oel %d  Gold %d  Ernte %d\nTreibstoff %d  Papier %d  Meteorit %d | Forschung %d\nBaumstaemme: %d | Auftraege: %d" % [status, coins, world_clock.describe(), wood, iron, oil, gold, crops, refined_fuel, paper, meteor, tech_level, sold_logs, completed_jobs]
     var tip = "WASD bewegen/fahren | F Fahrzeug | V FPV-Drohne | E arbeiten | N Karte | Y Zeit | F5/F9 speichern/laden | F10 Foto | G Sternensystem | F6 Fahrzeughalle | F7 LAN-Koop (Preview) | F3 Grafik/FPS | J Audio | Zielstand: Klick | ESC Maus"
     if nexus_director.active_event != "":
         tip += "\nWELTEREIGNIS: " + nexus_director.active_event
@@ -693,6 +788,9 @@ func _update_hud() -> void:
         hud.text += "\nSTORY: %s | %d m | Ruf %d" % [story.current_objective(), story.target_distance(player.global_position), story.reputation]
     if living != null:
         tip += "\n" + living.get_summary() + " | F8 Einsatzleitung | F4 Grafik"
+    if episode_one != null:
+        tip += "\nKAPITEL 1 - BERGLICHT: " + episode_one.objective()
+        tip += " | %d m | HP %d%%" % [episode_one.distance_to_target(player.global_position),roundi(player.health)]
     if legacy != null:
         tip += "\nF2 KARRIERE / CHRONIK | " + legacy.summary()
     help.text = tip
@@ -847,6 +945,17 @@ func _interact() -> void:
         else:
             _say("Steige aus, um zu arbeiten, oder fahre zur Werkstatt / zum Saegewerk")
         return
+    if ship_walkthrough != null:
+        var ship_result: Dictionary = ship_walkthrough.try_interact(player,legacy.ship_modules if legacy != null else {})
+        if bool(ship_result.get("handled",false)):
+            _say(str(ship_result.get("message","Raumschiff")))
+            return
+    if episode_one != null:
+        var episode_result: Dictionary = episode_one.try_interact(player.global_position)
+        if bool(episode_result.get("handled",false)):
+            coins += int(episode_result.get("money",0))
+            _say(str(episode_result.get("message","Storyziel erledigt")))
+            return
     if quality_suite != null:
         var world_result: Dictionary = quality_suite.try_interact(player.global_position,coins)
         if bool(world_result.get("handled",false)):
@@ -1116,7 +1225,7 @@ func save_state() -> void:
             var p = info["node"].global_position
             l_data.append([p.x, p.y, p.z])
     var p = player.global_position if vehicle_in_use == null else vehicle_in_use.global_position
-    var data = {"money": coins, "wood": wood, "iron": iron, "oil": oil, "gold": gold, "sold": sold_logs, "position": [p.x, p.y, p.z], "vehicles": v_data, "world_ops": world_operations.get_data(), "living_universe": living.get_data(), "buildings": b_data, "chopped": chopped_ids, "logs": l_data, "mission": missions.get_data() if missions != null else {}, "build_grid": build_grid, "build_height": build_height, "crops": crops, "paper": paper, "refined_fuel": refined_fuel, "meteor": meteor, "tech_level": tech_level, "completed_jobs": completed_jobs, "world_clock": world_clock.get_data(), "director": nexus_director.get_data(), "story": story.get_data(), "quality_suite": quality_suite.get_data(), "legacy": legacy.get_data(), "profile": performance_panel.mode, "muted": audio_director.muted}
+    var data = {"money": coins, "wood": wood, "iron": iron, "oil": oil, "gold": gold, "sold": sold_logs, "position": [p.x, p.y, p.z], "vehicles": v_data, "world_ops": world_operations.get_data(), "living_universe": living.get_data(), "buildings": b_data, "chopped": chopped_ids, "logs": l_data, "mission": missions.get_data() if missions != null else {}, "build_grid": build_grid, "build_height": build_height, "crops": crops, "paper": paper, "refined_fuel": refined_fuel, "meteor": meteor, "tech_level": tech_level, "completed_jobs": completed_jobs, "world_clock": world_clock.get_data(), "director": nexus_director.get_data(), "story": story.get_data(), "quality_suite": quality_suite.get_data(), "legacy": legacy.get_data(), "episode_one": episode_one.get_data(), "player_hp": player.health, "ship_walkthrough": ship_walkthrough.get_data(), "profile": performance_panel.mode, "muted": audio_director.muted}
     var f = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
     if f == null:
         _say("Fehler beim Speichern")
@@ -1153,6 +1262,9 @@ func load_state() -> void:
     world_operations.restore_data(parsed.get("world_ops", {}))
     living.restore_data(parsed.get("living_universe", {}))
     quality_suite.restore_data(parsed.get("quality_suite",{}))
+    episode_one.restore_data(parsed.get("episode_one",{}))
+    ship_walkthrough.restore_data(parsed.get("ship_walkthrough",{}))
+    player.health = clampf(float(parsed.get("player_hp",100.0)),1.0,100.0)
     legacy.restore_data(parsed.get("legacy",{}))
     last_world_hour = world_clock.hour
     _on_graphics_profile(clampi(int(parsed.get("profile", performance_panel.mode)),0,2))

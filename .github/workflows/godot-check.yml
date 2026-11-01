@@ -71,3 +71,12 @@ jobs:
         run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/legacy_logic_smoke.gd
       - name: V2.1 real world economy save/load integration
         run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/legacy_world_smoke.gd
+      - name: V2.2 Berglicht story and articulated actor integration
+        run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/episode_v22_smoke.gd
+      - name: Static V2.2 mission and save/load contract
+        run: python3 tests/validate_v22.py
+
+      - name: V2.3 graphics asset contract and references
+        run: python3 tests/validate_v23.py
+      - name: V2.3 Godot wet shader and village smoke test
+        run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/graphics_v23_smoke.gd
