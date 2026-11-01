@@ -32,7 +32,9 @@ const WORLD_STRUCTURE_SCRIPT = preload("res://scripts/nexus_world_structure.gd")
 const MEGAMAP_SCRIPT = preload("res://scripts/nexus_megamap_v27.gd")
 const HEIGHTFIELD_SCRIPT = preload("res://scripts/nexus_terrain_v26.gd")
 const V35_OPERATIONS_SCRIPT = preload("res://scripts/nexus_v35_operations.gd")
+const V36_HUD_SCRIPT = preload("res://scripts/nexus_v36_reference_hud.gd")
 var nexus_v35: NexusV35Operations
+var reference_hud: NexusV36ReferenceHUD
 var mega_map: NexusMegaMapV27
 var world_structure: NexusWorldStructure
 var legacy: NexusLegacy
@@ -190,6 +192,14 @@ func _ready() -> void:
     nexus_v35 = V35_OPERATIONS_SCRIPT.new()
     add_child(nexus_v35)
     nexus_v35.setup(self)
+    if not DisplayServer.is_touchscreen_available():
+        reference_hud = V36_HUD_SCRIPT.new()
+        add_child(reference_hud)
+        reference_hud.setup(self)
+        # The cinematic HUD replaces the legacy walls of debugging text.
+        get_node("HUD").hide()
+        nexus_v35.mission_label.hide()
+        nexus_v35.loadout_label.hide()
     mobile_controls = MOBILE_SCRIPT.new()
     add_child(mobile_controls)
     mobile_controls.bind_world(self)
@@ -827,6 +837,12 @@ func _update_hud() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
     if event is InputEventKey and event.pressed and not event.echo:
+        if event.keycode == KEY_F1 and reference_hud != null:
+            reference_hud.visible = not reference_hud.visible
+            get_node("HUD").visible = not reference_hud.visible
+            if nexus_v35 != null and nexus_v35.rescue.phase == "choice":
+                nexus_v35.role_dialog.visible = not reference_hud.visible
+            return
         if event.keycode == KEY_F12 and nexus_v35 != null:
             nexus_v35.toggle_industry()
             return
