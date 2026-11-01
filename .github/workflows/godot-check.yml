@@ -25,8 +25,10 @@ jobs:
         run: python3 tests/validate_fleet.py
       - name: Verify V1.4 design and feature integration
         run: python3 tests/validate_v14.py
-      - name: Verify trailer shotlist and original-footage policy
-        run: python3 -m unittest discover -s tests -p test_trailer_pipeline.py -v
+      - name: Verify V1.5 mission state machines and photo capture wiring
+        run: python3 tests/validate_v15.py
+      - name: Trailer pipeline unit checks
+        run: python3 -m unittest discover -s tests -p "test_*.py"
       - name: Import assets and check script syntax
         run: |
           set -o pipefail
@@ -45,3 +47,7 @@ jobs:
         run: timeout 90s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/living_smoke.gd
       - name: Cinematic polish and world persistence
         run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/visual_smoke.gd
+      - name: Multi-stage operation and consequence regression
+        run: timeout 90s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/operations_smoke.gd
+      - name: Cinematic camera input and UI restoration
+        run: timeout 90s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/photo_smoke.gd
