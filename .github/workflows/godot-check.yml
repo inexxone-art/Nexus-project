@@ -25,9 +25,9 @@ jobs:
         run: python3 tests/validate_fleet.py
       - name: Import assets and check script syntax
         run: ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --editor --import --quit
-      - name: Existing Alpine gameplay regression
-        run: ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/smoke.gd
-      - name: Six-planet story gameplay tests
-        run: ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/solar_smoke.gd
       - name: Validate 123 vehicles and planet narratives
-        run: ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/fleet_smoke.gd
+        run: timeout 60s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/fleet_smoke.gd
+      - name: Existing Alpine gameplay regression
+        run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/smoke.gd
+      - name: Six-planet story gameplay tests
+        run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/solar_smoke.gd
