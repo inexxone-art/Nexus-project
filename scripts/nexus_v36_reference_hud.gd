@@ -65,7 +65,7 @@ func _build() -> void:
     var materials := _panel("Resource stock",Vector2(1345,53),Vector2(237,290))
     _label(materials,"ROHSTOFFE",Vector2(14,8),Vector2(215,30),21,TEXT)
     for i in range(8):
-        var key := ["wood","iron","iron_ore","cement","asphalt","crude","diesel","coins"][i]
+        var key: String = ["wood","iron","iron_ore","cement","asphalt","crude","diesel","coins"][i]
         var name: String = ["Holz","Stahl / Eisen","Eisenerz","Zement","Asphalt","Rohoel","Diesel","Credits"][i]
         _label(materials,name,Vector2(15,44+i*28),Vector2(138,26),14,MUTED)
         var value := _label(materials,"0",Vector2(139,44+i*28),Vector2(83,26),15,TEXT)
@@ -93,7 +93,7 @@ func _build() -> void:
 
     var loadout := _panel("Equipment quick bar",Vector2(536,818),Vector2(526,70))
     for i in range(4):
-        var equipment_name := ["GEWEHR","PISTOLE","RETTUNG","BAU"][i]
+        var equipment_name: String = ["GEWEHR","PISTOLE","RETTUNG","BAU"][i]
         var slot := _button(loadout,"%d   %s" % [i+3,equipment_name],Vector2(7+i*129,8),Vector2(123,54))
         slot.pressed.connect(_select_slot.bind(i))
         loadout_buttons.append(slot)
