@@ -80,3 +80,8 @@ jobs:
         run: python3 tests/validate_v23.py
       - name: V2.3 Godot wet shader and village smoke test
         run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/graphics_v23_smoke.gd
+
+      - name: V2.5 Alpine connected district graph and scenic streaming
+        run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/world_structure_v25_smoke.gd
+      - name: Static V2.5 district streaming and route contract
+        run: python3 tests/validate_world_structure_v25.py

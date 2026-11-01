@@ -23,6 +23,17 @@ jobs:
           test -s assets/production/vehicles/vortex_sport.glb
           test -s assets/production/vehicles/alpin_h1.glb
           test -s assets/production/ASSET_PROVENANCE.json
+      - name: Convert quantized GLBs to Godot 4.4-compatible vertex data
+        run: |
+          npx --yes @gltf-transform/cli@4.3.0 dequantize \
+            assets/production/vehicles/alpin_h1.glb /tmp/alpin_h1_dequantized.glb
+          mv /tmp/alpin_h1_dequantized.glb assets/production/vehicles/alpin_h1.glb
+          if test -s assets/production/vehicles/excavator_22t.glb; then
+            npx --yes @gltf-transform/cli@4.3.0 dequantize \
+              assets/production/vehicles/excavator_22t.glb /tmp/excavator_22t_dequantized.glb
+            mv /tmp/excavator_22t_dequantized.glb assets/production/vehicles/excavator_22t.glb
+          fi
+          python3 tools/finalize_real_assets.py
       - name: Download pinned Godot 4.4.1
         run: |
           curl --fail --location --retry 3 -o godot.zip \

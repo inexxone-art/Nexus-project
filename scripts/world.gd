@@ -28,6 +28,8 @@ const EPISODE_SCRIPT = preload("res://scripts/nexus_episode_one.gd")
 const SHIP_WALK_SCRIPT = preload("res://scripts/nexus_ship_walkthrough.gd")
 const WEATHER_SURFACE_SCRIPT = preload("res://scripts/nexus_weather_surface.gd")
 const PRODUCTION_ASSETS = preload("res://scripts/nexus_production_assets.gd")
+const WORLD_STRUCTURE_SCRIPT = preload("res://scripts/nexus_world_structure.gd")
+var world_structure: NexusWorldStructure
 var legacy: NexusLegacy
 var legacy_panel: NexusLegacyPanel
 var episode_one: NexusEpisodeOne
@@ -131,6 +133,8 @@ func _ready() -> void:
     missions = MISSIONS_SCRIPT.new()
     add_child(missions)
     _make_trees()
+    world_structure = WORLD_STRUCTURE_SCRIPT.new()
+    add_child(world_structure)
     story = STORY_SCRIPT.new()
     add_child(story)
     world_operations = WORLD_OPS_SCRIPT.new()
@@ -146,6 +150,7 @@ func _ready() -> void:
     player = PLAYER_SCRIPT.new()
     player.global_position = Vector3(4, 0.4, 7)
     add_child(player)
+    world_structure.bind_actor(player)
     episode_one = EPISODE_SCRIPT.new()
     episode_one.objective_changed.connect(_on_episode_objective)
     episode_one.chapter_completed.connect(_on_episode_complete)
@@ -726,6 +731,8 @@ func _on_graphics_profile(mode: int) -> void:
     if performance_panel == null:
         return
     performance_panel.mode = clampi(mode,0,2)
+    if world_structure != null:
+        world_structure.apply_graphics_tier(mode)
     var high: bool = mode == 2
     if visual_polish != null:
         visual_polish.set_graphics_quality(high)
