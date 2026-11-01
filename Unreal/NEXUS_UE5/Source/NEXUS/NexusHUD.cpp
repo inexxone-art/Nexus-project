@@ -1,0 +1,69 @@
+#include "NexusHUD.h"
+#include "NexusGameMode.h"
+#include "NexusWorldDirector.h"
+#include "NexusExplorer.h"
+#include "Engine/Canvas.h"
+#include "Engine/Engine.h"
+#include "GameFramework/PlayerController.h"
+
+void ANexusHUD::Panel(float X,float Y,float W,float H)
+{
+    DrawRect(FLinearColor(0.008f,0.018f,0.026f,0.86f),X,Y,W,H);
+    DrawRect(FLinearColor(0.25f,0.32f,0.35f,0.75f),X,Y,W,2.f);
+}
+void ANexusHUD::Text(const FString& Value,float X,float Y,float Scale,FLinearColor Tint)
+{
+    DrawText(Value,Tint,X,Y,GEngine?GEngine->GetSmallFont():nullptr,Scale,false);
+}
+void ANexusHUD::DrawHUD()
+{
+    Super::DrawHUD();
+    if(!Canvas)return;
+    auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>();
+    if(!GM || !GM->Director)return;
+    auto* D=GM->Director;
+    const float X=Canvas->ClipX/1600.f,Y=Canvas->ClipY/900.f;
+    Panel(15*X,55*Y,410*X,270*Y);
+    Text(TEXT("NEXUS | ADLERKLAMM HAUPTMISSION"),28*X,67*Y,1.20f,FLinearColor(1.f,0.75f,0.16f,1.f));
+    Text(D->PhaseDescription(),28*X,102*Y,0.85f);
+    Text(FString::Printf(TEXT("[ ]  Ueberlebende finden (%d/3)"),D->RescuedCount()),28*X,143*Y,0.86f);
+    Text(TEXT("[ ]  Medizinische Versorgung oder Bergung"),28*X,174*Y,0.82f);
+    Text(TEXT("[ ]  Bruecke sichern / Wiederaufbau planen"),28*X,205*Y,0.82f);
+    Text(TEXT("F1 SANITAETER  |  F2 PILOT  |  F3 SUCHTEAM"),28*X,271*Y,0.86f,FLinearColor(1.f,0.75f,0.16f,1.f));
+
+    Panel(1110*X,50*Y,470*X,254*Y);
+    Text(TEXT("ROHSTOFFE & WIRTSCHAFT"),1125*X,68*Y,1.2f,FLinearColor(1.f,0.75f,0.16f,1.f));
+    Text(FString::Printf(TEXT("Holz: %d       Eisen: %d      Eisenerz: %d"),
+        D->Stock.Get(TEXT("Wood")),D->Stock.Get(TEXT("Iron")),D->Stock.Get(TEXT("IronOre"))),
+        1125*X,118*Y,0.91f);
+    Text(FString::Printf(TEXT("Zement: %d   Asphalt: %d"),
+        D->Stock.Get(TEXT("Cement")),D->Stock.Get(TEXT("Asphalt"))),
+        1125*X,159*Y,0.91f);
+    Text(FString::Printf(TEXT("Rohoel: %d     Bitumen: %d     Diesel: %d"),
+        D->Stock.Get(TEXT("CrudeOil")),D->Stock.Get(TEXT("Bitumen")),D->Stock.Get(TEXT("Diesel"))),
+        1125*X,199*Y,0.91f);
+    Text(FString::Printf(TEXT("CREDITS: %d"),D->Credits),1125*X,245*Y,1.0f,FLinearColor(0.94f,0.9f,0.53f));
+
+    Panel(1270*X,540*Y,305*X,185*Y);
+    Text(TEXT("BRUECKE: WIEDERAUFBAU"),1285*X,559*Y,1.04f);
+    const TCHAR* Steps[4]={TEXT("1. Schutt entfernen"),TEXT("2. Stahltraeger einsetzen"),TEXT("3. Beton und Zement"),TEXT("4. Asphalt / Freigabe")};
+    for(int32 I=0;I<4;I++)
+        Text(FString::Printf(TEXT("%s %s"),I<D->RebuildStage?TEXT("[X]"):TEXT("[ ]"),Steps[I]),
+          1285*X,(604+I*27)*Y,0.78f,I<D->RebuildStage?FLinearColor(0.45f,0.94f,0.53f):FLinearColor::White);
+
+    Panel(450*X,819*Y,700*X,69*Y);
+    Text(TEXT("1 GEWEHR  |  2 PISTOLE  |  3 SANITAET  |  4 BAUWERKZEUG"),
+        477*X,841*Y,0.95f);
+    Text(TEXT("WASD BEWEGEN/FAHREN  E INTERAKTION  F AUSSTEIGEN"),
+        455*X,891*Y,0.73f,FLinearColor(0.86f,0.85f,0.75f));
+    if(GM->Explorer)
+    {
+        const int32 Slot=GM->Explorer->EquipmentSlot;
+        Text(FString::Printf(TEXT("AKTIV: SLOT %d"),Slot+1),477*X,871*Y,0.75f,FLinearColor(1.f,0.75f,0.16f));
+    }
+    Panel(26*X,720*Y,392*X,90*Y);
+    Text(TEXT("MISSION / NOTRUF"),40*X,732*Y,0.91f,FLinearColor(0.95f,0.74f,0.2f));
+    Text(D->RadioMessage,40*X,764*Y,0.7f);
+    DrawLine(Canvas->ClipX*0.5f-9,Canvas->ClipY*0.5f,Canvas->ClipX*0.5f+9,Canvas->ClipY*0.5f,FLinearColor::White,1.f);
+    DrawLine(Canvas->ClipX*0.5f,Canvas->ClipY*0.5f-9,Canvas->ClipX*0.5f,Canvas->ClipY*0.5f+9,FLinearColor::White,1.f);
+}
