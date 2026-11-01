@@ -881,6 +881,9 @@ func _unhandled_input(event: InputEvent) -> void:
             if nexus_v35 != null and nexus_v35.rescue.phase == "choice":
                 nexus_v35.role_dialog.visible = not reference_hud.visible
             return
+        if event.keycode == KEY_F11 and (photo_mode == null or not photo_mode.active):
+            _start_adlerklamm_approach()
+            return
         if event.keycode == KEY_F12 and nexus_v35 != null:
             nexus_v35.toggle_industry()
             return
@@ -1308,6 +1311,30 @@ func _spawn_build(kind: int, pos: Vector3, rotation_y: float) -> void:
     var body = add_box(root_objects, build_names[kind], pos + Vector3(0, size.y / 2, 0), size, mats[kind], true)
     body.rotation.y = rotation_y
     constructions.append({"node": body, "kind": kind, "p": pos, "r": rotation_y})
+
+func _start_adlerklamm_approach() -> void:
+    if player == null or mega_map == null or mega_map.canyon_disaster == null:
+        return
+    var incident: NexusAdlerklammDisaster = mega_map.canyon_disaster
+    var start_point := Vector3(175,1.0,113.0) if incident.stage == "ready" else Vector3(175,1.0,220.0)
+    if vehicle_in_use != null:
+        vehicle_in_use.global_position = start_point
+        vehicle_in_use.rotation.y = PI
+        vehicle_in_use.speed = 0.0
+    else:
+        player.global_position = start_point+Vector3(-3.0,0,0)
+        var rescue_car: NexusVehicle = null
+        for candidate in vehicles:
+            if candidate.category == "Rettung":
+                rescue_car = candidate
+                break
+        if rescue_car != null:
+            rescue_car.global_position = start_point
+            rescue_car.rotation.y = PI
+            rescue_car.speed = 0.0
+    if nexus_v35 != null and incident.stage == "ready":
+        nexus_v35.bridge_entered = false
+    _say("ADLERKLAMM: F ins Rettungsfahrzeug, ueber die Bruecke fahren. Der Unfall erfolgt hinter dir.")
 
 func _handle_adlerklamm_event() -> void:
     if mega_map == null or mega_map.canyon_disaster == null:
