@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/nexus_capture_v37_10s.gd" id="1_capture"]
+
+[node name="NEXUS_V37_ORIGINAL_GAMEPLAY_10S" type="Node3D"]
+script = ExtResource("1_capture")
