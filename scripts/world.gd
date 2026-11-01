@@ -809,10 +809,17 @@ func _update_hud() -> void:
         tip += " | %d m | HP %d%%" % [episode_one.distance_to_target(player.global_position),roundi(player.health)]
     if legacy != null:
         tip += "\nF2 KARRIERE / CHRONIK | " + legacy.summary()
+    if mega_map != null and mega_map.canyon_disaster != null and player != null:
+        var gorge_gap := Vector2(player.global_position.x-175.0,player.global_position.z-168.0).length()
+        if gorge_gap < 100.0:
+            tip += "\n" + mega_map.canyon_disaster.status_text()
     help.text = tip
 
 func _unhandled_input(event: InputEvent) -> void:
     if event is InputEventKey and event.pressed and not event.echo:
+        if event.keycode == KEY_F7:
+            _handle_adlerklamm_event()
+            return
         if event.keycode == KEY_F10:
             _toggle_photo_mode()
             return
@@ -1227,6 +1234,30 @@ func _spawn_build(kind: int, pos: Vector3, rotation_y: float) -> void:
     body.rotation.y = rotation_y
     constructions.append({"node": body, "kind": kind, "p": pos, "r": rotation_y})
 
+func _handle_adlerklamm_event() -> void:
+    if mega_map == null or mega_map.canyon_disaster == null:
+        return
+    if player == null or Vector2(player.global_position.x-175.0,player.global_position.z-168.0).length() > 100.0:
+        _say("Adlerklamm-Einsatz: Zur Schluchtenbruecke fahren.")
+        return
+    var incident: NexusAdlerklammDisaster = mega_map.canyon_disaster
+    if incident.stage == "ready":
+        if incident.start_disaster():
+            _say("WARNUNG: Brueckenversagen! Strasse gesperrt - Bus in Gefahr!")
+            save_state()
+    elif incident.stage == "aftermath":
+        if wood < incident.REBUILD_WOOD or iron < incident.REBUILD_IRON:
+            _say("Wiederaufbau braucht %d Holz und %d Eisen." % [incident.REBUILD_WOOD,incident.REBUILD_IRON])
+            return
+        wood -= incident.REBUILD_WOOD
+        iron -= incident.REBUILD_IRON
+        if incident.rebuild_bridge():
+            coins += 420
+            _say("Adlerklamm-Bruecke wiedereroeffnet. Bauauftrag +420 Credits.")
+            save_state()
+    else:
+        _say("Bergung laeuft. Bruecke kann erst nach dem Einsturz saniert werden.")
+
 func save_state() -> void:
     var v_data = []
     for v in vehicles:
@@ -1241,7 +1272,7 @@ func save_state() -> void:
             var p = info["node"].global_position
             l_data.append([p.x, p.y, p.z])
     var p = player.global_position if vehicle_in_use == null else vehicle_in_use.global_position
-    var data = {"money": coins, "wood": wood, "iron": iron, "oil": oil, "gold": gold, "sold": sold_logs, "position": [p.x, p.y, p.z], "vehicles": v_data, "world_ops": world_operations.get_data(), "living_universe": living.get_data(), "buildings": b_data, "chopped": chopped_ids, "logs": l_data, "mission": missions.get_data() if missions != null else {}, "build_grid": build_grid, "build_height": build_height, "crops": crops, "paper": paper, "refined_fuel": refined_fuel, "meteor": meteor, "tech_level": tech_level, "completed_jobs": completed_jobs, "world_clock": world_clock.get_data(), "director": nexus_director.get_data(), "story": story.get_data(), "quality_suite": quality_suite.get_data(), "legacy": legacy.get_data(), "episode_one": episode_one.get_data(), "player_hp": player.health, "ship_walkthrough": ship_walkthrough.get_data(), "profile": performance_panel.mode, "muted": audio_director.muted}
+    var data = {"money": coins, "wood": wood, "iron": iron, "adlerklamm": mega_map.canyon_disaster.get_data() if mega_map != null and mega_map.canyon_disaster != null else {}, "oil": oil, "gold": gold, "sold": sold_logs, "position": [p.x, p.y, p.z], "vehicles": v_data, "world_ops": world_operations.get_data(), "living_universe": living.get_data(), "buildings": b_data, "chopped": chopped_ids, "logs": l_data, "mission": missions.get_data() if missions != null else {}, "build_grid": build_grid, "build_height": build_height, "crops": crops, "paper": paper, "refined_fuel": refined_fuel, "meteor": meteor, "tech_level": tech_level, "completed_jobs": completed_jobs, "world_clock": world_clock.get_data(), "director": nexus_director.get_data(), "story": story.get_data(), "quality_suite": quality_suite.get_data(), "legacy": legacy.get_data(), "episode_one": episode_one.get_data(), "player_hp": player.health, "ship_walkthrough": ship_walkthrough.get_data(), "profile": performance_panel.mode, "muted": audio_director.muted}
     var f = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
     if f == null:
         _say("Fehler beim Speichern")
@@ -1263,6 +1294,8 @@ func load_state() -> void:
     coins = int(parsed.get("money", 3000))
     wood = int(parsed.get("wood", 12))
     iron = int(parsed.get("iron", 10))
+    if mega_map != null and mega_map.canyon_disaster != null:
+        mega_map.canyon_disaster.restore_data(parsed.get("adlerklamm",{}))
     oil = int(parsed.get("oil", 0))
     gold = int(parsed.get("gold", 0))
     sold_logs = int(parsed.get("sold", 0))
