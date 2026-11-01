@@ -25,7 +25,7 @@ func _run() -> void:
             buildings += 1
             var roof_count := 0
             for item in house.get_children():
-                if item.name == "Geneigtes Ziegeldach":
+                if item.name.begins_with("Geneigtes Ziegeldach"):
                     roof_count += 1
             if roof_count != 2:
                 push_error("Missing sloped roof for " + house.name)
