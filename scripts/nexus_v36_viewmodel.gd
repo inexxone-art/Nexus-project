@@ -112,6 +112,6 @@ func _process(delta: float) -> void:
     total_time += delta
     rotation.z = sin(total_time*1.6)*0.012
     if get_parent() is Camera3D:
-        var player := get_parent().get_parent().get_parent()
+        var player := get_parent().get_parent()
         if player is NexusPlayer:
             visible = player.first_person and player.active
