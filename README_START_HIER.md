@@ -1,25 +1,11 @@
-# PROJECT NEXUS V1.6 — CINEMATIC PROTOTYPE & iPHONE WEB PREVIEW
+# PROJECT NEXUS V2.2 – Operation Berglicht (spielbare Alpha)
 
-**Stand:** Prototyp mit sechs Planeten, 123 Fahrzeugprofilen, mehrstufigen Einsaetzen und In-Engine-Fotomodus. Kein fertiges AAA-Spiel.
+Godot 4.4.1-Projekt: `project.godot` importieren und `scenes/main.tscn` starten.
 
-## Schnellstart
-- Godot 4.4.1 installieren, `project.godot` oeffnen und starten.
-- WASD bewegen, E interagieren, F Fahrzeuge, F6 Fahrzeughalle, G Sternenkarte, F8 Welteinsaetze.
-- NEXUS OPS: Eine Mission hat **drei Etappen**. Folge dem orangefarbenen Wegpunkt; erst die Rueckmeldung bringt Geld.
-- Auf Touch-Geraeten: Bildschirmtasten + Kamerawischgesten, siehe `docs/V1_6_MOBILE_PREVIEW.md`.
-- F4 Cinematic/Performance, F10 Kameramodus, F11 dort PNG-Screenshot (`user://nexus_shots`), F10 zurueck.
-- F5 Welt speichern, F9 laden. Die Vorversion-Spielstaende werden weiterhin gelesen.
-- In-Engine-Trailer: `docs/TRAILER_PRODUCTION.md` und `tools/build_trailer.py`.
+**Neue Story:** Zur Einsatzzentrale bei (-17,31) laufen, mit **E** Einsatz beginnen. Türkis leuchtende Zielmarkierung, rechts im HUD die Distanz und Phase. Nach Stromversorgung und Bergrettung zwei Abwehrdrohnen bei Sektor 31 mit **Linksklick** oder dem mobilen **AIM**-Knopf deaktivieren; Datenträger bergen, Raumhafen-Signal kalibrieren und zurück zur Basis. Acht Missionsschritte, einmalige Belohnung, Spielstand mit F5 speichern, F9 laden.
 
-## Technik und Qualitaet
-- Original-Game-Engine: Godot 4.4.1, Forward+.
-- Teststufen: statische Python-Checks, Godot Headless-Import, Gameplay-, Planeten-, Fraktions-, Foto- und Save-/Load-Smoke-Tests.
-- GitHub Actions: `.github/workflows/godot-check.yml` und experimenteller `web-build.yml` (HTML5-Web-Export).
-- Fuer iPhone: GitHub zum Entwickeln/Pruefen; das native 3D-Spiel benoetigt zum Spielen eine passende Laufzeitumgebung.
+**Raumschiff:** Beim Hangar nahe (72,84) mit E einsteigen, Innenraum und Cockpit erkunden und an der Schleuse wieder aussteigen. Das Schiff kann noch nicht fliegen.
 
-## Grenzen
-- Die 48-Stunden-Story, fotorealistische 3D-Assets, drei- bis vierstellige Einzel-Animationen und vollstaendiger 4-Spieler-Koop sind nicht fertig.
-- 123 Fahrzeugprofile sind keine 123 einzigartigen photogrammetrischen Modelle.
-- Aktuelle Funktionstests ersetzen weder einen Performance-Test noch QA auf Zielhardware.
+**Charakter:** einfacher gegliederter 3D-Charakter mit animierten Gliedmaßen; Fahrzeuge, Planeten, Karriere und Wirtschaft aus V2.1 bleiben erhalten.
 
-Siehe `docs/V1_5_RELEASE_NOTES.md`.
+**Qualitätsgrenze:** Spielbare Alpha. Die voll ausgebaute AAA-Grafik, professionelle Charakteranimationen, 48-Stunden-Story und voll synchronisierte Koop-Welt sind *noch nicht umgesetzt*. Details: `docs/V2_2_OPERATION_BERGLICHT.md`.
