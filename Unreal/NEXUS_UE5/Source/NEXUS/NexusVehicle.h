@@ -28,10 +28,14 @@ public:
     void FlyUp(float InputValue);
     void FlyDown(float InputValue);
     void RescueOrExit();
+    void ChooseMedic();
+    void ChoosePilot();
+    void ChooseGround();
     void ExitToFoot();
     void SetDriver(APlayerController* Controller);
 private:
     float Throttle=0.f;
     float Steering=0.f;
     float Vertical=0.f;
+    float FallingSpeed=0.f;
 };
