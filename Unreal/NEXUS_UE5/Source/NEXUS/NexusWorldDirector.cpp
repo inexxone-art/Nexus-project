@@ -115,9 +115,9 @@ void ANexusWorldDirector::CreateFactories()
         ENexusIndustry::AsphaltPlant
     };
     const FVector Locations[]={
-        FVector(-8400,1450,1970),FVector(-8050,-1450,1970),FVector(-7100,1450,1970),
-        FVector(-9400,-1650,1970),FVector(-6400,-1450,1970),
-        FVector(-5750,1500,1970),FVector(-5400,-1650,1970)
+        FVector(8100,1450,1970),FVector(8050,-1450,1970),FVector(7100,1450,1970),
+        FVector(9400,-1650,1970),FVector(6400,-1450,1970),
+        FVector(5750,1500,1970),FVector(5400,-1650,1970)
     };
     for(int32 Index=0;Index<7;++Index)
     {
@@ -144,7 +144,7 @@ void ANexusWorldDirector::VehicleAdvanced(ANexusVehicle* Vehicle)
         Phase=ENexusIncidentPhase::Collapse;
         if(Bridge) Bridge->Collapse();
         if(Bus) Bus->DropBehindPlayer();
-        for(auto* Person:Survivors) if(Person && !Person->bRescued)
+        for(TObjectPtr<ANexusRescueTarget> Person:Survivors) if(Person && !Person->bRescued)
         {
             Person->SetActorHiddenInGame(false);
             Person->SetActorEnableCollision(true);
@@ -165,7 +165,7 @@ void ANexusWorldDirector::ChooseRescueRole(ENexusRescueRole NewRole)
 int32 ANexusWorldDirector::RescuedCount() const
 {
     int32 Num=0;
-    for(auto* Person:Survivors) if(Person && Person->bRescued) ++Num;
+    for(TObjectPtr<ANexusRescueTarget> Person:Survivors) if(Person && Person->bRescued) ++Num;
     return Num;
 }
 bool ANexusWorldDirector::RescuePerson(ANexusRescueTarget* Person)
@@ -186,7 +186,7 @@ bool ANexusWorldDirector::TryVehicleRescue(ANexusVehicle* Vehicle)
 {
     if(!Vehicle || !Vehicle->bHelicopter || Phase!=ENexusIncidentPhase::Rescue || Role!=ENexusRescueRole::Pilot)
         return false;
-    for(auto* Person:Survivors)
+    for(TObjectPtr<ANexusRescueTarget> Person:Survivors)
     {
         if(!Person || Person->bRescued)continue;
         const FVector Difference=Vehicle->GetActorLocation()-Person->GetActorLocation();
@@ -204,14 +204,14 @@ bool ANexusWorldDirector::TryInteract(ANexusExplorer* Explorer)
     const FVector P=Explorer->GetActorLocation();
     if(Phase==ENexusIncidentPhase::Rescue && Role!=ENexusRescueRole::Pilot)
     {
-        for(auto* Person:Survivors)
+        for(TObjectPtr<ANexusRescueTarget> Person:Survivors)
             if(Person && !Person->bRescued && FVector::Dist(P,Person->GetActorLocation())<560.f)
                 return RescuePerson(Person);
     }
     if(Phase==ENexusIncidentPhase::Reconstruction && P.X>4200.f && P.X<7600.f
        && FMath::Abs(P.Y)<1400.f)
         return TryReconstruct();
-    for(auto* Site:Industry)
+    for(TObjectPtr<ANexusIndustrySite> Site:Industry)
         if(Site && FVector::Dist2D(P,Site->GetActorLocation())<850.f)
             return TryBuildOrOperate(Site);
     Inform(TEXT("Zur Rettungsmarkierung, Industrieanlage oder zum Fahrzeug gehen und E druecken."));
@@ -335,8 +335,8 @@ void ANexusWorldDirector::SaveProgress()
     Save->Role=Role;
     Save->RebuildStage=RebuildStage;
     Save->bRewardPaid=bPaidRescue;
-    for(auto* Site:Industry)if(Site && Site->bConstructed)Save->ConstructedSites.Add(Site->Facility);
-    for(auto* Person:Survivors)if(Person && Person->bRescued)Save->RescuedIds.Add(Person->SurvivorId);
+    for(TObjectPtr<ANexusIndustrySite> Site:Industry)if(Site && Site->bConstructed)Save->ConstructedSites.Add(Site->Facility);
+    for(TObjectPtr<ANexusRescueTarget> Person:Survivors)if(Person && Person->bRescued)Save->RescuedIds.Add(Person->SurvivorId);
     if(UGameplayStatics::SaveGameToSlot(Save,TEXT("NEXUS_UNREAL_V1"),0))
         Inform(TEXT("Unreal NEXUS: Missionsfortschritt gespeichert."));
 }
@@ -346,8 +346,8 @@ void ANexusWorldDirector::LoadProgress()
     if(!Save){Inform(TEXT("Kein Unreal-Spielstand vorhanden."));return;}
     Stock=Save->Stock;Credits=Save->Credits;Phase=Save->Phase;
     Role=Save->Role;RebuildStage=Save->RebuildStage;bPaidRescue=Save->bRewardPaid;
-    for(auto* Site:Industry)if(Site)Site->SetConstructed(Save->ConstructedSites.Contains(Site->Facility));
-    for(auto* Person:Survivors)if(Person)
+    for(TObjectPtr<ANexusIndustrySite> Site:Industry)if(Site)Site->SetConstructed(Save->ConstructedSites.Contains(Site->Facility));
+    for(TObjectPtr<ANexusRescueTarget> Person:Survivors)if(Person)
     {
         if(Save->RescuedIds.Contains(Person->SurvivorId))Person->MarkRescued();
         else {Person->SetActorHiddenInGame(Phase==ENexusIncidentPhase::Approach);Person->SetActorEnableCollision(Phase!=ENexusIncidentPhase::Approach);}
