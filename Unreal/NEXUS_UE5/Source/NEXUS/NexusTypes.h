@@ -9,7 +9,7 @@ UENUM(BlueprintType)
 enum class ENexusIncidentPhase : uint8 { Approach, Collapse, RoleChoice, Rescue, Reconstruction, Complete };
 
 UENUM(BlueprintType)
-enum class ENexusIndustry : uint8 { Quarry, Smelter, OilPlatform, Refinery, CementPlant, AsphaltPlant };
+enum class ENexusIndustry : uint8 { LoggingCamp, Quarry, Smelter, OilPlatform, Refinery, CementPlant, AsphaltPlant };
 
 USTRUCT(BlueprintType)
 struct FNexusResourceStock
