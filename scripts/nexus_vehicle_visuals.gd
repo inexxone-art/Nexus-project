@@ -20,6 +20,8 @@ var wheel_radius: float = 0.49
 var width: float = 1.85
 var length: float = 4.6
 var mats: Dictionary = {}
+const HERO_DETAILS = preload("res://scripts/nexus_hero_vehicles.gd")
+var hero_details: Node3D
 
 func set_vehicle(definition: Dictionary, vehicle_category: String) -> void:
     spec = definition.duplicate(true)
@@ -45,6 +47,10 @@ func _ready() -> void:
         "helicopter": _build_helicopter()
         "utility": _build_utility()
         _: _build_car()
+    if str(spec.get("id", "")) in HERO_DETAILS.FEATURE_IDS:
+        hero_details = HERO_DETAILS.new()
+        hero_details.call("configure", spec, self)
+        add_child(hero_details)
 
 func _mat(color: Color, metallic: float = 0.0, roughness: float = 0.42, emission: bool = false) -> StandardMaterial3D:
     var key := "%s-%0.2f-%0.2f-%s" % [color.to_html(),metallic,roughness,str(emission)]
@@ -404,6 +410,8 @@ func _beacons(height: float,z: float) -> void:
 
 func animate_vehicle(delta: float, speed: float, steering: float, controlled: bool, fuel: float) -> void:
     running_time += delta
+    if hero_details != null:
+        hero_details.call("animate_hero", delta, speed, steering, controlled)
     for spin in wheel_spinners:
         spin.rotate_x(-speed*delta/maxf(wheel_radius,0.2))
     for axle in front_steer:

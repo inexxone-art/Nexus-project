@@ -6,6 +6,7 @@ class_name NexusVehicle
 ## Arcade handling is intentional; not a certified vehicle dynamics simulator.
 
 const VISUAL_SCRIPT = preload("res://scripts/nexus_vehicle_visuals.gd")
+const DRIVE_MODEL = preload("res://scripts/nexus_drive_model.gd")
 var category: String = "Traktor"
 var definition: Dictionary = {}
 var model_name: String = ""
@@ -18,6 +19,9 @@ var camera: Camera3D
 var chase_view: bool = true
 var visuals: Node3D
 var rotor_speed: float = 0.0
+var weather_code: int = 0
+var distance_km: float = 0.0
+var tire_grip: float = 1.0
 
 func configure(record: Dictionary) -> void:
     definition = record.duplicate(true)
@@ -56,40 +60,47 @@ func _ready() -> void:
     camera.look_at(Vector3(0,1.65,-4.0),Vector3.UP)
 
 func _physics_process(delta: float) -> void:
-    var turn: float = 0.0
-    var top_speed: float = 26.0 if category == "Sportwagen" else (15.0 if category == "LKW" else (18.0 if category == "Helikopter" else 13.0))
-    var accel: float = 7.0
-    var handling: float = 0.82
-    if not definition.is_empty():
-        top_speed = maxf(2.0,float(definition.get("top_kmh",85.0))/3.6)
-        accel = maxf(0.5,float(definition.get("acceleration",6.0)))
-        handling = clampf(float(definition.get("handling",0.72)),0.3,1.8)
-    if controlled and fuel > 0 and condition > 0:
+    var kind: String = str(definition.get("kind","car"))
+    tire_grip = DRIVE_MODEL.grip_factor(kind,weather_code)
+    var top_speed: float = DRIVE_MODEL.maximum_speed_kmh(definition,condition,fuel)/3.6
+    var accel: float = maxf(0.5,float(definition.get("acceleration",6.0)))
+    var handling: float = clampf(float(definition.get("handling",0.72)),0.3,1.8)
+    var steer_input: float = 0.0
+    if controlled and fuel > 0.0 and condition > 0.0:
         var throttle: float = Input.get_axis("move_backward","move_forward")
-        turn = Input.get_axis("move_left","move_right")
-        var target_speed: float = throttle * top_speed * (0.48 if throttle < 0 else 1.0)
-        var condition_factor: float = clampf(condition/100.0,0.25,1.0)
-        speed = move_toward(speed,target_speed,delta*accel*condition_factor)
+        steer_input = Input.get_axis("move_left","move_right")
+        var target_speed: float = throttle * top_speed * (0.42 if throttle < 0 else 1.0)
+        var health_factor: float = clampf(condition/100.0,0.25,1.0)
+        var acceleration: float = accel*health_factor*tire_grip
+        if absf(target_speed) < absf(speed):
+            acceleration *= 1.8
+        speed = move_toward(speed,target_speed,delta*acceleration)
         if Input.is_action_pressed("jump") and category != "Helikopter":
-            speed = move_toward(speed,0,delta*21.0)
-        steer_angle = move_toward(steer_angle,turn,delta*3.4)
-        if absf(speed)>0.2:
-            rotate_y(-steer_angle*delta*handling*signf(speed)*minf(1.0,absf(speed)/4.0))
+            speed = move_toward(speed,0.0,delta*20.0*tire_grip)
+        steer_angle = move_toward(steer_angle,steer_input,delta*(2.1+tire_grip))
+        if absf(speed) > 0.2:
+            var steering_authority: float = clampf(tire_grip*(1.0-absf(speed)/maxf(30.0,top_speed*2.1)),0.25,1.0)
+            rotate_y(-steer_angle*delta*handling*steering_authority*signf(speed))
         fuel = maxf(0.0,fuel-absf(speed)*delta*0.006)
+        distance_km += absf(speed)*delta/1000.0
+        condition = maxf(0.0,condition - absf(speed)*delta*0.000025)
     else:
-        speed = move_toward(speed,0.0,delta*8.0)
-        steer_angle = move_toward(steer_angle,0.0,delta*3.4)
-    if category == "Helikopter" and controlled and fuel>0:
+        speed = move_toward(speed,0.0,delta*7.0*tire_grip)
+        steer_angle = move_toward(steer_angle,0.0,delta*3.0)
+    if category == "Helikopter" and controlled and fuel > 0.0:
         var lift: float = (1.0 if Input.is_action_pressed("jump") else 0.0)-(1.0 if Input.is_action_pressed("sprint") else 0.0)
         velocity.y = move_toward(velocity.y,lift*7.0,delta*8.0)
     elif not is_on_floor():
         velocity.y -= 18.0*delta
     else:
         velocity.y = -0.3
-    var forward := -global_transform.basis.z
+    var forward: Vector3 = -global_transform.basis.z
     velocity.x = forward.x*speed
     velocity.z = forward.z*speed
     move_and_slide()
+    # Reduced integrity when a moving vehicle strikes solid objects.
+    if controlled and get_slide_collision_count() > 0 and absf(speed) > 8.0:
+        condition = maxf(0.0,condition - delta*minf(absf(speed)*0.6,12.0))
     if visuals != null:
         visuals.animate_vehicle(delta,speed,steer_angle,controlled,fuel)
 

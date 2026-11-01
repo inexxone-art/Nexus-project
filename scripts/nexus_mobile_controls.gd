@@ -22,6 +22,8 @@ func _ready() -> void:
     _action("SPACE", "space")
     _action("SAVE", "save")
     _action("OPS", "ops")
+    _action("AIM", "shoot")
+    _action("FPS", "quality")
     get_viewport().size_changed.connect(_layout)
     _layout()
     visible = DisplayServer.is_touchscreen_available()
@@ -75,6 +77,7 @@ func _layout() -> void:
         "interact":Vector2(size.x-94,bottom-165), "vehicle":Vector2(size.x-94,bottom-89),
         "map":Vector2(size.x-181,bottom-89), "space":Vector2(size.x-181,bottom-165),
         "save":Vector2(size.x-94,24), "ops":Vector2(size.x-181,24),
+        "shoot":Vector2(size.x-270,bottom-165), "quality":Vector2(size.x-268,24),
     }
     for key in entries.keys():
         var button: Button = controls.get(key)
@@ -91,6 +94,8 @@ func _dispatch(key: String) -> void:
         "space": world._open_star_system()
         "save": world.save_state()
         "ops": world.living_panel.toggle()
+        "shoot": world.shoot_training()
+        "quality": world.performance_panel.toggle()
 
 func _unhandled_input(event: InputEvent) -> void:
     if not visible or not is_instance_valid(world):

@@ -21,6 +21,12 @@ const POLISH_SCRIPT = preload("res://scripts/nexus_cinematic_polish.gd")
 const WEATHER_FX_SCRIPT = preload("res://scripts/nexus_weather_fx.gd")
 const PHOTO_SCRIPT = preload("res://scripts/nexus_photo_mode.gd")
 const MOBILE_SCRIPT = preload("res://scripts/nexus_mobile_controls.gd")
+const QUALITY_SUITE_SCRIPT = preload("res://scripts/nexus_quality_suite.gd")
+const AUDIO_SCRIPT = preload("res://scripts/nexus_audio_director.gd")
+const PERFORMANCE_SCRIPT = preload("res://scripts/nexus_performance_panel.gd")
+var quality_suite: NexusQualitySuite
+var audio_director: NexusAudioDirector
+var performance_panel: NexusPerformancePanel
 var mobile_controls: NexusMobileControls
 var photo_mode: NexusPhotoMode
 var weather_fx: NexusWeatherFX
@@ -124,9 +130,19 @@ func _ready() -> void:
     player = PLAYER_SCRIPT.new()
     player.global_position = Vector3(4, 0.4, 7)
     add_child(player)
+    quality_suite = QUALITY_SUITE_SCRIPT.new()
+    add_child(quality_suite)
+    quality_suite.bind_world(self)
+    audio_director = AUDIO_SCRIPT.new()
+    add_child(audio_director)
+    performance_panel = PERFORMANCE_SCRIPT.new()
+    performance_panel.quality_changed.connect(_on_graphics_profile)
+    add_child(performance_panel)
+    _on_graphics_profile(0 if DisplayServer.is_touchscreen_available() else 2)
     weather_fx = WEATHER_FX_SCRIPT.new()
     add_child(weather_fx)
     weather_fx.bind_world(player, world_clock)
+    weather_fx.set_graphics_quality(performance_panel.quality_is_high())
     coop = COOP_SCRIPT.new()
     add_child(coop)
     coop.set_actor(player)
@@ -480,6 +496,8 @@ func _process(delta: float) -> void:
     nexus_director.advance(delta, wood, iron)
     living.advance(delta)
     resource_cooldown = max(0.0, resource_cooldown - delta)
+    if vehicle_in_use != null:
+        vehicle_in_use.weather_code = world_clock.weather
     if drone_active and not drone.controlled:
         drone_active = false
         player.set_driving(false)
@@ -490,6 +508,10 @@ func _process(delta: float) -> void:
     _update_hud()
 
 func _on_director_event(description: String) -> void:
+    if quality_suite != null:
+        var lower := description.to_lower()
+        if "sturm" in lower or "strom" in lower or "brand" in lower:
+            quality_suite.trigger_disaster(completed_jobs + int(Time.get_ticks_msec()/100000))
     story.trigger_alert(description)
     _say("NEXUS DIRECTOR: " + description)
 
@@ -531,6 +553,32 @@ func _on_living_decision(option: int) -> void:
     living_panel.show_feedback(result)
     _say(str(result.get("message", "Entscheidung nicht moeglich")))
 
+func _on_graphics_profile(mode: int) -> void:
+    if performance_panel == null:
+        return
+    performance_panel.mode = clampi(mode,0,2)
+    var high: bool = mode == 2
+    if visual_polish != null:
+        visual_polish.set_graphics_quality(high)
+    if weather_fx != null:
+        weather_fx.set_graphics_quality(high)
+    if quality_suite != null:
+        quality_suite.set_scenery_quality(mode > 0)
+    Engine.max_fps = 30 if mode == 0 else (60 if mode == 1 else 0)
+
+func shoot_training() -> void:
+    if vehicle_in_use != null or drone_active or player == null or not player.active:
+        return
+    var view_camera: Camera3D = player.camera
+    if view_camera == null:
+        return
+    var start: Vector3 = view_camera.global_position
+    var end: Vector3 = start - view_camera.global_basis.z * 110.0
+    var outcome: Dictionary = quality_suite.practice_shot(start,end,get_world_3d().direct_space_state)
+    if bool(outcome.get("handled",false)):
+        _say(str(outcome.get("message","Training")))
+        audio_director.notify()
+
 func _physics_process(_delta: float) -> void:
     if mode_build:
         _update_build_marker()
@@ -541,8 +589,8 @@ func _update_hud() -> void:
     var status = "ZU FUSS" if vehicle_in_use == null else "%s | %d km/h | Diesel %d%%" % [vehicle_in_use.category, roundi(abs(vehicle_in_use.speed) * 3.6), roundi(vehicle_in_use.fuel)]
     if drone_active:
         status = "FPV-DROHNE | Akku %d%% | %s" % [roundi(drone.battery), drone.state_notice]
-    hud.text = "PROJECT NEXUS | CINEMATIC PROTOTYPE V1.5\n%s | Geld: %d EUR | %s\nHolz %d  Eisen %d  Oel %d  Gold %d  Ernte %d\nTreibstoff %d  Papier %d  Meteorit %d | Forschung %d\nBaumstaemme: %d | Auftraege: %d" % [status, coins, world_clock.describe(), wood, iron, oil, gold, crops, refined_fuel, paper, meteor, tech_level, sold_logs, completed_jobs]
-    var tip = "WASD bewegen/fahren | F Fahrzeug | V FPV-Drohne | E arbeiten | N Karte | Y Zeit | F5/F9 speichern/laden | F10 Foto | G Sternensystem | F6 Fahrzeughalle | F7 LAN-Koop (Preview) | ESC Maus"
+    hud.text = "PROJECT NEXUS | WORLD QUALITY SLICE V2.0\n%s | Geld: %d EUR | %s\nHolz %d  Eisen %d  Oel %d  Gold %d  Ernte %d\nTreibstoff %d  Papier %d  Meteorit %d | Forschung %d\nBaumstaemme: %d | Auftraege: %d" % [status, coins, world_clock.describe(), wood, iron, oil, gold, crops, refined_fuel, paper, meteor, tech_level, sold_logs, completed_jobs]
+    var tip = "WASD bewegen/fahren | F Fahrzeug | V FPV-Drohne | E arbeiten | N Karte | Y Zeit | F5/F9 speichern/laden | F10 Foto | G Sternensystem | F6 Fahrzeughalle | F7 LAN-Koop (Preview) | F3 Grafik/FPS | J Audio | Zielstand: Klick | ESC Maus"
     if nexus_director.active_event != "":
         tip += "\nWELTEREIGNIS: " + nexus_director.active_event
     if drone_active:
@@ -591,11 +639,17 @@ func _unhandled_input(event: InputEvent) -> void:
             Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else Input.MOUSE_MODE_CAPTURED
         elif event.keycode == KEY_F:
             _toggle_vehicle()
+        elif event.keycode == KEY_F3 and performance_panel != null:
+            performance_panel.toggle()
+        elif event.keycode == KEY_J and audio_director != null:
+            _say("Ton %s" % ("aktiviert" if audio_director.toggle_sound() else "stumm"))
         elif event.keycode == KEY_F6 and fleet_menu != null:
             fleet_menu.toggle()
         elif event.keycode == KEY_F4 and visual_polish != null:
             visual_polish.set_graphics_quality(not visual_polish.quality_high)
             weather_fx.set_graphics_quality(visual_polish.quality_high)
+            performance_panel.mode = 2 if visual_polish.quality_high else 0
+            quality_suite.set_scenery_quality(visual_polish.quality_high)
             _say("Grafikprofil: %s" % ("CINEMATIC" if visual_polish.quality_high else "PERFORMANCE"))
         elif event.keycode == KEY_E:
             _interact()
@@ -636,8 +690,11 @@ func _unhandled_input(event: InputEvent) -> void:
             save_state()
         elif event.keycode == KEY_F9:
             load_state()
-    elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed and mode_build:
-        _build()
+    elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+        if mode_build:
+            _build()
+        elif Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+            shoot_training()
 
 func _toggle_drone() -> void:
     if drone_active:
@@ -703,6 +760,13 @@ func _interact() -> void:
         else:
             _say("Steige aus, um zu arbeiten, oder fahre zur Werkstatt / zum Saegewerk")
         return
+    if quality_suite != null:
+        var world_result: Dictionary = quality_suite.try_interact(player.global_position,coins)
+        if bool(world_result.get("handled",false)):
+            coins += int(world_result.get("money",0))
+            audio_director.notify()
+            _say(str(world_result.get("message","NEXUS Interaktion")))
+            return
     if story != null:
         var story_outcome: Dictionary = story.interact(player.global_position)
         if bool(story_outcome.get("handled", false)):
@@ -950,7 +1014,7 @@ func save_state() -> void:
             var p = info["node"].global_position
             l_data.append([p.x, p.y, p.z])
     var p = player.global_position if vehicle_in_use == null else vehicle_in_use.global_position
-    var data = {"money": coins, "wood": wood, "iron": iron, "oil": oil, "gold": gold, "sold": sold_logs, "position": [p.x, p.y, p.z], "vehicles": v_data, "world_ops": world_operations.get_data(), "living_universe": living.get_data(), "buildings": b_data, "chopped": chopped_ids, "logs": l_data, "mission": missions.get_data() if missions != null else {}, "build_grid": build_grid, "build_height": build_height, "crops": crops, "paper": paper, "refined_fuel": refined_fuel, "meteor": meteor, "tech_level": tech_level, "completed_jobs": completed_jobs, "world_clock": world_clock.get_data(), "director": nexus_director.get_data(), "story": story.get_data()}
+    var data = {"money": coins, "wood": wood, "iron": iron, "oil": oil, "gold": gold, "sold": sold_logs, "position": [p.x, p.y, p.z], "vehicles": v_data, "world_ops": world_operations.get_data(), "living_universe": living.get_data(), "buildings": b_data, "chopped": chopped_ids, "logs": l_data, "mission": missions.get_data() if missions != null else {}, "build_grid": build_grid, "build_height": build_height, "crops": crops, "paper": paper, "refined_fuel": refined_fuel, "meteor": meteor, "tech_level": tech_level, "completed_jobs": completed_jobs, "world_clock": world_clock.get_data(), "director": nexus_director.get_data(), "story": story.get_data(), "quality_suite": quality_suite.get_data(), "profile": performance_panel.mode, "muted": audio_director.muted}
     var f = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
     if f == null:
         _say("Fehler beim Speichern")
@@ -986,6 +1050,10 @@ func load_state() -> void:
     story.restore_data(parsed.get("story", {}))
     world_operations.restore_data(parsed.get("world_ops", {}))
     living.restore_data(parsed.get("living_universe", {}))
+    quality_suite.restore_data(parsed.get("quality_suite",{}))
+    _on_graphics_profile(clampi(int(parsed.get("profile", performance_panel.mode)),0,2))
+    if bool(parsed.get("muted",false)) != audio_director.muted:
+        audio_director.toggle_sound()
     living_panel.refresh()
     build_grid = float(parsed.get("build_grid", 1.0))
     build_height = float(parsed.get("build_height", 0.0))

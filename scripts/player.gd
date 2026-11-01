@@ -10,6 +10,7 @@ var pivot: Node3D
 var camera: Camera3D
 var body_visual: MeshInstance3D
 var health: float = 100.0
+var animation_time: float = 0.0
 
 func _ready() -> void:
     name = "Player"
@@ -52,6 +53,14 @@ func _unhandled_input(event: InputEvent) -> void:
     if event is InputEventMouseMotion:
         rotate_y(-event.relative.x * 0.0022)
         pivot.rotation.x = clamp(pivot.rotation.x - event.relative.y * 0.0022, -0.94, 0.94)
+
+func _process(delta: float) -> void:
+    if body_visual != null and active and not first_person:
+        var horizontal_speed: float = Vector2(velocity.x,velocity.z).length()
+        animation_time += delta*horizontal_speed*1.8
+        var amplitude: float = clampf(horizontal_speed/14.0,0.0,0.1)
+        body_visual.position.y = 0.92 + sin(animation_time)*amplitude
+        body_visual.rotation.z = sin(animation_time*0.5)*amplitude*0.23
 
 func _physics_process(delta: float) -> void:
     if not active:

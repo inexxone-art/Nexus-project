@@ -33,7 +33,7 @@ static func get_planet(pid: String) -> Dictionary:
 
 static func default_data() -> Dictionary:
     return {"planet":"terra", "completed":[], "intel":0, "credits":200,
-        "events":[], "choices":{}, "visits":{}, "mission_seed":42}
+        "events":[], "choices":{}, "visits":{}, "planet_discoveries":{}, "mission_seed":42}
 
 static func load_data() -> Dictionary:
     if not FileAccess.file_exists(SAVE_PATH):

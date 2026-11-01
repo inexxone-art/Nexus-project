@@ -13,8 +13,8 @@ func _run() -> void:
     var mobile: NexusMobileControls = CONTROLS.new()
     root.add_child(mobile)
     mobile.visible = true
-    if mobile.controls.size() != 12:
-        _failed("Expected twelve distinct touch controls")
+    if mobile.controls.size() != 14:
+        _failed("Expected fourteen distinct touch controls")
         return
     var forward: Button = mobile.controls["up"]
     forward.button_down.emit()
@@ -32,5 +32,5 @@ func _run() -> void:
     if Input.is_action_pressed("sprint"):
         _failed("Hiding controls did not release movement action")
         return
-    print("NEXUS TOUCH PASS: 12 responsive controls, press/release and visibility cleanup")
+    print("NEXUS TOUCH PASS: 14 responsive controls, press/release and visibility cleanup")
     quit(0)
