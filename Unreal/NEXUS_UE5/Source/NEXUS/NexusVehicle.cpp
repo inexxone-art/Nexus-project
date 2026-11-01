@@ -20,7 +20,11 @@ ANexusVehicle::ANexusVehicle()
     Visual->SetupAttachment(Collider);
     Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     static ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultBox(TEXT("/Engine/BasicShapes/Cube.Cube"));
-    if(DefaultBox.Succeeded()) { Visual->SetStaticMesh(DefaultBox.Object); Visual->SetRelativeScale3D(FVector(5.2f,2.5f,1.9f)); }
+    if(auto* Model=LoadObject<UStaticMesh>(nullptr,
+        TEXT("/Game/AAA/Geometry/Hero/SM_NEXUS_FireRescue_Truck.SM_NEXUS_FireRescue_Truck")))
+        Visual->SetStaticMesh(Model);
+    else if(DefaultBox.Succeeded())
+    { Visual->SetStaticMesh(DefaultBox.Object); Visual->SetRelativeScale3D(FVector(5.2f,2.5f,1.9f)); }
     CameraArm=CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraArm"));
     CameraArm->SetupAttachment(RootComponent);
     CameraArm->TargetArmLength=760.f;
