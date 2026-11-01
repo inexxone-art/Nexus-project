@@ -1,0 +1,85 @@
+name: NEXUS V3.7 - Record Real Godot Gameplay 10s
+
+on:
+  push:
+    branches:
+      - feature/v37-original-gameplay-10s-recording
+    paths:
+      - .github/workflows/record-real-gameplay-10s.yml
+      - scripts/nexus_capture_v37_10s.gd
+      - scenes/capture_v37_original_10s.tscn
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  record:
+    name: Original Godot 3D recording, NO AI generation
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Xvfb, Mesa CPU renderer and FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb mesa-utils libgl1-mesa-dri ffmpeg libasound2-dev
+      - name: Download pinned Godot 4.4.1
+        run: |
+          curl --fail --location --retry 3 -o godot.zip \
+            'https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_linux.x86_64.zip'
+          unzip -q godot.zip
+          chmod +x Godot_v4.4.1-stable_linux.x86_64
+      - name: Import real game assets (no image-to-video generation)
+        run: |
+          ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --editor --import --quit
+      - name: Capture 10 seconds from live game engine
+        shell: bash
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          MESA_GL_VERSION_OVERRIDE: "3.3"
+          GALLIUM_DRIVER: "llvmpipe"
+        run: |
+          set -euo pipefail
+          mkdir -p build/original-video
+          timeout 1200s xvfb-run -a -s '-screen 0 1280x720x24' \
+            ./Godot_v4.4.1-stable_linux.x86_64 \
+            --path . \
+            --rendering-driver opengl3 \
+            --rendering-method gl_compatibility \
+            --resolution 960x540 \
+            --fixed-fps 20 \
+            --write-movie build/original-video/godot-source.avi \
+            res://scenes/capture_v37_original_10s.tscn \
+            2>&1 | tee build/original-video/godot-recording.log
+          test -s build/original-video/godot-source.avi
+      - name: Encode captured Godot frames to MP4 — no AI processing
+        shell: bash
+        run: |
+          set -euo pipefail
+          ffprobe -v error -show_streams -of compact build/original-video/godot-source.avi
+          ffmpeg -hide_banner -y -i build/original-video/godot-source.avi \
+            -t 10 -r 20 -c:v libx264 -preset medium -crf 20 \
+            -pix_fmt yuv420p -movflags +faststart \
+            -c:a aac -b:a 160k \
+            build/original-video/NEXUS_V37_ORIGINAL_GAMEPLAY_10S.mp4
+          python3 - <<'PY'
+          import json,subprocess,os
+          path='build/original-video/NEXUS_V37_ORIGINAL_GAMEPLAY_10S.mp4'
+          info=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',path]))
+          duration=float(info['format']['duration'])
+          streams=[x for x in info['streams'] if x['codec_type']=='video']
+          assert len(streams)==1 and 9.7<=duration<=10.1,(duration,streams)
+          assert int(streams[0]['width'])==960 and int(streams[0]['height'])==540,streams
+          assert os.stat(path).st_size>250000,'video is unexpectedly small'
+          print('VERIFIED ORIGINAL GODOT MP4: duration',duration,'seconds; size',os.stat(path).st_size)
+          PY
+          ffmpeg -hide_banner -y -ss 00:00:04 -i build/original-video/NEXUS_V37_ORIGINAL_GAMEPLAY_10S.mp4 -frames:v 1 build/original-video/engine-frame-at-4s.jpg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NEXUS-V37-ORIGINAL-GODOT-GAMEPLAY-10S
+          path: |
+            build/original-video/NEXUS_V37_ORIGINAL_GAMEPLAY_10S.mp4
+            build/original-video/engine-frame-at-4s.jpg
+            build/original-video/godot-recording.log
+          retention-days: 14
