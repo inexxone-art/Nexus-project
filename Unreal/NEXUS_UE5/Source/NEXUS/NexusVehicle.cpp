@@ -7,6 +7,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Components/InputComponent.h"
+#include "Engine/World.h"
+#include "CollisionQueryParams.h"
 #include "UObject/ConstructorHelpers.h"
 
 ANexusVehicle::ANexusVehicle()
@@ -44,6 +46,9 @@ void ANexusVehicle::SetupPlayerInputComponent(UInputComponent* Input)
     Input->BindAxis(TEXT("FlyDown"),this,&ANexusVehicle::FlyDown);
     Input->BindAction(TEXT("Interact"),IE_Pressed,this,&ANexusVehicle::RescueOrExit);
     Input->BindAction(TEXT("ExitVehicle"),IE_Pressed,this,&ANexusVehicle::ExitToFoot);
+    Input->BindAction(TEXT("RoleMedic"),IE_Pressed,this,&ANexusVehicle::ChooseMedic);
+    Input->BindAction(TEXT("RolePilot"),IE_Pressed,this,&ANexusVehicle::ChoosePilot);
+    Input->BindAction(TEXT("RoleGround"),IE_Pressed,this,&ANexusVehicle::ChooseGround);
 }
 void ANexusVehicle::Drive(float V) { Throttle=FMath::Clamp(V,-1.f,1.f); }
 void ANexusVehicle::Turn(float V) { Steering=FMath::Clamp(V,-1.f,1.f); }
@@ -59,6 +64,28 @@ void ANexusVehicle::Tick(float Dt)
     const FVector Delta=GetActorForwardVector()*LinearSpeed*Dt+
         (bHelicopter?FVector(0,0,Vertical*1350.f*Dt):FVector::ZeroVector);
     AddActorWorldOffset(Delta,true);
+    if(!bHelicopter)
+    {
+        // Lightweight arcade suspension/gravity until Chaos wheeled vehicle is integrated.
+        // Only snap to reachable road/bridge surface; below a broken bridge the car falls.
+        FHitResult Ground;
+        FCollisionQueryParams Params;
+        Params.AddIgnoredActor(this);
+        const FVector P=GetActorLocation();
+        const bool bHit=GetWorld()->LineTraceSingleByChannel(Ground,P+FVector(0,0,160),
+            P-FVector(0,0,3500),ECC_Visibility,Params);
+        const float GroundZ=bHit?Ground.ImpactPoint.Z+Collider->GetScaledBoxExtent().Z:0.f;
+        if(bHit && GroundZ-P.Z > -400.f && GroundZ-P.Z < 240.f)
+        {
+            FallingSpeed=0.f;
+            SetActorLocation(FVector(P.X,P.Y,FMath::FInterpTo(P.Z,GroundZ,Dt,11.f)),true);
+        }
+        else
+        {
+            FallingSpeed=FMath::Max(FallingSpeed-980.f*Dt,-6500.f);
+            AddActorWorldOffset(FVector(0,0,FallingSpeed*Dt),true);
+        }
+    }
     if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
         if(GM->Director) GM->Director->VehicleAdvanced(this);
 }
@@ -68,3 +95,7 @@ void ANexusVehicle::RescueOrExit()
         if(!GM->InteractVehicle(this)) GM->ExitVehicle(this);
 }
 void ANexusVehicle::ExitToFoot() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ExitVehicle(this); }
+
+void ANexusVehicle::ChooseMedic() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(0); }
+void ANexusVehicle::ChoosePilot() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(1); }
+void ANexusVehicle::ChooseGround() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(2); }
