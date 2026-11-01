@@ -6,6 +6,8 @@ on:
       - tools/import_real_assets.py
       - .github/workflows/production-asset-import.yml
       - scripts/nexus_production_assets.gd
+      - scripts/nexus_world_structure.gd
+      - tests/world_structure_v25_smoke.gd
   workflow_dispatch:
 permissions:
   contents: write
