@@ -78,7 +78,7 @@ func _roadside_furniture() -> void:
     for side in [-1.0,1.0]:
         for i in range(14):
             var x := -90.0 + i*12.5
-            var z := side * 5.6
+            var z: float = float(side) * 5.6
             _shape(Vector3(x,0.74,z),Vector3(0.13,1.48,0.13),metal)
             _shape(Vector3(x+5.5,1.05,z),Vector3(11.5,0.23,0.09),paint)
             _shape(Vector3(x,1.18,z+side*0.06),Vector3(0.14,0.12,0.06),_mat(Color("ffc66e")))

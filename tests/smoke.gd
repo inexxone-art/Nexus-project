@@ -14,6 +14,9 @@ func _start() -> void:
         return
     var world = scene.instantiate()
     root.add_child(world)
+    if world.get_script() == null:
+        fail("World script could not load - inspect Godot import logs", 23)
+        return
     await process_frame
     await process_frame
     if world.player == null or world.vehicles.size() != 7:

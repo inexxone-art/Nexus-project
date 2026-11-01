@@ -26,7 +26,13 @@ jobs:
       - name: Verify V1.4 design and feature integration
         run: python3 tests/validate_v14.py
       - name: Import assets and check script syntax
-        run: ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --editor --import --quit
+        run: |
+          set -o pipefail
+          ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --editor --import --quit 2>&1 | tee godot-import.log
+          if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' godot-import.log; then
+            echo '::error::Godot reported a script import/parse error'
+            exit 1
+          fi
       - name: Validate 123 vehicles and planet narratives
         run: timeout 60s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/fleet_smoke.gd
       - name: Existing Alpine gameplay regression
