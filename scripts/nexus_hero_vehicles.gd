@@ -254,7 +254,7 @@ func _build_medium_excavator() -> void:
         for i in range(5):
             _box("HERO | reflective stripe",Vector3(0.08,0.03,0.09),Vector3(s*width*0.47,1.45,-0.95+i*0.21),warning)
     if parent_visual.boom_pivot != null:
-        var boom := parent_visual.boom_pivot
+        var boom: Node3D = parent_visual.boom_pivot
         # Details are children of the articulated arm: they follow the existing controls.
         _box("HERO | main boom wear strip",Vector3(0.31,0.08,1.88),Vector3(0,1.18,-0.78),steel,boom,Vector3(-0.56,0,0))
         _cylinder("HERO | hydraulic piston rod",0.044,1.13,Vector3(0,0.99,-0.90),_material(Color("c9d1d5"),0.91,0.19),boom,Vector3(-0.48,0,0))
@@ -262,7 +262,7 @@ func _build_medium_excavator() -> void:
         for i in range(3):
             _cylinder("HERO | articulated hose clamp",0.052,0.07,Vector3(0.20,0.74+i*0.34,-0.42-i*0.33),steel,boom,Vector3(0,0,PI/2))
     if parent_visual.bucket_pivot != null:
-        var bucket := parent_visual.bucket_pivot
+        var bucket: Node3D = parent_visual.bucket_pivot
         _box("HERO | hardened bucket lip",Vector3(1.15,0.06,0.15),Vector3(0,-0.29,-0.43),steel,bucket)
         for i in range(5):
             _box("HERO | additional cutting edge tooth",Vector3(0.08,0.08,0.21),Vector3((i-2)*0.24,-0.32,-0.55),deep,bucket)
