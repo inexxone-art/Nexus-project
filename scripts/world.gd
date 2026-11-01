@@ -31,6 +31,8 @@ const PRODUCTION_ASSETS = preload("res://scripts/nexus_production_assets.gd")
 const WORLD_STRUCTURE_SCRIPT = preload("res://scripts/nexus_world_structure.gd")
 const MEGAMAP_SCRIPT = preload("res://scripts/nexus_megamap_v27.gd")
 const HEIGHTFIELD_SCRIPT = preload("res://scripts/nexus_terrain_v26.gd")
+const V35_OPERATIONS_SCRIPT = preload("res://scripts/nexus_v35_operations.gd")
+var nexus_v35: NexusV35Operations
 var mega_map: NexusMegaMapV27
 var world_structure: NexusWorldStructure
 var legacy: NexusLegacy
@@ -185,6 +187,9 @@ func _ready() -> void:
     add_child(coop)
     coop.set_actor(player)
     _make_hud()
+    nexus_v35 = V35_OPERATIONS_SCRIPT.new()
+    add_child(nexus_v35)
+    nexus_v35.setup(self)
     mobile_controls = MOBILE_SCRIPT.new()
     add_child(mobile_controls)
     mobile_controls.bind_world(self)
@@ -813,12 +818,20 @@ func _update_hud() -> void:
         var gorge_gap := Vector2(player.global_position.x-175.0,player.global_position.z-168.0).length()
         if gorge_gap < 100.0:
             tip += "\n" + mega_map.canyon_disaster.status_text()
+    if nexus_v35 != null:
+        if nexus_v35.rescue.phase != "dormant":
+            tip += "\n" + nexus_v35.rescue.remaining_objective()
+        tip += "\nF12 INDUSTRIE | Ausruestung 3-6: " + nexus_v35.SLOTS[nexus_v35.equipped]
+        tip += "\nZement %d Asphalt %d | E nahe Bruecke: Bergungs-/Bauphase" % [nexus_v35.industry.inventory["cement"],nexus_v35.industry.inventory["asphalt"]]
     help.text = tip
 
 func _unhandled_input(event: InputEvent) -> void:
     if event is InputEventKey and event.pressed and not event.echo:
-        if event.keycode == KEY_F7:
-            _handle_adlerklamm_event()
+        if event.keycode == KEY_F12 and nexus_v35 != null:
+            nexus_v35.toggle_industry()
+            return
+        if event.keycode in [KEY_3,KEY_4,KEY_5,KEY_6] and nexus_v35 != null:
+            nexus_v35.switch_slot(event.keycode - KEY_3)
             return
         if event.keycode == KEY_F10:
             _toggle_photo_mode()
@@ -949,6 +962,14 @@ func _toggle_vehicle() -> void:
         _say("Kein Fahrzeug in Reichweite")
 
 func _interact() -> void:
+    if nexus_v35 != null and nexus_v35.interact():
+        return
+    if mega_map != null and mega_map.canyon_disaster != null and player != null:
+        var bridge: NexusAdlerklammDisaster = mega_map.canyon_disaster
+        var point: Vector3 = player.global_position if vehicle_in_use == null else vehicle_in_use.global_position
+        if Vector2(point.x-175.0,point.z-168.0).length() < 43.0 and bridge.stage == "aftermath":
+            _handle_adlerklamm_event()
+            return
     if vehicle_in_use != null:
         if _nearest_station_kind("garage", vehicle_in_use.global_position, 12.0) != null:
             if refined_fuel >= 1:
@@ -1241,22 +1262,38 @@ func _handle_adlerklamm_event() -> void:
         _say("Adlerklamm-Einsatz: Zur Schluchtenbruecke fahren.")
         return
     var incident: NexusAdlerklammDisaster = mega_map.canyon_disaster
-    if incident.stage == "ready":
-        if incident.start_disaster():
-            _say("WARNUNG: Brueckenversagen! Strasse gesperrt - Bus in Gefahr!")
-            save_state()
-    elif incident.stage == "aftermath":
-        if wood < incident.REBUILD_WOOD or iron < incident.REBUILD_IRON:
-            _say("Wiederaufbau braucht %d Holz und %d Eisen." % [incident.REBUILD_WOOD,incident.REBUILD_IRON])
+    if incident.stage != "aftermath":
+        _say("Die Bruecke bricht nur beim automatischen Weltereignis ein.")
+        return
+    if nexus_v35 != null and nexus_v35.rescue.phase != "completed":
+        _say("Zuerst alle vermissten Personen bergen. Danach kann der Wiederaufbau beginnen.")
+        return
+    if incident.rebuild_progress == 0:
+        incident.rebuild_progress = 1
+        _say("Bauphase 1/4: Schutt geraeumt. Material fuer Stahltraeger bereitstellen.")
+    elif incident.rebuild_progress == 1:
+        if wood < 4 or iron < incident.REBUILD_IRON:
+            _say("Tragwerk braucht 4 Holz und %d Eisen." % incident.REBUILD_IRON)
             return
-        wood -= incident.REBUILD_WOOD
+        wood -= 4
         iron -= incident.REBUILD_IRON
+        incident.rebuild_progress = 2
+        _say("Bauphase 2/4: Stahltraeger installiert. Beton und Zement noch offen.")
+    elif incident.rebuild_progress == 2:
+        if wood < 2 or nexus_v35 == null or not nexus_v35.industry.take_materials(incident.REBUILD_CEMENT,0):
+            _say("Betonierphase braucht 2 Holz und %d Zement aus dem Zementwerk." % incident.REBUILD_CEMENT)
+            return
+        wood -= 2
+        incident.rebuild_progress = 3
+        _say("Bauphase 3/4: Betonfahrbahn gegossen. Noch Asphalt aufbringen.")
+    else:
+        if nexus_v35 == null or not nexus_v35.industry.take_materials(0,incident.REBUILD_ASPHALT):
+            _say("Asphaltphase braucht %d Asphalt aus dem Asphaltwerk." % incident.REBUILD_ASPHALT)
+            return
         if incident.rebuild_bridge():
             coins += 420
-            _say("Adlerklamm-Bruecke wiedereroeffnet. Bauauftrag +420 Credits.")
-            save_state()
-    else:
-        _say("Bergung laeuft. Bruecke kann erst nach dem Einsturz saniert werden.")
+            _say("Adlerklamm: Bruecke freigegeben! Wiederaufbau +420 Credits.")
+    save_state()
 
 func save_state() -> void:
     var v_data = []
@@ -1272,7 +1309,7 @@ func save_state() -> void:
             var p = info["node"].global_position
             l_data.append([p.x, p.y, p.z])
     var p = player.global_position if vehicle_in_use == null else vehicle_in_use.global_position
-    var data = {"money": coins, "wood": wood, "iron": iron, "adlerklamm": mega_map.canyon_disaster.get_data() if mega_map != null and mega_map.canyon_disaster != null else {}, "oil": oil, "gold": gold, "sold": sold_logs, "position": [p.x, p.y, p.z], "vehicles": v_data, "world_ops": world_operations.get_data(), "living_universe": living.get_data(), "buildings": b_data, "chopped": chopped_ids, "logs": l_data, "mission": missions.get_data() if missions != null else {}, "build_grid": build_grid, "build_height": build_height, "crops": crops, "paper": paper, "refined_fuel": refined_fuel, "meteor": meteor, "tech_level": tech_level, "completed_jobs": completed_jobs, "world_clock": world_clock.get_data(), "director": nexus_director.get_data(), "story": story.get_data(), "quality_suite": quality_suite.get_data(), "legacy": legacy.get_data(), "episode_one": episode_one.get_data(), "player_hp": player.health, "ship_walkthrough": ship_walkthrough.get_data(), "profile": performance_panel.mode, "muted": audio_director.muted}
+    var data = {"money": coins, "wood": wood, "iron": iron, "adlerklamm": mega_map.canyon_disaster.get_data() if mega_map != null and mega_map.canyon_disaster != null else {}, "v35": nexus_v35.get_data() if nexus_v35 != null else {}, "oil": oil, "gold": gold, "sold": sold_logs, "position": [p.x, p.y, p.z], "vehicles": v_data, "world_ops": world_operations.get_data(), "living_universe": living.get_data(), "buildings": b_data, "chopped": chopped_ids, "logs": l_data, "mission": missions.get_data() if missions != null else {}, "build_grid": build_grid, "build_height": build_height, "crops": crops, "paper": paper, "refined_fuel": refined_fuel, "meteor": meteor, "tech_level": tech_level, "completed_jobs": completed_jobs, "world_clock": world_clock.get_data(), "director": nexus_director.get_data(), "story": story.get_data(), "quality_suite": quality_suite.get_data(), "legacy": legacy.get_data(), "episode_one": episode_one.get_data(), "player_hp": player.health, "ship_walkthrough": ship_walkthrough.get_data(), "profile": performance_panel.mode, "muted": audio_director.muted}
     var f = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
     if f == null:
         _say("Fehler beim Speichern")
@@ -1296,6 +1333,8 @@ func load_state() -> void:
     iron = int(parsed.get("iron", 10))
     if mega_map != null and mega_map.canyon_disaster != null:
         mega_map.canyon_disaster.restore_data(parsed.get("adlerklamm",{}))
+    if nexus_v35 != null:
+        nexus_v35.restore_data(parsed.get("v35",{}))
     oil = int(parsed.get("oil", 0))
     gold = int(parsed.get("gold", 0))
     sold_logs = int(parsed.get("sold", 0))
