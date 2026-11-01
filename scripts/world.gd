@@ -196,6 +196,8 @@ func _ready() -> void:
         reference_hud = V36_HUD_SCRIPT.new()
         add_child(reference_hud)
         reference_hud.setup(self)
+        if not player.first_person:
+            player.switch_view()
         # The cinematic HUD replaces the legacy walls of debugging text.
         get_node("HUD").hide()
         nexus_v35.mission_label.hide()
