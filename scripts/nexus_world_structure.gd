@@ -32,18 +32,18 @@ const WAYPOINTS: Dictionary = {
     "east_connector": Vector3(120,0,64),
     "raumhafen": Vector3(117,0,114)
 }
-const ROAD_EDGES: Array[PackedStringArray] = [
-    PackedStringArray(["garage","crossroads"]),
-    PackedStringArray(["crossroads","village_junction"]),
-    PackedStringArray(["village_junction","alpendorf"]),
-    PackedStringArray(["village_junction","sektor31"]),
-    PackedStringArray(["crossroads","rettungsbasis"]),
-    PackedStringArray(["crossroads","east_connector"]),
-    PackedStringArray(["east_connector","raumhafen"]),
-    PackedStringArray(["garage","city_junction"]),
-    PackedStringArray(["city_junction","stadt"]),
-    PackedStringArray(["stadt","bauhof"]),
-    PackedStringArray(["city_junction","industrie"])
+const ROAD_EDGES = [
+    ["garage","crossroads"],
+    ["crossroads","village_junction"],
+    ["village_junction","alpendorf"],
+    ["village_junction","sektor31"],
+    ["crossroads","rettungsbasis"],
+    ["crossroads","east_connector"],
+    ["east_connector","raumhafen"],
+    ["garage","city_junction"],
+    ["city_junction","stadt"],
+    ["stadt","bauhof"],
+    ["city_junction","industrie"]
 ]
 
 const DETAIL_DISTANCE: float = 115.0
