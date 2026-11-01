@@ -19,6 +19,8 @@ const LIVING_SCRIPT = preload("res://scripts/nexus_living_universe.gd")
 const LIVING_PANEL_SCRIPT = preload("res://scripts/nexus_living_panel.gd")
 const POLISH_SCRIPT = preload("res://scripts/nexus_cinematic_polish.gd")
 const WEATHER_FX_SCRIPT = preload("res://scripts/nexus_weather_fx.gd")
+const PHOTO_SCRIPT = preload("res://scripts/nexus_photo_mode.gd")
+var photo_mode: NexusPhotoMode
 var weather_fx: NexusWeatherFX
 var living: NexusLivingUniverse
 var living_panel: NexusLivingPanel
@@ -109,6 +111,7 @@ func _ready() -> void:
     add_child(story)
     world_operations = WORLD_OPS_SCRIPT.new()
     add_child(world_operations)
+    world_operations.operation_completed.connect(_on_field_operation_finished)
     living = LIVING_SCRIPT.new()
     living.incident_opened.connect(_on_living_incident)
     add_child(living)
@@ -126,6 +129,9 @@ func _ready() -> void:
     add_child(coop)
     coop.set_actor(player)
     _make_hud()
+    photo_mode = PHOTO_SCRIPT.new()
+    add_child(photo_mode)
+    photo_mode.photo_saved.connect(_on_photo_saved)
     living_panel = LIVING_PANEL_SCRIPT.new()
     living_panel.decision_requested.connect(_on_living_decision)
     add_child(living_panel)
@@ -482,6 +488,29 @@ func _on_director_event(description: String) -> void:
     story.trigger_alert(description)
     _say("NEXUS DIRECTOR: " + description)
 
+func _on_photo_saved(path: String, success: bool) -> void:
+    _say("Screenshot gespeichert: " + path if success else "Screenshot konnte nicht gespeichert werden")
+
+func _toggle_photo_mode() -> void:
+    if photo_mode.active:
+        photo_mode.exit()
+        _say("Fotomodus beendet")
+        return
+    if vehicle_in_use != null or drone_active:
+        _say("Fuer Fotomodus bitte Fahrzeug bzw. Drohne verlassen")
+        return
+    if fleet_menu != null and fleet_menu.visible:
+        fleet_menu.toggle()
+    if living_panel != null and living_panel.visible:
+        living_panel.toggle()
+    var source := get_viewport().get_camera_3d()
+    if photo_mode.enter(source, player, [hud,help,minimap,marker]):
+        _say("Fotomodus: WASD fliegen, Q/E hoch/runter, Shift schnell, F11 PNG, F10 beenden")
+
+func _on_field_operation_finished(contract: Dictionary) -> void:
+    living.apply_field_operation(str(contract.get("category", "")), str(contract.get("region", "")))
+    living_panel.refresh()
+
 func _on_living_incident(title: String) -> void:
     living_panel.refresh()
     _say("WELTALARM: " + title + " | Einsatzleitung mit F8")
@@ -505,8 +534,8 @@ func _update_hud() -> void:
     var status = "ZU FUSS" if vehicle_in_use == null else "%s | %d km/h | Diesel %d%%" % [vehicle_in_use.category, roundi(abs(vehicle_in_use.speed) * 3.6), roundi(vehicle_in_use.fuel)]
     if drone_active:
         status = "FPV-DROHNE | Akku %d%% | %s" % [roundi(drone.battery), drone.state_notice]
-    hud.text = "PROJECT NEXUS | LIVING UNIVERSE V1.4\n%s | Geld: %d EUR | %s\nHolz %d  Eisen %d  Oel %d  Gold %d  Ernte %d\nTreibstoff %d  Papier %d  Meteorit %d | Forschung %d\nBaumstaemme: %d | Auftraege: %d" % [status, coins, world_clock.describe(), wood, iron, oil, gold, crops, refined_fuel, paper, meteor, tech_level, sold_logs, completed_jobs]
-    var tip = "WASD bewegen/fahren | F Fahrzeug | V FPV-Drohne | E arbeiten | N Karte | Y Zeit | F5/F9 speichern/laden | G Sternensystem | F6 Fahrzeughalle | F7 LAN-Koop (Preview) | ESC Maus"
+    hud.text = "PROJECT NEXUS | CINEMATIC PROTOTYPE V1.5\n%s | Geld: %d EUR | %s\nHolz %d  Eisen %d  Oel %d  Gold %d  Ernte %d\nTreibstoff %d  Papier %d  Meteorit %d | Forschung %d\nBaumstaemme: %d | Auftraege: %d" % [status, coins, world_clock.describe(), wood, iron, oil, gold, crops, refined_fuel, paper, meteor, tech_level, sold_logs, completed_jobs]
+    var tip = "WASD bewegen/fahren | F Fahrzeug | V FPV-Drohne | E arbeiten | N Karte | Y Zeit | F5/F9 speichern/laden | F10 Foto | G Sternensystem | F6 Fahrzeughalle | F7 LAN-Koop (Preview) | ESC Maus"
     if nexus_director.active_event != "":
         tip += "\nWELTEREIGNIS: " + nexus_director.active_event
     if drone_active:
@@ -522,7 +551,7 @@ func _update_hud() -> void:
     if missions != null:
         tip += "\nMISSION: " + missions.objective
     if world_operations != null:
-        tip += "\nNEXUS OPS: " + world_operations.objective()
+        tip += "\nNEXUS OPS: " + world_operations.objective() + " | %d m" % world_operations.distance_to_target(player.global_position)
     if mode_build:
         tip += " | Raster: %.2f m | Hoehe: %.1f m (G / Bild auf / Bild ab)" % [build_grid, build_height]
     if story != null:
@@ -533,6 +562,15 @@ func _update_hud() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
     if event is InputEventKey and event.pressed and not event.echo:
+        if event.keycode == KEY_F10:
+            _toggle_photo_mode()
+            return
+        if photo_mode != null and photo_mode.active:
+            if event.keycode == KEY_F11:
+                photo_mode.capture()
+            elif event.keycode == KEY_ESCAPE:
+                Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else Input.MOUSE_MODE_CAPTURED
+            return
         if fleet_menu != null and fleet_menu.visible:
             if event.keycode == KEY_F6 or event.keycode == KEY_ESCAPE:
                 fleet_menu.toggle()
@@ -670,8 +708,9 @@ func _interact() -> void:
         var op: Dictionary = world_operations.try_interact(player.global_position)
         if bool(op.get("handled", false)):
             coins += int(op.get("money",0))
-            completed_jobs += 1
-            story.trigger_alert(str(op.get("message", "Einsatz erledigt")))
+            if bool(op.get("completed", false)):
+                completed_jobs += 1
+                story.trigger_alert(str(op.get("message", "Einsatz erledigt")))
             _say(str(op.get("message", "Einsatz erledigt")))
             return
     if missions != null:

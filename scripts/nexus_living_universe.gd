@@ -41,6 +41,7 @@ var market: Dictionary = {}
 var pending: Dictionary = {}
 var memories: Array[String] = []
 var completed: int = 0
+var field_operations: int = 0
 var elapsed: float = 0.0
 var turn: int = 0
 var peaceful_mode: bool = false
@@ -59,6 +60,7 @@ func reset() -> void:
     pending.clear()
     memories.clear()
     completed = 0
+    field_operations = 0
     elapsed = 0.0
     turn = 0
     peaceful_mode = false
@@ -114,6 +116,26 @@ func resolve(choice: int, money: int) -> Dictionary:
     incident_resolved.emit(description)
     return {"ok":true,"money":payout - cost,"message":description,"completed":completed}
 
+func apply_field_operation(category: String, region: String) -> void:
+    ## A completed physical mission improves the same persisted world state as an incident.
+    if not regions.has(region):
+        return
+    var state: Dictionary = regions[region]
+    state["stability"] = clampi(int(state["stability"]) + 4, 0, 100)
+    state["supply"] = clampi(int(state["supply"]) + 5, 0, 100)
+    state["prosperity"] = clampi(int(state["prosperity"]) + 2, 0, 100)
+    regions[region] = state
+    var group := "Zivilschutz"
+    if category == "Forschung":
+        group = "Forschungsrat"
+    elif category == "Versorgung":
+        group = "Handelsbund"
+    elif category == "Konflikt":
+        group = "Grenzwache"
+    factions[group] = clampi(int(factions[group]) + 1, -50, 50)
+    field_operations += 1
+    _remember("Feldeinsatz %s in %s abgeschlossen" % [category, region])
+
 func get_summary() -> String:
     if not pending.is_empty():
         return "ALARM: %s" % str(pending["title"])
@@ -136,7 +158,7 @@ func _remember(entry: String) -> void:
 
 func get_data() -> Dictionary:
     return {"regions":regions.duplicate(true),"factions":factions.duplicate(true),"market":market.duplicate(true),
-        "pending":pending.duplicate(true),"memories":memories.duplicate(),"completed":completed,
+        "pending":pending.duplicate(true),"memories":memories.duplicate(),"completed":completed,"field_operations":field_operations,
         "elapsed":elapsed,"turn":turn,"peaceful_mode":peaceful_mode}
 
 func restore_data(data: Dictionary) -> void:
@@ -166,6 +188,7 @@ func restore_data(data: Dictionary) -> void:
         for item in log.slice(maxi(0, log.size() - HISTORY_LIMIT)):
             memories.append(str(item))
     completed = maxi(0, int(data.get("completed", 0)))
+    field_operations = maxi(0, int(data.get("field_operations", 0)))
     elapsed = clampf(float(data.get("elapsed", 0.0)), 0.0, EVENT_PERIOD)
     turn = maxi(0, int(data.get("turn", 0)))
     peaceful_mode = bool(data.get("peaceful_mode", false))
