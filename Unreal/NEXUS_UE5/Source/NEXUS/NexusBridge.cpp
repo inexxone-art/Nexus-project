@@ -47,8 +47,10 @@ void ANexusBridge::ReleaseSpan(int32 Index)
     Piece->SetSimulatePhysics(true);
     Piece->WakeAllRigidBodies();
     const float Sign=(Index%2)?1.f:-1.f;
-    Piece->AddImpulse(FVector(Sign*17000.f,Sign*11000.f,-85000.f),NAME_None,true);
-    Piece->AddAngularImpulseInRadians(FVector(3100.f*Sign,1650.f,660.f),NAME_None,true);
+    // Chaos bVelChange uses cm/s. Small separation velocity + real gravity,
+    // not hundreds of metres per second from the earlier alpha simulation.
+    Piece->AddImpulse(FVector(Sign*120.f,Sign*65.f,-95.f),NAME_None,true);
+    Piece->SetPhysicsAngularVelocityInDegrees(FVector(20.f*Sign,12.f,37.f*Sign));
 }
 void ANexusBridge::Collapse()
 {
