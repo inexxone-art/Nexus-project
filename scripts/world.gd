@@ -22,6 +22,11 @@ const WEATHER_FX_SCRIPT = preload("res://scripts/nexus_weather_fx.gd")
 const PHOTO_SCRIPT = preload("res://scripts/nexus_photo_mode.gd")
 const MOBILE_SCRIPT = preload("res://scripts/nexus_mobile_controls.gd")
 const QUALITY_SUITE_SCRIPT = preload("res://scripts/nexus_quality_suite.gd")
+const LEGACY_SCRIPT = preload("res://scripts/nexus_legacy.gd")
+const LEGACY_PANEL_SCRIPT = preload("res://scripts/nexus_legacy_panel.gd")
+var legacy: NexusLegacy
+var legacy_panel: NexusLegacyPanel
+var last_world_hour: float = 9.0
 const AUDIO_SCRIPT = preload("res://scripts/nexus_audio_director.gd")
 const PERFORMANCE_SCRIPT = preload("res://scripts/nexus_performance_panel.gd")
 var quality_suite: NexusQualitySuite
@@ -133,6 +138,9 @@ func _ready() -> void:
     quality_suite = QUALITY_SUITE_SCRIPT.new()
     add_child(quality_suite)
     quality_suite.bind_world(self)
+    legacy = LEGACY_SCRIPT.new()
+    add_child(legacy)
+    last_world_hour = world_clock.hour
     audio_director = AUDIO_SCRIPT.new()
     add_child(audio_director)
     performance_panel = PERFORMANCE_SCRIPT.new()
@@ -160,6 +168,11 @@ func _ready() -> void:
     _make_starmap_button()
     _make_living_button()
     _make_fleet_menu()
+    legacy_panel = LEGACY_PANEL_SCRIPT.new()
+    legacy_panel.request.connect(_on_legacy_action)
+    add_child(legacy_panel)
+    legacy_panel.bind_state(legacy)
+    _make_legacy_button()
     _make_build_marker()
     _make_minimap()
     _update_hud()
@@ -386,6 +399,7 @@ func _add_vehicle(category: String, pos: Vector3) -> void:
     v.position = pos
     add_child(v)
     vehicles.append(v)
+    if legacy != null: _apply_vehicle_tuning(v)
 
 func _make_fleet_menu() -> void:
     fleet_menu = FLEET_MENU_SCRIPT.new()
@@ -415,8 +429,65 @@ func _spawn_fleet_vehicle(record: Dictionary) -> void:
     new_vehicle.position = spawn
     add_child(new_vehicle)
     vehicles.append(new_vehicle)
+    _apply_vehicle_tuning(new_vehicle)
     fleet_spawn_count += 1
     _say("Fahrzeug bereit: %s | %d km/h | F einsteigen" % [record.get("name", "Unbekannt"), record.get("top_kmh", 0)])
+
+func _make_legacy_button() -> void:
+    var button := Button.new()
+    button.name = "NEXUS Legacy Profil"
+    button.text = "KARRIERE / TUNING / CHRONIK (F2)"
+    button.position = Vector2(28,450)
+    button.custom_minimum_size = Vector2(285,42)
+    button.pressed.connect(_open_legacy)
+    get_node("HUD").add_child(button)
+
+func _open_legacy() -> void:
+    if legacy_panel == null: return
+    if fleet_menu != null and fleet_menu.visible: fleet_menu.toggle()
+    if living_panel != null and living_panel.visible: living_panel.toggle()
+    if vehicle_in_use != null:
+        legacy_panel.vehicle_id.text = str(vehicle_in_use.definition.get("id",vehicle_in_use.category))
+    legacy_panel.toggle()
+
+func _apply_vehicle_tuning(v: NexusVehicle) -> void:
+    if legacy == null or v == null: return
+    var id: String = str(v.definition.get("id",v.category))
+    var upgrade: Dictionary = legacy.tuning_for(id)
+    v.tune_motor = int(upgrade.get("motor",0))
+    v.tune_tires = int(upgrade.get("reifen",0))
+    v.tune_brakes = int(upgrade.get("bremsen",0))
+
+func _on_legacy_action(action: String, target: String) -> void:
+    if legacy == null: return
+    var result: Dictionary = {"ok":false,"message":"Unbekannte Aktion","money":0}
+    match action:
+        "profile":
+            var args: PackedStringArray = target.split("|",false,1)
+            if args.size() == 2: result = legacy.set_identity(args[0],args[1])
+        "career": result = legacy.choose_career(target)
+        "skill": result = legacy.invest_skill(target)
+        "property": result = legacy.purchase_property(target,coins)
+        "ship": result = legacy.purchase_ship_module(target,coins)
+        "tune":
+            var args: PackedStringArray = target.split("|",false,1)
+            if args.size() == 2:
+                # Only tune vehicle models that have actually been spawned.
+                var allowed: bool = false
+                for vehicle in vehicles:
+                    if str(vehicle.definition.get("id",vehicle.category)) == args[0]:
+                        allowed = true
+                        break
+                if allowed:
+                    result = legacy.upgrade_vehicle(args[0],args[1],coins)
+                else:
+                    result = {"ok":false,"message":"Fahrzeug erst in der Welt bereitstellen","money":0}
+    if bool(result.get("ok",false)):
+        coins += int(result.get("money",0))
+        for vehicle in vehicles: _apply_vehicle_tuning(vehicle)
+        save_state()
+    if legacy_panel != null: legacy_panel.refresh()
+    _say(str(result.get("message","NEXUS LEGACY")))
 
 func _make_hud() -> void:
     var overlay = CanvasLayer.new()
@@ -496,6 +567,9 @@ func _process(delta: float) -> void:
     nexus_director.advance(delta, wood, iron)
     living.advance(delta)
     resource_cooldown = max(0.0, resource_cooldown - delta)
+    if legacy != null and world_clock.hour < last_world_hour - 12.0:
+        legacy.record_world_day()
+    last_world_hour = world_clock.hour
     if vehicle_in_use != null:
         vehicle_in_use.weather_code = world_clock.weather
     if drone_active and not drone.controlled:
@@ -513,6 +587,8 @@ func _on_director_event(description: String) -> void:
         if "sturm" in lower or "strom" in lower or "brand" in lower:
             quality_suite.trigger_disaster(completed_jobs + int(Time.get_ticks_msec()/100000))
     story.trigger_alert(description)
+    if legacy != null:
+        legacy.record_decision("director_%d" % int(Time.get_ticks_msec()/10000), "Weltgeschehen: " + description)
     _say("NEXUS DIRECTOR: " + description)
 
 func _on_photo_saved(path: String, success: bool) -> void:
@@ -538,6 +614,8 @@ func _toggle_photo_mode() -> void:
 
 func _on_field_operation_finished(contract: Dictionary) -> void:
     living.apply_field_operation(str(contract.get("category", "")), str(contract.get("region", "")))
+    if legacy != null:
+        legacy.award_activity("mission",str(contract.get("title","Einsatz abgeschlossen")),85)
     living_panel.refresh()
 
 func _on_living_incident(title: String) -> void:
@@ -549,6 +627,8 @@ func _on_living_decision(option: int) -> void:
     if bool(result.get("ok", false)):
         coins += int(result.get("money", 0))
         completed_jobs += 1
+        if legacy != null:
+            legacy.award_activity("decision",str(result.get("message","Weltereignis abgeschlossen")),75)
         story.trigger_alert(str(result.get("message", "Weltereignis abgeschlossen")))
     living_panel.show_feedback(result)
     _say(str(result.get("message", "Entscheidung nicht moeglich")))
@@ -589,7 +669,7 @@ func _update_hud() -> void:
     var status = "ZU FUSS" if vehicle_in_use == null else "%s | %d km/h | Diesel %d%%" % [vehicle_in_use.category, roundi(abs(vehicle_in_use.speed) * 3.6), roundi(vehicle_in_use.fuel)]
     if drone_active:
         status = "FPV-DROHNE | Akku %d%% | %s" % [roundi(drone.battery), drone.state_notice]
-    hud.text = "PROJECT NEXUS | WORLD QUALITY SLICE V2.0\n%s | Geld: %d EUR | %s\nHolz %d  Eisen %d  Oel %d  Gold %d  Ernte %d\nTreibstoff %d  Papier %d  Meteorit %d | Forschung %d\nBaumstaemme: %d | Auftraege: %d" % [status, coins, world_clock.describe(), wood, iron, oil, gold, crops, refined_fuel, paper, meteor, tech_level, sold_logs, completed_jobs]
+    hud.text = "PROJECT NEXUS | LEGACY SYSTEMS V2.1\n%s | Geld: %d EUR | %s\nHolz %d  Eisen %d  Oel %d  Gold %d  Ernte %d\nTreibstoff %d  Papier %d  Meteorit %d | Forschung %d\nBaumstaemme: %d | Auftraege: %d" % [status, coins, world_clock.describe(), wood, iron, oil, gold, crops, refined_fuel, paper, meteor, tech_level, sold_logs, completed_jobs]
     var tip = "WASD bewegen/fahren | F Fahrzeug | V FPV-Drohne | E arbeiten | N Karte | Y Zeit | F5/F9 speichern/laden | F10 Foto | G Sternensystem | F6 Fahrzeughalle | F7 LAN-Koop (Preview) | F3 Grafik/FPS | J Audio | Zielstand: Klick | ESC Maus"
     if nexus_director.active_event != "":
         tip += "\nWELTEREIGNIS: " + nexus_director.active_event
@@ -613,6 +693,8 @@ func _update_hud() -> void:
         hud.text += "\nSTORY: %s | %d m | Ruf %d" % [story.current_objective(), story.target_distance(player.global_position), story.reputation]
     if living != null:
         tip += "\n" + living.get_summary() + " | F8 Einsatzleitung | F4 Grafik"
+    if legacy != null:
+        tip += "\nF2 KARRIERE / CHRONIK | " + legacy.summary()
     help.text = tip
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -625,6 +707,9 @@ func _unhandled_input(event: InputEvent) -> void:
                 photo_mode.capture()
             elif event.keycode == KEY_ESCAPE:
                 Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else Input.MOUSE_MODE_CAPTURED
+            return
+        if legacy_panel != null and legacy_panel.visible:
+            if event.keycode in [KEY_F2,KEY_ESCAPE]: legacy_panel.toggle()
             return
         if fleet_menu != null and fleet_menu.visible:
             if event.keycode == KEY_F6 or event.keycode == KEY_ESCAPE:
@@ -639,6 +724,8 @@ func _unhandled_input(event: InputEvent) -> void:
             Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else Input.MOUSE_MODE_CAPTURED
         elif event.keycode == KEY_F:
             _toggle_vehicle()
+        elif event.keycode == KEY_F2:
+            _open_legacy()
         elif event.keycode == KEY_F3 and performance_panel != null:
             performance_panel.toggle()
         elif event.keycode == KEY_J and audio_director != null:
@@ -764,6 +851,16 @@ func _interact() -> void:
         var world_result: Dictionary = quality_suite.try_interact(player.global_position,coins)
         if bool(world_result.get("handled",false)):
             coins += int(world_result.get("money",0))
+            if legacy != null:
+                if int(world_result.get("money",0)) < 0:
+                    legacy.award_activity("repair",str(world_result.get("message","Reparatur")),40)
+                elif int(world_result.get("money",0)) > 0:
+                    legacy.award_activity("discovery",str(world_result.get("message","Datensuche")),45)
+                else:
+                    for npc in quality_suite.civilian_nodes:
+                        if player.global_position.distance_to(npc.global_position) < 2.3:
+                            legacy.meet_npc(npc.name)
+                            break
             audio_director.notify()
             _say(str(world_result.get("message","NEXUS Interaktion")))
             return
@@ -773,6 +870,8 @@ func _interact() -> void:
             coins += int(story_outcome.get("money", 0))
             if int(story_outcome.get("money", 0)) > 0:
                 completed_jobs += 1
+                if legacy != null:
+                    legacy.award_activity("story",str(story_outcome.get("message","Story")),110)
             _say(str(story_outcome.get("message", "Story aktualisiert")))
             return
     if world_operations != null:
@@ -781,6 +880,7 @@ func _interact() -> void:
             coins += int(op.get("money",0))
             if bool(op.get("completed", false)):
                 completed_jobs += 1
+                if legacy != null: legacy.award_activity("operations",str(op.get("message","Einsatz")),85)
                 story.trigger_alert(str(op.get("message", "Einsatz erledigt")))
             _say(str(op.get("message", "Einsatz erledigt")))
             return
@@ -792,6 +892,7 @@ func _interact() -> void:
             iron += int(outcome.get("iron", 0))
             if int(outcome.get("money", 0)) > 0:
                 completed_jobs += 1
+                if legacy != null: legacy.award_activity("mission",str(outcome.get("message","Mission")),75)
             _say(str(outcome.get("message", "Mission aktualisiert")))
             return
     if _nearest_station_kind("farm", player.global_position, 11.0) != null:
@@ -991,6 +1092,7 @@ func _build() -> void:
     wood -= 2
     iron -= 1
     _spawn_build(build_kind, pos, build_rotation)
+    if legacy != null: legacy.award_activity("build","Bauprojekt: " + build_names[build_kind],12)
     _say("%s gebaut" % build_names[build_kind])
 
 func _spawn_build(kind: int, pos: Vector3, rotation_y: float) -> void:
@@ -1014,7 +1116,7 @@ func save_state() -> void:
             var p = info["node"].global_position
             l_data.append([p.x, p.y, p.z])
     var p = player.global_position if vehicle_in_use == null else vehicle_in_use.global_position
-    var data = {"money": coins, "wood": wood, "iron": iron, "oil": oil, "gold": gold, "sold": sold_logs, "position": [p.x, p.y, p.z], "vehicles": v_data, "world_ops": world_operations.get_data(), "living_universe": living.get_data(), "buildings": b_data, "chopped": chopped_ids, "logs": l_data, "mission": missions.get_data() if missions != null else {}, "build_grid": build_grid, "build_height": build_height, "crops": crops, "paper": paper, "refined_fuel": refined_fuel, "meteor": meteor, "tech_level": tech_level, "completed_jobs": completed_jobs, "world_clock": world_clock.get_data(), "director": nexus_director.get_data(), "story": story.get_data(), "quality_suite": quality_suite.get_data(), "profile": performance_panel.mode, "muted": audio_director.muted}
+    var data = {"money": coins, "wood": wood, "iron": iron, "oil": oil, "gold": gold, "sold": sold_logs, "position": [p.x, p.y, p.z], "vehicles": v_data, "world_ops": world_operations.get_data(), "living_universe": living.get_data(), "buildings": b_data, "chopped": chopped_ids, "logs": l_data, "mission": missions.get_data() if missions != null else {}, "build_grid": build_grid, "build_height": build_height, "crops": crops, "paper": paper, "refined_fuel": refined_fuel, "meteor": meteor, "tech_level": tech_level, "completed_jobs": completed_jobs, "world_clock": world_clock.get_data(), "director": nexus_director.get_data(), "story": story.get_data(), "quality_suite": quality_suite.get_data(), "legacy": legacy.get_data(), "profile": performance_panel.mode, "muted": audio_director.muted}
     var f = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
     if f == null:
         _say("Fehler beim Speichern")
@@ -1051,6 +1153,8 @@ func load_state() -> void:
     world_operations.restore_data(parsed.get("world_ops", {}))
     living.restore_data(parsed.get("living_universe", {}))
     quality_suite.restore_data(parsed.get("quality_suite",{}))
+    legacy.restore_data(parsed.get("legacy",{}))
+    last_world_hour = world_clock.hour
     _on_graphics_profile(clampi(int(parsed.get("profile", performance_panel.mode)),0,2))
     if bool(parsed.get("muted",false)) != audio_director.muted:
         audio_director.toggle_sound()
@@ -1108,8 +1212,10 @@ func load_state() -> void:
         vehicles[i].fuel = float(record.get("fuel", 100))
         vehicles[i].condition = float(record.get("condition", 100))
         vehicles[i].rotation.y = float(record.get("rotation", vehicles[i].rotation.y))
+        _apply_vehicle_tuning(vehicles[i])
     var place = parsed.get("position", [4, 0.4, 7])
     player.global_position = Vector3(float(place[0]), float(place[1]), float(place[2]))
+    if legacy_panel != null: legacy_panel.refresh()
     _say("Welt erfolgreich geladen")
 
 func _say(msg: String) -> void:

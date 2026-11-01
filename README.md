@@ -1,4 +1,4 @@
-# PROJECT NEXUS V2.0 — World Quality Slice (Alpha)
+# PROJECT NEXUS V2.1 — World Quality Slice (Alpha)
 
 **Godot 4.4.1 / Forward+**. All twelve requested categories have *limited working prototypes*, not AAA production-complete systems.
 
@@ -19,3 +19,7 @@ godot --headless --path . --script res://tests/quality_v20_smoke.gd
 ```
 
 CI: `.github/workflows/godot-check.yml`. Echte FPS nur am Gerät prüfen; keine Behauptung einer garantierten Framerate.
+
+## V2.1 player progression and world chronicle
+
+See [V2.1 implementation & limitations](docs/V2_1_LEGACY_PROGRESSION.md). F2 or the on-screen profile button opens careers, owned property, vehicle tuning, ship modules and chronicle. Systems remain an alpha vertical slice, **not** a completed GTA/CoD-equivalent game.
