@@ -60,6 +60,8 @@ func _build() -> void:
     var ground := _button(mission,"BODENRETTUNG",Vector2(190,235),Vector2(177,40))
     ground.pressed.connect(_choose_role.bind("bodensuche"))
     role_buttons.append(ground)
+    var begin_approach := _button(mission,"ZUR ADLERKLAMM FAHREN  [F11]",Vector2(15,277),Vector2(352,21))
+    begin_approach.pressed.connect(_start_approach)
 
     compass = _label(layout_root,"",Vector2(580,4),Vector2(530,27),15,TEXT)
     compass.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -223,6 +225,10 @@ func _refresh() -> void:
 
 func _tick(done: bool) -> String:
     return "[X]" if done else "[ ]"
+
+func _start_approach() -> void:
+    if world != null:
+        world._start_adlerklamm_approach()
 
 func _choose_role(value: String) -> void:
     if world != null and world.nexus_v35 != null:
