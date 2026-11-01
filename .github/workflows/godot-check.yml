@@ -27,6 +27,8 @@ jobs:
         run: python3 tests/validate_v14.py
       - name: Verify V1.5 mission state machines and photo capture wiring
         run: python3 tests/validate_v15.py
+      - name: Verify V1.7 detailed vehicle models and showroom
+        run: python3 tests/validate_v17.py
       - name: Trailer pipeline unit checks
         run: python3 -m unittest discover -s tests -p "test_*.py"
       - name: Import assets and check script syntax
@@ -53,3 +55,5 @@ jobs:
         run: timeout 90s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/photo_smoke.gd
       - name: Touch input regression for browser preview
         run: timeout 90s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/mobile_smoke.gd
+      - name: Detailed vehicle assembly and controls
+        run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/vehicle_detail_smoke.gd
