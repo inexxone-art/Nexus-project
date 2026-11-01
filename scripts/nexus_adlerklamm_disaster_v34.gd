@@ -11,8 +11,12 @@ const PIECE_COUNT := 12
 const SEGMENT_LENGTH := BRIDGE_LENGTH / float(PIECE_COUNT)
 const REBUILD_WOOD := 10
 const REBUILD_IRON := 6
+const REBUILD_CEMENT := 4
+const REBUILD_ASPHALT := 3
+const PRODUCTION = preload("res://scripts/nexus_production_assets.gd")
 
 var stage: String = "ready"
+var rebuild_progress: int = 0
 var elapsed: float = 0.0
 var original_bridge: Array[Node] = []
 var original_layers: Dictionary = {}
@@ -31,6 +35,9 @@ func _ready() -> void:
     concrete = _material(Color("adaaa1"),0.0,0.92)
     metal = _material(Color("656a70"),0.72,0.45)
     glass = _material(Color("597a85"),0.2,0.18)
+    _pbr(asphalt,"asphalt",0.38)
+    _pbr(concrete,"concrete",0.62)
+    _pbr(metal,"metal",0.3)
     _spawn_bus()
     set_process(true)
 
@@ -46,6 +53,22 @@ func _material(tint: Color, metal_value: float, rough: float) -> StandardMateria
     mat.metallic = metal_value
     mat.roughness = rough
     return mat
+
+func _pbr(mat: StandardMaterial3D, channel: String, normal_strength: float) -> void:
+    var albedo: Texture2D = PRODUCTION.surface_texture(channel,"albedo")
+    if albedo != null:
+        mat.albedo_texture = albedo
+        mat.uv1_triplanar = true
+        mat.uv1_scale = Vector3(0.24,0.24,0.24)
+    var normal: Texture2D = PRODUCTION.surface_texture(channel,"normal")
+    if normal != null:
+        mat.normal_enabled = true
+        mat.normal_texture = normal
+        mat.normal_scale = normal_strength
+    var roughness: Texture2D = PRODUCTION.surface_texture(channel,"roughness")
+    if roughness != null:
+        mat.roughness_texture = roughness
+        mat.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
 
 func _part(parent: Node3D, label: String, center: Vector3, dimensions: Vector3, mat: Material) -> MeshInstance3D:
     var node := MeshInstance3D.new()
@@ -163,6 +186,7 @@ func start_disaster() -> bool:
     for i in range(PIECE_COUNT):
         _spawn_segment(i)
     elapsed = 0.0
+    rebuild_progress = 0
     released.clear()
     stage = "fracturing"
     stage_changed.emit(stage)
@@ -211,6 +235,7 @@ func rebuild_bridge() -> bool:
         bus.queue_free()
     _hide_old_bridge(false)
     stage = "ready"
+    rebuild_progress = 0
     elapsed = 0.0
     released.clear()
     _spawn_bus()
@@ -218,7 +243,7 @@ func rebuild_bridge() -> bool:
     return true
 
 func get_data() -> Dictionary:
-    return {"bridge_destroyed":stage != "ready","phase":stage}
+    return {"bridge_destroyed":stage != "ready","phase":stage,"rebuild_progress":rebuild_progress}
 
 func restore_data(value: Dictionary) -> void:
     if bool(value.get("bridge_destroyed",false)):
@@ -230,13 +255,14 @@ func restore_data(value: Dictionary) -> void:
             bus.freeze = false
         elapsed = 9.0
         stage = "aftermath"
+        rebuild_progress = clampi(int(value.get("rebuild_progress",0)),0,3)
         stage_changed.emit(stage)
     elif stage == "aftermath":
         rebuild_bridge()
 
 func status_text() -> String:
     if stage == "ready":
-        return "Adlerklamm: Bruecke offen | F7 startet Gefahreneinsatz"
+        return "Adlerklamm: Bruecke offen | Einsturz erfolgt automatisch hinter dem fahrenden Spieler"
     if stage == "fracturing":
         return "ADLERKLAMM: BRUECKENEINSTURZ! Bus und Fahrbahn stuerzen ab"
-    return "Adlerklamm: Strecke gesperrt | F7 Wiederaufbau: %d Holz + %d Eisen" % [REBUILD_WOOD,REBUILD_IRON]
+    return "Adlerklamm: Strecke gesperrt | E: Bauphase %d/4 | Eisen, Zement und Asphalt herstellen" % (rebuild_progress+1)
