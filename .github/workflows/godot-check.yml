@@ -90,3 +90,5 @@ jobs:
         run: python3 tests/validate_megaworld_v27.py
       - name: Five regions and six planet settlement Godot smoke test
         run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/megaworld_v27_smoke.gd
+      - name: V3.4 Adlerklamm bridge physics, bus fall and reconstruction
+        run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/adlerklamm_v34_smoke.gd
