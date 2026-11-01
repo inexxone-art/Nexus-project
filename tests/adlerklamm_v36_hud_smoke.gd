@@ -37,7 +37,30 @@ func _verify() -> void:
     if hud.weapon_view.equipped != 1 or hud.weapon_view.groups.size() != 4:
         _fail("Hotbar does not switch the visible weapon model")
         return
-    world.nexus_v35.rescue.trigger()
+    world._start_adlerklamm_approach()
+    if absf(world.player.global_position.z-113.0)>3.0:
+        _fail("Mission approach transport not active")
+        return
+    var car: NexusVehicle = null
+    for candidate in world.vehicles:
+        if candidate.category == "Rettung":
+            car = candidate
+            break
+    if car == null:
+        _fail("No rescue car for the driving accident")
+        return
+    world.vehicle_in_use = car
+    car.speed = 12.0
+    car.global_position = Vector3(175,1.0,166)
+    world.nexus_v35._process(0.02)
+    if not world.nexus_v35.bridge_entered or world.mega_map.canyon_disaster.stage != "ready":
+        _fail("Bridge should remain intact while driving across its middle")
+        return
+    car.global_position = Vector3(175,1.0,214)
+    world.nexus_v35._process(0.02)
+    if world.mega_map.canyon_disaster.stage != "fracturing" or world.nexus_v35.rescue.phase != "choice":
+        _fail("Automatic collapse and radio rescue failed after crossing the far exit")
+        return
     hud._refresh()
     if hud.role_buttons[0].disabled:
         _fail("Role choices not active when distress event arrives")
