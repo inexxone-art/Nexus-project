@@ -1,0 +1,50 @@
+name: NEXUS UE5 - Cloud GPU Build (manual, requires GPU runner)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unreal-gpu-build:
+    # IMPORTANT: GitHub-hosted ordinary runners do NOT provide UE5 RTX GPU or Epic engine.
+    # Register a Windows GPU cloud worker with all labels below before starting.
+    runs-on: [self-hosted, Windows, X64, ue5-gpu]
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate installed Unreal Engine 5.8 and cloud GPU
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          if (-not $env:UE58_ROOT) { throw "Please set UE58_ROOT on this Windows GPU runner" }
+          $build = Join-Path $env:UE58_ROOT "Engine/Build/BatchFiles/Build.bat"
+          if (-not (Test-Path $build)) { throw "UE5 Build.bat missing at $build" }
+          $gpu = Get-CimInstance Win32_VideoController | Select-Object Name, AdapterRAM, DriverVersion
+          $gpu | Format-Table | Out-String | Write-Host
+          Write-Host "Compiling on cloud Windows machine; no user's gaming PC needed."
+      - name: Compile NEXUS Editor using UE5.8 toolchain
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $project = Join-Path $env:GITHUB_WORKSPACE "Unreal/NEXUS_UE5/NEXUS.uproject"
+          $build = Join-Path $env:UE58_ROOT "Engine/Build/BatchFiles/Build.bat"
+          & $build NEXUSEditor Win64 Development "-Project=$project" "-WaitMutex" "-NoHotReloadFromIDE"
+          if ($LASTEXITCODE -ne 0) { throw "UnrealBuildTool returned $LASTEXITCODE" }
+      - name: Verify compiled Editor module
+        shell: pwsh
+        run: |
+          $dir = Join-Path $env:GITHUB_WORKSPACE "Unreal/NEXUS_UE5/Binaries/Win64"
+          if (-not (Test-Path $dir)) { throw "No compiled Win64 binaries" }
+          $found = Get-ChildItem $dir -Filter "*NEXUS*" -File -ErrorAction Stop
+          if (-not $found) { throw "NEXUS module missing after build" }
+          $found | Select-Object Name, Length | Format-Table
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: NEXUS-UE5-CLOUD-BUILD-LOGS
+          path: |
+            Unreal/NEXUS_UE5/Saved/Logs/
+          if-no-files-found: ignore
+          retention-days: 7
