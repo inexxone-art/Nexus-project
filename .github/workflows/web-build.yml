@@ -1,0 +1,44 @@
+name: Experimental NEXUS Web Preview
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  web-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Godot binary and official export templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 -o godot.zip 'https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_linux.x86_64.zip'
+          unzip -q godot.zip
+          chmod +x Godot_v4.4.1-stable_linux.x86_64
+          curl -fL --retry 3 -o templates.tpz 'https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_export_templates.tpz'
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.4.1.stable"
+          unzip -q templates.tpz -d /tmp/nexus-godot-templates
+          cp /tmp/nexus-godot-templates/templates/* "$HOME/.local/share/godot/export_templates/4.4.1.stable/"
+      - name: Validate project and import assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tests/validate_project.py
+          python3 tests/validate_v15.py
+          ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --editor --import --quit
+      - name: Export experimental HTML5 build
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --export-release 'Web' build/web/index.html
+          test -s build/web/index.html
+          test -s build/web/index.wasm
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PROJECT-NEXUS-WEB-PREVIEW
+          path: build/web/
+          retention-days: 14
