@@ -166,11 +166,11 @@ def poly_file_url(files: dict, channel: str, resolution: str) -> tuple[str, str]
         variants = files[actual]
         if not isinstance(variants, dict):
             continue
-        for res in (resolution, "1k"):
+        for res in ((resolution, "1k") if channel == "albedo" else ("1k", resolution)):
             options = variants.get(res, {})
             if not isinstance(options, dict):
                 continue
-            for ext in (("jpg", "png") if channel == "albedo" else ("png", "jpg")):
+            for ext in ("jpg", "png"):
                 item = options.get(ext)
                 if isinstance(item, dict) and isinstance(item.get("url"), str):
                     return item["url"], ext
