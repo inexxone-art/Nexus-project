@@ -197,6 +197,7 @@ func add_cylinder(parent: Node3D, pos: Vector3, bottom_radius: float, top_radius
 
 func _make_environment() -> void:
     var world_env = WorldEnvironment.new()
+    world_env.name = "WorldEnvironment"
     var env = Environment.new()
     var s = Sky.new()
     var sky_mat = ProceduralSkyMaterial.new()

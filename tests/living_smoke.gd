@@ -15,7 +15,8 @@ func _run() -> void:
     if sim.REGIONS.size() != 6 or sim.INCIDENTS.size() != 6:
         fail("Wrong world region/event count")
         return
-    sim.advance(sim.EVENT_PERIOD + 0.25)
+    for _tick in range(4):
+        sim.advance(30.0)
     if sim.pending.is_empty():
         fail("First world incident was not generated")
         return
@@ -40,7 +41,8 @@ func _run() -> void:
     if duplicate.completed != 1 or duplicate.memories.size() != sim.memories.size():
         fail("Persistent memories changed after restore")
         return
-    duplicate.advance(duplicate.EVENT_PERIOD + 0.1)
+    for _tick in range(4):
+        duplicate.advance(30.0)
     if duplicate.pending.is_empty():
         fail("Subsequent incident did not spawn")
         return

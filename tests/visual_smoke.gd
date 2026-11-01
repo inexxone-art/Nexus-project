@@ -28,7 +28,8 @@ func _run() -> void:
         push_error("Graphics preset did not switch to cinematic")
         quit(4)
         return
-    world.living.advance(106.0)
+    for _tick in range(4):
+        world.living.advance(30.0)
     world.living_panel.refresh()
     if world.living.pending.is_empty():
         push_error("No mission from the Living Universe")
