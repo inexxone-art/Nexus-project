@@ -25,10 +25,10 @@ func _run() -> void:
             buildings += 1
             var roof_count := 0
             for item in house.get_children():
-                if item.name.begins_with("Geneigtes Ziegeldach"):
+                if item is Node3D and absf((item as Node3D).rotation.z) > 0.01:
                     roof_count += 1
             if roof_count != 2:
-                push_error("Missing sloped roof for " + house.name)
+                push_error("Missing two rotated roof panels for " + house.name + "; count=" + str(roof_count))
                 quit(3)
                 return
     if buildings != 9:
