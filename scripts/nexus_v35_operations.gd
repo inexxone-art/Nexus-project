@@ -3,7 +3,7 @@ class_name NexusV35Operations
 ## Companion overlay for the existing world. Respects old inputs and saves.
 const RESCUE_SCRIPT = preload("res://scripts/nexus_adlerklamm_rescue_v35.gd")
 const INDUSTRY_SCRIPT = preload("res://scripts/nexus_industry_v35.gd")
-var world: Node3D
+var world
 var rescue: NexusAdlerklammRescueV35
 var industry: NexusIndustryV35
 var role_dialog: PanelContainer
