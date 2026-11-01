@@ -129,7 +129,7 @@ func _spawn_cliff_sides() -> void:
                 var b := _cliff_pt(x1,t0,side)
                 var c := _cliff_pt(x0,t1,side)
                 var d := _cliff_pt(x1,t1,side)
-                var corners: Array[Vector3] = [a,c,b,b,c,d] if side < 0 else [a,b,c,b,d,c]
+                var corners: Array = [a,c,b,b,c,d] if side < 0 else [a,b,c,b,d,c]
                 for p in corners:
                     st.set_uv(Vector2(p.x*0.05,p.y*0.05))
                     st.add_vertex(p)
