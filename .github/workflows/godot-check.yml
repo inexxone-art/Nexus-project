@@ -23,6 +23,8 @@ jobs:
         run: python3 tests/validate_project.py
       - name: Verify vehicle fleet definitions
         run: python3 tests/validate_fleet.py
+      - name: Verify V1.4 design and feature integration
+        run: python3 tests/validate_v14.py
       - name: Import assets and check script syntax
         run: ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --editor --import --quit
       - name: Validate 123 vehicles and planet narratives
@@ -31,3 +33,7 @@ jobs:
         run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/smoke.gd
       - name: Six-planet story gameplay tests
         run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/solar_smoke.gd
+      - name: Living Universe deterministic incidents
+        run: timeout 90s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/living_smoke.gd
+      - name: Cinematic polish and world persistence
+        run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/visual_smoke.gd

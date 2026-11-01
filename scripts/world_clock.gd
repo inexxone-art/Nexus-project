@@ -34,6 +34,14 @@ func _refresh() -> void:
     sun.light_energy = 0.09 + 1.3 * daylight
     environment.environment.ambient_light_energy = 0.28 + daylight * 0.72
     environment.environment.fog_density = 0.014 if weather == 1 else (0.0048 if weather == 2 else (0.007 if weather == 3 else 0.0026))
+    var sky = environment.environment.sky.sky_material as ProceduralSkyMaterial
+    if sky != null:
+        var top_night = Color("101a31")
+        var top_day = Color("467eaf") if weather == 0 else Color("606c7b")
+        sky.sky_top_color = top_night.lerp(top_day, daylight)
+        sky.sky_horizon_color = Color("35455d").lerp(Color("d7dde1"),daylight)
+        sky.ground_horizon_color = Color("252c39").lerp(Color("aab7b4"),daylight)
+    environment.environment.fog_light_color = Color("5e6b86").lerp(Color("c4cfd5"),daylight)
     sun.light_color = Color("ccd5ea") if weather == 3 else Color("fff0d5")
 
 func skip_hours(value: float) -> void:

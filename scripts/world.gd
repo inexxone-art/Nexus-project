@@ -1,5 +1,5 @@
 extends Node3D
-## PROJECT NEXUS - Alpine Living World V1.2 + six-planet campaign
+## PROJECT NEXUS - Living Universe V1.4: world simulation, cinematic polish, six planets
 ## An original, small-scale native 3D game foundation. No multiplayer or AAA claim.
 
 const STORY_SCRIPT = preload("res://scripts/nexus_story.gd")
@@ -15,6 +15,14 @@ const FLEET_MENU_SCRIPT = preload("res://scripts/nexus_fleet_menu.gd")
 const SET_DRESSING_SCRIPT = preload("res://scripts/nexus_set_dressing.gd")
 const WORLD_OPS_SCRIPT = preload("res://scripts/nexus_world_operations.gd")
 const COOP_SCRIPT = preload("res://scripts/nexus_coop_preview.gd")
+const LIVING_SCRIPT = preload("res://scripts/nexus_living_universe.gd")
+const LIVING_PANEL_SCRIPT = preload("res://scripts/nexus_living_panel.gd")
+const POLISH_SCRIPT = preload("res://scripts/nexus_cinematic_polish.gd")
+const WEATHER_FX_SCRIPT = preload("res://scripts/nexus_weather_fx.gd")
+var weather_fx: NexusWeatherFX
+var living: NexusLivingUniverse
+var living_panel: NexusLivingPanel
+var visual_polish: NexusCinematicPolish
 var coop: NexusCoopPreview
 var fleet_menu: NexusFleetMenu
 var world_operations: NexusWorldOperations
@@ -89,6 +97,8 @@ func _ready() -> void:
     add_child(set_dressing)
     var details = DETAILS_SCRIPT.new()
     add_child(details)
+    visual_polish = POLISH_SCRIPT.new()
+    add_child(visual_polish)
     nexus_director = DIRECTOR_SCRIPT.new()
     nexus_director.event_started.connect(_on_director_event)
     add_child(nexus_director)
@@ -99,6 +109,9 @@ func _ready() -> void:
     add_child(story)
     world_operations = WORLD_OPS_SCRIPT.new()
     add_child(world_operations)
+    living = LIVING_SCRIPT.new()
+    living.incident_opened.connect(_on_living_incident)
+    add_child(living)
     _make_vehicles()
     drone = DRONE_SCRIPT.new()
     drone.global_position = Vector3(5, 3.0, 5)
@@ -106,11 +119,19 @@ func _ready() -> void:
     player = PLAYER_SCRIPT.new()
     player.global_position = Vector3(4, 0.4, 7)
     add_child(player)
+    weather_fx = WEATHER_FX_SCRIPT.new()
+    add_child(weather_fx)
+    weather_fx.bind_world(player, world_clock)
     coop = COOP_SCRIPT.new()
     add_child(coop)
     coop.set_actor(player)
     _make_hud()
+    living_panel = LIVING_PANEL_SCRIPT.new()
+    living_panel.decision_requested.connect(_on_living_decision)
+    add_child(living_panel)
+    living_panel.bind_simulation(living)
     _make_starmap_button()
+    _make_living_button()
     _make_fleet_menu()
     _make_build_marker()
     _make_minimap()
@@ -403,6 +424,15 @@ func _make_starmap_button() -> void:
     button.pressed.connect(_open_star_system)
     get_node("HUD").add_child(button)
 
+func _make_living_button() -> void:
+    var button := Button.new()
+    button.name = "Einsatzleitung"
+    button.text = "EINSATZLEITUNG / WELTLAGE (F8)"
+    button.position = Vector2(28, 343)
+    button.custom_minimum_size = Vector2(285, 45)
+    button.pressed.connect(living_panel.toggle)
+    get_node("HUD").add_child(button)
+
 func _open_star_system() -> void:
     if vehicle_in_use != null:
         _toggle_vehicle()
@@ -437,6 +467,7 @@ func _make_build_marker() -> void:
 
 func _process(delta: float) -> void:
     nexus_director.advance(delta, wood, iron)
+    living.advance(delta)
     resource_cooldown = max(0.0, resource_cooldown - delta)
     if drone_active and not drone.controlled:
         drone_active = false
@@ -451,6 +482,19 @@ func _on_director_event(description: String) -> void:
     story.trigger_alert(description)
     _say("NEXUS DIRECTOR: " + description)
 
+func _on_living_incident(title: String) -> void:
+    living_panel.refresh()
+    _say("WELTALARM: " + title + " | Einsatzleitung mit F8")
+
+func _on_living_decision(option: int) -> void:
+    var result: Dictionary = living.resolve(option, coins)
+    if bool(result.get("ok", false)):
+        coins += int(result.get("money", 0))
+        completed_jobs += 1
+        story.trigger_alert(str(result.get("message", "Weltereignis abgeschlossen")))
+    living_panel.show_feedback(result)
+    _say(str(result.get("message", "Entscheidung nicht moeglich")))
+
 func _physics_process(_delta: float) -> void:
     if mode_build:
         _update_build_marker()
@@ -461,7 +505,7 @@ func _update_hud() -> void:
     var status = "ZU FUSS" if vehicle_in_use == null else "%s | %d km/h | Diesel %d%%" % [vehicle_in_use.category, roundi(abs(vehicle_in_use.speed) * 3.6), roundi(vehicle_in_use.fuel)]
     if drone_active:
         status = "FPV-DROHNE | Akku %d%% | %s" % [roundi(drone.battery), drone.state_notice]
-    hud.text = "PROJECT NEXUS | CINEMATIC FLEET V1.3\n%s | Geld: %d EUR | %s\nHolz %d  Eisen %d  Oel %d  Gold %d  Ernte %d\nTreibstoff %d  Papier %d  Meteorit %d | Forschung %d\nBaumstaemme: %d | Auftraege: %d" % [status, coins, world_clock.describe(), wood, iron, oil, gold, crops, refined_fuel, paper, meteor, tech_level, sold_logs, completed_jobs]
+    hud.text = "PROJECT NEXUS | LIVING UNIVERSE V1.4\n%s | Geld: %d EUR | %s\nHolz %d  Eisen %d  Oel %d  Gold %d  Ernte %d\nTreibstoff %d  Papier %d  Meteorit %d | Forschung %d\nBaumstaemme: %d | Auftraege: %d" % [status, coins, world_clock.describe(), wood, iron, oil, gold, crops, refined_fuel, paper, meteor, tech_level, sold_logs, completed_jobs]
     var tip = "WASD bewegen/fahren | F Fahrzeug | V FPV-Drohne | E arbeiten | N Karte | Y Zeit | F5/F9 speichern/laden | G Sternensystem | F6 Fahrzeughalle | F7 LAN-Koop (Preview) | ESC Maus"
     if nexus_director.active_event != "":
         tip += "\nWELTEREIGNIS: " + nexus_director.active_event
@@ -483,6 +527,8 @@ func _update_hud() -> void:
         tip += " | Raster: %.2f m | Hoehe: %.1f m (G / Bild auf / Bild ab)" % [build_grid, build_height]
     if story != null:
         hud.text += "\nSTORY: %s | %d m | Ruf %d" % [story.current_objective(), story.target_distance(player.global_position), story.reputation]
+    if living != null:
+        tip += "\n" + living.get_summary() + " | F8 Einsatzleitung | F4 Grafik"
     help.text = tip
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -502,6 +548,10 @@ func _unhandled_input(event: InputEvent) -> void:
             _toggle_vehicle()
         elif event.keycode == KEY_F6 and fleet_menu != null:
             fleet_menu.toggle()
+        elif event.keycode == KEY_F4 and visual_polish != null:
+            visual_polish.set_graphics_quality(not visual_polish.quality_high)
+            weather_fx.set_graphics_quality(visual_polish.quality_high)
+            _say("Grafikprofil: %s" % ("CINEMATIC" if visual_polish.quality_high else "PERFORMANCE"))
         elif event.keycode == KEY_E:
             _interact()
         elif event.keycode == KEY_C:
@@ -854,7 +904,7 @@ func save_state() -> void:
             var p = info["node"].global_position
             l_data.append([p.x, p.y, p.z])
     var p = player.global_position if vehicle_in_use == null else vehicle_in_use.global_position
-    var data = {"money": coins, "wood": wood, "iron": iron, "oil": oil, "gold": gold, "sold": sold_logs, "position": [p.x, p.y, p.z], "vehicles": v_data, "world_ops": world_operations.get_data(), "buildings": b_data, "chopped": chopped_ids, "logs": l_data, "mission": missions.get_data() if missions != null else {}, "build_grid": build_grid, "build_height": build_height, "crops": crops, "paper": paper, "refined_fuel": refined_fuel, "meteor": meteor, "tech_level": tech_level, "completed_jobs": completed_jobs, "world_clock": world_clock.get_data(), "director": nexus_director.get_data(), "story": story.get_data()}
+    var data = {"money": coins, "wood": wood, "iron": iron, "oil": oil, "gold": gold, "sold": sold_logs, "position": [p.x, p.y, p.z], "vehicles": v_data, "world_ops": world_operations.get_data(), "living_universe": living.get_data(), "buildings": b_data, "chopped": chopped_ids, "logs": l_data, "mission": missions.get_data() if missions != null else {}, "build_grid": build_grid, "build_height": build_height, "crops": crops, "paper": paper, "refined_fuel": refined_fuel, "meteor": meteor, "tech_level": tech_level, "completed_jobs": completed_jobs, "world_clock": world_clock.get_data(), "director": nexus_director.get_data(), "story": story.get_data()}
     var f = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
     if f == null:
         _say("Fehler beim Speichern")
@@ -889,6 +939,8 @@ func load_state() -> void:
     nexus_director.restore_data(parsed.get("director", {}))
     story.restore_data(parsed.get("story", {}))
     world_operations.restore_data(parsed.get("world_ops", {}))
+    living.restore_data(parsed.get("living_universe", {}))
+    living_panel.refresh()
     build_grid = float(parsed.get("build_grid", 1.0))
     build_height = float(parsed.get("build_height", 0.0))
     if missions != null:
