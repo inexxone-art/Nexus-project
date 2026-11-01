@@ -108,8 +108,8 @@ func _build() -> void:
     notice_label = _label(layout_root,"",Vector2(469,718),Vector2(806,57),19,GOLD)
     notice_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
-func _panel(label_text: String,where: Vector2,dimensions: Vector2) -> PanelContainer:
-    var box := PanelContainer.new()
+func _panel(label_text: String,where: Vector2,dimensions: Vector2) -> Panel:
+    var box := Panel.new()
     box.name = label_text
     box.position = where
     box.size = dimensions
