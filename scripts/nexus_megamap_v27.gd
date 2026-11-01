@@ -6,6 +6,7 @@ class_name NexusMegaMapV27
 ## Stable world-space anchors, material layering and distance-based scenic LOD.
 
 const PRODUCTION = preload("res://scripts/nexus_production_assets.gd")
+const ADLERKLAMM_EVENT_SCRIPT = preload("res://scripts/nexus_adlerklamm_disaster_v34.gd")
 const SEED: int = 273010
 const DISTRICTS: Dictionary = {
     "aurelia": {"title":"Aurelia | Luxushochhaus-City", "style":"luxury", "center":Vector3(-135.0,0.0,86.0), "radius":65.0},
@@ -23,6 +24,7 @@ var materials: Dictionary = {}
 var next_update: float = 0.0
 var building_count: int = 0
 var bridge_deck: StaticBody3D
+var canyon_disaster: NexusAdlerklammDisaster
 var landmark_count: int = 0
 
 func _ready() -> void:
@@ -38,6 +40,11 @@ func _ready() -> void:
         city_chunks[id] = region
         _build_region(str(id), region)
     _build_canyon_bridge()
+    # Capture only bridge-owned geometry before arterial connectors are added.
+    var original_bridge: Array[Node] = always_on.get_children()
+    canyon_disaster = ADLERKLAMM_EVENT_SCRIPT.new()
+    add_child(canyon_disaster)
+    canyon_disaster.configure_bridge(original_bridge)
     _build_connector_roads()
     _update_visibility()
 
