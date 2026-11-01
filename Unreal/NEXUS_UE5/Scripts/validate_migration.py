@@ -33,5 +33,20 @@ assert (root/"Scripts/import_nexus_pbr.py").is_file()
 inputs=(root/"Config/DefaultInput.ini").read_text()
 for action in ["Interact","ExitVehicle","RoleMedic","RolePilot","RoleGround","MissionApproach"]:
     assert f'ActionName="{action}"' in inputs,action
+# Additional no-budget UE5 asset pipeline checks (syntax/contract only).
+import ast
+for filename in ("import_nexus_pbr.py", "import_nexus_geometry.py"):
+    ast.parse((root/"Scripts"/filename).read_text(encoding="utf-8"),filename=filename)
+assert "SM_NEXUS_BridgeSpan_6p83m" in all_src["NexusBridge.cpp"]
+assert "SM_NEXUS_RescueBus_12m" in all_src["NexusBus.cpp"]
+assert "SM_NEXUS_FireRescue_Truck" in all_src["NexusVehicle.cpp"]
+assert "SM_NEXUS_RescueHelicopter" in all_src["NexusWorldDirector.cpp"]
+assert "GetTimerManager().SetTimer" in all_src["NexusBridge.cpp"]
+assert "OriginalLocalTransforms" in all_src["NexusBridge.cpp"]
+assert "FVector(-8400,0,1945)" in all_src["NexusWorldDirector.cpp"]
+assert "FVector(8400,0,1945)" in all_src["NexusWorldDirector.cpp"]
+assert "130000.f,-50000.f" not in all_src["NexusBus.cpp"], "Unrealistic fall impulse"
+assert "17000.f,Sign*11000.f,-85000.f" not in all_src["NexusBridge.cpp"], "Unrealistic span impulse"
+print("PASS: UE5 geometry import script, four hero-mesh hooks, staged gravity physics and connected roads")
 print(f"NEXUS UE5 source audit PASS: {len(codefiles)} C++ files")
 print("NOTICE: UE5.8 compiler/editor/graphics and gameplay have NOT been executed here.")
