@@ -39,7 +39,14 @@ void ANexusWorldDirector::BeginPlay()
     if(RescueHelicopter)
     {
         RescueHelicopter->bHelicopter=true;
-        RescueHelicopter->Visual->SetRelativeScale3D(FVector(8.f,3.f,2.f));
+        if(auto* Model=LoadObject<UStaticMesh>(nullptr,
+            TEXT("/Game/AAA/Geometry/Hero/SM_NEXUS_RescueHelicopter.SM_NEXUS_RescueHelicopter")))
+        {
+            RescueHelicopter->Visual->SetStaticMesh(Model);
+            RescueHelicopter->Visual->SetRelativeScale3D(FVector::OneVector);
+        }
+        else
+            RescueHelicopter->Visual->SetRelativeScale3D(FVector(8.f,3.f,2.f));
     }
     CreateRescueTargets();
     CreateFactories();
