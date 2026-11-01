@@ -10,12 +10,22 @@ for script in list((root/'scripts').glob('*.gd')) + [root/'tests/smoke.gd']:
     s=script.read_text(encoding='utf-8')
     for c1,c2 in [('(',')'),('[',']'),('{','}')]:
         assert s.count(c1)==s.count(c2),(script,c1)
+    inside_multiline = False
     for n,line in enumerate(s.splitlines(),1):
-        if line.strip().startswith('#'):continue
-        # Escaped pairs and comments may still cause false alarms; project currently uses no complex raw multiline strings.
+        if line.strip().startswith('#') and not inside_multiline:
+            continue
+        # GDScript supports triple-quoted strings (e.g. embedded shader source).
+        # The Godot import test below validates those strings and their syntax.
+        if '"""' in line:
+            if line.count('"""') % 2:
+                inside_multiline = not inside_multiline
+            continue
+        if inside_multiline:
+            continue
         no_esc=re.sub(r'\\.', '',line.split('#',1)[0])
         assert no_esc.count('"')%2==0,(script.name,n,line)
-        assert not (line.startswith('\t')),(script.name,n)
+        assert not line.startswith('\t'),(script.name,n)
+    assert not inside_multiline,(script.name,'unclosed triple-quoted string')
     print('PASS script structure:',script.name,'lines',len(s.splitlines()))
 master='\n'.join(f.read_text(encoding='utf-8') for f in (root/'scripts').glob('*.gd'))
 for reference in re.findall(r'preload\("(res://[^"\n]+)"\)',master):
