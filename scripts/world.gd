@@ -98,6 +98,8 @@ var oil: int = 0
 var gold: int = 0
 var sold_logs: int = 0
 var resource_cooldown: float = 0.0
+var next_shot_msec: int = 0
+var next_medkit_msec: int = 0
 var notice: String = "Willkommen in PROJECT NEXUS."
 var notice_time: float = 5.0
 var hud: Label
@@ -662,6 +664,8 @@ func _process(delta: float) -> void:
     notice_time = max(0.0, notice_time - delta)
     if tow_log != null and is_instance_valid(tow_log) and vehicle_in_use != null:
         tow_log.global_position = vehicle_in_use.global_position + vehicle_in_use.global_transform.basis.z * 5 + Vector3(0, 0.7, 0)
+    if nexus_v35 != null and nexus_v35.equipped == 0 and not drone_active and vehicle_in_use == null and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+        shoot_training()
     _update_hud()
 
 func _on_episode_objective(message: String) -> void:
@@ -768,9 +772,41 @@ func _on_graphics_profile(mode: int) -> void:
         env.volumetric_fog_enabled = mode == 2
     Engine.max_fps = 30 if mode == 0 else (60 if mode == 1 else 0)
 
+func _use_equipment() -> void:
+    if nexus_v35 == null:
+        shoot_training()
+        return
+    match nexus_v35.equipped:
+        0,1:
+            shoot_training()
+        2:
+            var now := Time.get_ticks_msec()
+            if now < next_medkit_msec:
+                _say("Sanitaetstasche: kurz warten.")
+            elif player.health >= 100.0:
+                _say("Keine Behandlung erforderlich.")
+            else:
+                next_medkit_msec = now + 18000
+                player.receive_medical_help(25.0)
+                _say("Erste Hilfe geleistet: +25 Gesundheit.")
+        3:
+            if vehicle_in_use != null:
+                _say("Bauwerkzeug nur zu Fuss nutzbar.")
+            else:
+                mode_build = not mode_build
+                marker.visible = mode_build
+                _say("Bauwerkzeug: "+("Baumodus an" if mode_build else "Baumodus aus"))
+
 func shoot_training() -> void:
     if vehicle_in_use != null or drone_active or player == null or not player.active:
         return
+    if nexus_v35 != null:
+        if nexus_v35.equipped > 1:
+            return
+        var fire_time := Time.get_ticks_msec()
+        if fire_time < next_shot_msec:
+            return
+        next_shot_msec = fire_time + (155 if nexus_v35.equipped == 0 else 380)
     var view_camera: Camera3D = player.camera
     if view_camera == null:
         return
@@ -933,7 +969,7 @@ func _unhandled_input(event: InputEvent) -> void:
         if mode_build:
             _build()
         elif Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-            shoot_training()
+            _use_equipment()
 
 func _toggle_drone() -> void:
     if drone_active:
