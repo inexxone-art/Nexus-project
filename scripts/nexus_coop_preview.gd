@@ -6,6 +6,8 @@ const PORT: int = 24561
 const MAX_FRIENDS: int = 4
 var actor: Node3D = null
 var avatars: Dictionary = {}
+var avatar_targets: Dictionary = {}
+var avatar_headings: Dictionary = {}
 var elapsed: float = 0.0
 var layer: CanvasLayer
 var panel: PanelContainer
@@ -99,6 +101,8 @@ func disconnect_session() -> void:
         if is_instance_valid(p):
             p.queue_free()
     avatars.clear()
+    avatar_targets.clear()
+    avatar_headings.clear()
     if status != null:
         status.text = "OFFLINE"
 
@@ -116,8 +120,16 @@ func _on_peer_left(id: int) -> void:
     if avatars.has(id):
         avatars[id].queue_free()
         avatars.erase(id)
+    avatar_targets.erase(id)
+    avatar_headings.erase(id)
 
 func _process(delta: float) -> void:
+    for id in avatars.keys():
+        var avatar: Node3D = avatars[id]
+        if is_instance_valid(avatar) and avatar_targets.has(id):
+            var desired: Vector3 = avatar_targets[id]
+            avatar.global_position = avatar.global_position.lerp(desired,clampf(delta*9.0,0.0,1.0))
+            avatar.rotation.y = lerp_angle(avatar.rotation.y,float(avatar_headings.get(id,0.0)),clampf(delta*10.0,0.0,1.0))
     if actor == null or multiplayer.multiplayer_peer is OfflineMultiplayerPeer:
         return
     elapsed += delta
@@ -128,8 +140,12 @@ func _process(delta: float) -> void:
 @rpc("any_peer","unreliable_ordered")
 func _send_pose(pos: Vector3, heading: float) -> void:
     var id = multiplayer.get_remote_sender_id()
-    if id == 0:
+    if id == 0 or not pos.is_finite() or not is_finite(heading):
         return
+    if pos.length() > 5000.0 or absf(heading) > 10000.0:
+        return
+    if avatar_targets.has(id) and avatar_targets[id].distance_to(pos) > 55.0:
+        return # drop implausible single-tick movement, do not teleport remote avatars
     if not avatars.has(id):
         var model = Node3D.new()
         model.name = "Koop-Spieler-%d" % id
@@ -146,8 +162,11 @@ func _send_pose(pos: Vector3, heading: float) -> void:
         model.add_child(capsule)
         avatars[id] = model
     var avatar: Node3D = avatars[id]
-    avatar.global_position = pos
-    avatar.rotation.y = heading
+    if not avatar_targets.has(id):
+        avatar.global_position = pos
+        avatar.rotation.y = heading
+    avatar_targets[id] = pos
+    avatar_headings[id] = heading
 
 func _unhandled_input(event: InputEvent) -> void:
     if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F7:
