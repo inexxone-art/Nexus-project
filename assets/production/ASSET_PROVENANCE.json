@@ -1,0 +1,462 @@
+{
+  "version": 1,
+  "notice": "Licensing provenance for built-in original or CC0 production meshes and materials; not a photorealism certification.",
+  "models": {
+    "car": {
+      "filename": "vortex_sport.glb",
+      "sha256": "e7b7f0d9de0c3bc3897c8134b1ceae5631b1da2690d336df18c3ea82e7238c73",
+      "size_bytes": 4688844,
+      "page": "https://github.com/JaronKBragg7337/spectral-gt-rs",
+      "author": "JaronKBragg7337",
+      "license": "CC0-1.0",
+      "front": "+X",
+      "hero_id": "CAR_041",
+      "mesh_count": 258,
+      "material_count": 23,
+      "animation_names": [
+        "Doors_PingPong",
+        "Doors_PingPong.001",
+        "Hood_Service_PingPong",
+        "Steering_Input_PingPong"
+      ],
+      "node_names": [
+        "SPECTRAL_GT_ROOT",
+        "BODY_Shell_Hero",
+        "CABIN_Roof_Shell",
+        "Rear_Fender_Lip_-1",
+        "Rear_Fender_Lip_1",
+        "Front_Fender_Lip_-1",
+        "Front_Fender_Lip_1",
+        "L_Glass_Rear",
+        "L_Glass_Main",
+        "R_Glass_Rear",
+        "R_Glass_Main",
+        "Front_Windshield",
+        "Rear_Windshield",
+        "Panoramic_Roof_Glass",
+        "L_Window_Pillar",
+        "L_Shoulder_Line",
+        "L_Lower_Sculpt_Line",
+        "L_Door_Handle",
+        "L_Side_Skirt",
+        "L_Air_Outlet",
+        "L_Intake_Strake_1",
+        "L_Intake_Strake_2",
+        "L_Intake_Strake_3",
+        "L_Mirror_Stalk",
+        "L_Mirror_Shell",
+        "R_Window_Pillar",
+        "R_Shoulder_Line",
+        "R_Lower_Sculpt_Line",
+        "R_Door_Handle",
+        "R_Side_Skirt",
+        "R_Air_Outlet",
+        "R_Intake_Strake_1",
+        "R_Intake_Strake_2",
+        "R_Intake_Strake_3",
+        "R_Mirror_Stalk",
+        "R_Mirror_Shell",
+        "Roof_Trim_Left",
+        "Roof_Trim_Right",
+        "Front_Grille_Deep",
+        "Front_Grille_Bar_-0.42",
+        "Front_Grille_Bar_0.0",
+        "Front_Grille_Bar_0.42",
+        "Front_Splitter",
+        "Front_Canard_-1",
+        "Front_Canard_1",
+        "Rear_Diffuser",
+        "Diffuser_Fin_-0.6",
+        "Diffuser_Fin_-0.25",
+        "Diffuser_Fin_0.25",
+        "Diffuser_Fin_0.6",
+        "Wing_Post_-1",
+        "Wing_Post_1",
+        "Active_Wing_Blade",
+        "Wing_Endplate_-1",
+        "Wing_Endplate_1",
+        "Exhaust_Outer_-1",
+        "Exhaust_Ring_-1",
+        "Exhaust_Inner_-1",
+        "Exhaust_Outer_1",
+        "Exhaust_Ring_1",
+        "Exhaust_Inner_1",
+        "Badge_Side_Left",
+        "Badge_Side_Right",
+        "Badge_Rear",
+        "Rear_Plate",
+        "Plate_Text",
+        "Rear_Left_Tire",
+        "Rear_Left_Sidewall_Bead",
+        "Rear_Left_Brake_Disc",
+        "Rear_Left_Brake_Hat",
+        "Rear_Left_Brake_Caliper",
+        "Rear_Left_Rim_Base",
+        "Rear_Left_Spoke_1",
+        "Rear_Left_Spoke_2",
+        "Rear_Left_Spoke_3",
+        "Rear_Left_Spoke_4",
+        "Rear_Left_Spoke_5",
+        "Rear_Left_Spoke_6",
+        "Rear_Left_Hub",
+        "Rear_Left_Hub_Cap",
+        "Rear_Left_Tire_Block_1",
+        "Rear_Left_Tire_Block_2",
+        "Rear_Left_Tire_Block_3",
+        "Rear_Left_Tire_Block_4",
+        "Rear_Right_Tire",
+        "Rear_Right_Sidewall_Bead",
+        "Rear_Right_Brake_Disc",
+        "Rear_Right_Brake_Hat",
+        "Rear_Right_Brake_Caliper",
+        "Rear_Right_Rim_Base",
+        "Rear_Right_Spoke_1",
+        "Rear_Right_Spoke_2",
+        "Rear_Right_Spoke_3",
+        "Rear_Right_Spoke_4",
+        "Rear_Right_Spoke_5",
+        "Rear_Right_Spoke_6",
+        "Rear_Right_Hub",
+        "Rear_Right_Hub_Cap",
+        "Rear_Right_Tire_Block_1",
+        "Rear_Right_Tire_Block_2",
+        "Rear_Right_Tire_Block_3",
+        "Rear_Right_Tire_Block_4",
+        "Front_Left_Tire",
+        "Front_Left_Sidewall_Bead",
+        "Front_Left_Brake_Disc",
+        "Front_Left_Brake_Hat",
+        "Front_Left_Brake_Caliper",
+        "Front_Left_Rim_Base",
+        "Front_Left_Spoke_1",
+        "Front_Left_Spoke_2",
+        "Front_Left_Spoke_3",
+        "Front_Left_Spoke_4",
+        "Front_Left_Spoke_5",
+        "Front_Left_Spoke_6",
+        "Front_Left_Hub",
+        "Front_Left_Hub_Cap",
+        "Front_Left_Tire_Block_1",
+        "Front_Left_Tire_Block_2",
+        "Front_Left_Tire_Block_3",
+        "Front_Left_Tire_Block_4",
+        "Front_Right_Tire",
+        "Front_Right_Sidewall_Bead",
+        "Front_Right_Brake_Disc",
+        "Front_Right_Brake_Hat",
+        "Front_Right_Brake_Caliper",
+        "Front_Right_Rim_Base",
+        "Front_Right_Spoke_1",
+        "Front_Right_Spoke_2",
+        "Front_Right_Spoke_3",
+        "Front_Right_Spoke_4",
+        "Front_Right_Spoke_5",
+        "Front_Right_Spoke_6",
+        "Front_Right_Hub",
+        "Front_Right_Hub_Cap",
+        "Front_Right_Tire_Block_1",
+        "Front_Right_Tire_Block_2",
+        "Front_Right_Tire_Block_3",
+        "Front_Right_Tire_Block_4",
+        "Cockpit_Floor",
+        "Center_Tunnel",
+        "Dashboard_Core",
+        "Dashboard_Accent",
+        "Center_Display",
+        "Dash_Vent_-0.42",
+        "Dash_Vent_-0.14",
+        "Dash_Vent_0.14",
+        "Dash_Vent_0.42",
+        "Driver_Seat_Base",
+        "Driver_Seat_Back",
+        "Driver_Seat_Bolster_Outer"
+      ],
+      "required_extensions": [],
+      "source_url": "https://raw.githubusercontent.com/JaronKBragg7337/spectral-gt-rs/main/spectral_gt_rs_game_ready.glb",
+      "original_source_sha256": "e7b7f0d9de0c3bc3897c8134b1ceae5631b1da2690d336df18c3ea82e7238c73",
+      "normalized_for_godot_4_4": false
+    },
+    "helicopter": {
+      "filename": "alpin_h1.glb",
+      "sha256": "50c6a7bac16c7d97828334ae098d5a27c840df5368094680695e7d7884efe49c",
+      "size_bytes": 1973900,
+      "page": "https://3dassets.dev/assets/aircraft-fleet-and-airfield-medium-twin-air-ambulance-52d4f7fc",
+      "author": "3DAssets.dev",
+      "license": "CC0-1.0",
+      "front": "+Z",
+      "hero_id": "HELI_01",
+      "mesh_count": 28,
+      "material_count": 11,
+      "animation_names": [
+        "door-open",
+        "door-close",
+        "rotor-spin",
+        "tail-rotor-spin",
+        "cabin-open",
+        "cabin-close",
+        "wheel-roll",
+        "rudder-steer"
+      ],
+      "node_names": [
+        "medium-twin-air-ambulance",
+        "medium-twin-air-ambulance_0",
+        "medium-twin-air-ambulance_1",
+        "medium-twin-air-ambulance_2",
+        "medium-twin-air-ambulance_3",
+        "medium-twin-air-ambulance_4",
+        "medium-twin-air-ambulance_5",
+        "rudder",
+        "rotor-tail/dark",
+        "rotor-tail",
+        "rotor-tail/steel",
+        "rotor-main/dark",
+        "rotor-main",
+        "rotor-main/steel",
+        "medium-twin-air-ambulance_11",
+        "wheel-main-right/dark",
+        "wheel-main-right",
+        "wheel-main-right/alloy",
+        "wheel-front-right/dark",
+        "wheel-front-right",
+        "wheel-front-right/alloy",
+        "wheel-main-left/dark",
+        "wheel-main-left",
+        "wheel-main-left/alloy",
+        "wheel-front-left/dark",
+        "wheel-front-left",
+        "wheel-front-left/alloy",
+        "door-right",
+        "door-left",
+        "slide-right",
+        "slide-left",
+        "medium-twin-air-ambulance_24",
+        "medium-twin-air-ambulance_25",
+        "medium-twin-air-ambulance_26",
+        "medium-twin-air-ambulance_27",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "required_extensions": [],
+      "source_url": "https://cdn.3dassets.dev/assets/32807/v1/model.glb",
+      "original_source_sha256": "694f8e278a36c080cf2fd96428169c6232c4b40412be5b6f0388af0877affd75",
+      "normalized_for_godot_4_4": true
+    },
+    "excavator": {
+      "filename": "excavator_22t.glb",
+      "sha256": "b7522f6354f4b7ce2697a575f9653d10980aeb62b6651a8eba510e365174ade9",
+      "size_bytes": 152552,
+      "page": "https://3dassets.dev/packs/demolition-and-site-clearance",
+      "author": "3DAssets.dev",
+      "license": "CC0-1.0",
+      "front": "+Z",
+      "hero_id": "EXC_02",
+      "note": "22-tonne animated tracked excavator; intentionally NOT described as a 14-ton machine.",
+      "mesh_count": 9,
+      "material_count": 7,
+      "animation_names": [
+        "boom-open",
+        "boom-close",
+        "bucket-open",
+        "bucket-close"
+      ],
+      "node_names": [
+        "demolition-and-site-clearance-tracked-excavator",
+        "demolition-and-site-clearance-tracked-excavator_0",
+        "demolition-and-site-clearance-tracked-excavator_1",
+        "demolition-and-site-clearance-tracked-excavator_2",
+        "demolition-and-site-clearance-tracked-excavator_3",
+        "demolition-and-site-clearance-tracked-excavator_4",
+        "demolition-and-site-clearance-tracked-excavator_5",
+        "demolition-and-site-clearance-tracked-excavator_6",
+        "boom",
+        "bucket",
+        "",
+        ""
+      ],
+      "required_extensions": [],
+      "source_url": "https://cdn.3dassets.dev/assets/35686/v1/model.glb",
+      "original_source_sha256": "7a11bc9e8aa498237075260ac603d0e4344b14cc491d8bdfebdfa797120631ff",
+      "normalized_for_godot_4_4": true
+    }
+  },
+  "materials": {
+    "roof": {
+      "asset": "roof_tiles",
+      "license": "CC0-1.0",
+      "page": "https://polyhaven.com/a/roof_tiles",
+      "channels": {
+        "albedo": {
+          "file": "roof_albedo.jpg",
+          "sha256": "3b09b333e68460beb2a127216f393da4806063e4d330617817f9deb762909f13",
+          "size_bytes": 4415733,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/roof_tiles/roof_tiles_diff_2k.jpg"
+        },
+        "normal": {
+          "file": "roof_normal.jpg",
+          "sha256": "1eb4e911e3d1b38c7c3b06bdecb6fde5f9646dca5498caf67ffa651cb6cb8d8c",
+          "size_bytes": 883229,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/roof_tiles/roof_tiles_nor_gl_1k.jpg"
+        },
+        "roughness": {
+          "file": "roof_roughness.jpg",
+          "sha256": "b4e832d544fb663728128fe178919d1c9be4d937236d8e8d3f7669a8b896e86c",
+          "size_bytes": 919232,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/roof_tiles/roof_tiles_rough_1k.jpg"
+        }
+      }
+    },
+    "rock": {
+      "asset": "rock_face",
+      "license": "CC0-1.0",
+      "page": "https://polyhaven.com/a/rock_face",
+      "channels": {
+        "albedo": {
+          "file": "rock_albedo.jpg",
+          "sha256": "b989c832327538a9e546cca359417acb9a657d041f300407e8398daaf743f5bc",
+          "size_bytes": 2971109,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rock_face/rock_face_diff_2k.jpg"
+        },
+        "normal": {
+          "file": "rock_normal.jpg",
+          "sha256": "e2682e1286c8b6aca7e01ba7b8fe1726cb6606042b9ee70d097aa67470d410ef",
+          "size_bytes": 1139857,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rock_face/rock_face_nor_gl_1k.jpg"
+        },
+        "roughness": {
+          "file": "rock_roughness.jpg",
+          "sha256": "70ddfc5d7f292909d18ad56dbb1ff7c3a65809dc031854356c7a6978cb446219",
+          "size_bytes": 224371,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rock_face/rock_face_rough_1k.jpg"
+        }
+      }
+    },
+    "grass": {
+      "asset": "forest_ground_04",
+      "license": "CC0-1.0",
+      "page": "https://polyhaven.com/a/forest_ground_04",
+      "channels": {
+        "albedo": {
+          "file": "grass_albedo.jpg",
+          "sha256": "24b8aaf4c8547305d80b0e029ec365219ab1b90748d4ca5651bdc9e75bfde5e6",
+          "size_bytes": 4529321,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/forest_ground_04/forest_ground_04_diff_2k.jpg"
+        },
+        "normal": {
+          "file": "grass_normal.jpg",
+          "sha256": "9c3a0200e02ce40edffbbf9f5f623ef08ea9b1b7812b556182ec978f88887151",
+          "size_bytes": 1326812,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/forest_ground_04/forest_ground_04_nor_gl_1k.jpg"
+        },
+        "roughness": {
+          "file": "grass_roughness.jpg",
+          "sha256": "89d4d50395eb92824a64132c4bc8a5a09009071e0b325ab66dc3104c7a3090ed",
+          "size_bytes": 627507,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/forest_ground_04/forest_ground_04_rough_1k.jpg"
+        }
+      }
+    },
+    "asphalt": {
+      "asset": "asphalt_01",
+      "license": "CC0-1.0",
+      "page": "https://polyhaven.com/a/asphalt_01",
+      "channels": {
+        "albedo": {
+          "file": "asphalt_albedo.jpg",
+          "sha256": "10fe1dafe34fec51397dbe9011f798c68c4e3fc16abfd4d7aea0123122db8993",
+          "size_bytes": 3118607,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/asphalt_01/asphalt_01_diff_2k.jpg"
+        },
+        "normal": {
+          "file": "asphalt_normal.jpg",
+          "sha256": "b745fd20cfb775ae907786ff0ffe200cedf73f3a6ef4e60c637b85b08e0a4f9a",
+          "size_bytes": 1237059,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_01/asphalt_01_nor_gl_1k.jpg"
+        },
+        "roughness": {
+          "file": "asphalt_roughness.jpg",
+          "sha256": "147891957807bb03cc565c9daa8a16a4af7713449a0f475c638f78f833ad0646",
+          "size_bytes": 344964,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_01/asphalt_01_rough_1k.jpg"
+        }
+      }
+    },
+    "wood": {
+      "asset": "wood_planks",
+      "license": "CC0-1.0",
+      "page": "https://polyhaven.com/a/wood_planks",
+      "channels": {
+        "albedo": {
+          "file": "wood_albedo.jpg",
+          "sha256": "3b0669f683e4bf10f5a55a381cfa9669a7b8dfd921901829daa3b35acc2bbdec",
+          "size_bytes": 609525,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_planks/wood_planks_diff_1k.jpg"
+        },
+        "normal": {
+          "file": "wood_normal.jpg",
+          "sha256": "d02abf113e17a8abe97e1be3e9d6d88add242e8c2291e2200d37aa8c68909f25",
+          "size_bytes": 652441,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_planks/wood_planks_nor_gl_1k.jpg"
+        },
+        "roughness": {
+          "file": "wood_roughness.jpg",
+          "sha256": "1b7f115bfa25619b0a2db554eb1ab88a6fc5ef0b74ba4890611eae04d00b9829",
+          "size_bytes": 299757,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_planks/wood_planks_rough_1k.jpg"
+        }
+      }
+    },
+    "plaster": {
+      "asset": "plastered_wall",
+      "license": "CC0-1.0",
+      "page": "https://polyhaven.com/a/plastered_wall",
+      "channels": {
+        "albedo": {
+          "file": "plaster_albedo.jpg",
+          "sha256": "73312ebb6eabc8e0a55addd8a82a8924bcd1e717b9488a887cc77f14b6ea554e",
+          "size_bytes": 617080,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/plastered_wall/plastered_wall_diff_1k.jpg"
+        },
+        "normal": {
+          "file": "plaster_normal.jpg",
+          "sha256": "504e1f7baf4b68714c64b6670e7954bebe99efe31c49f7ce5a2089e4b76023b5",
+          "size_bytes": 1072153,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/plastered_wall/plastered_wall_nor_gl_1k.jpg"
+        },
+        "roughness": {
+          "file": "plaster_roughness.jpg",
+          "sha256": "844aaa32fda1130262ad8a50084aec7bd5ebce272c8af5e6ba076734beedcd66",
+          "size_bytes": 387134,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/plastered_wall/plastered_wall_rough_1k.jpg"
+        }
+      }
+    },
+    "concrete": {
+      "asset": "t_concrete_wall_002",
+      "license": "CC0-1.0",
+      "page": "https://polyhaven.com/a/t_concrete_wall_002",
+      "channels": {
+        "albedo": {
+          "file": "concrete_albedo.jpg",
+          "sha256": "5db40e837a7155c13d3c0810ee650c66873f91bb92094777706bd2c56a064760",
+          "size_bytes": 604721,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/t_concrete_wall_002/t_concrete_wall_002_diffuse_1k.jpg"
+        },
+        "normal": {
+          "file": "concrete_normal.jpg",
+          "sha256": "4af9556fca04ca92ef824167641391c356c2c317ba440f05cfd9aa36c58a0898",
+          "size_bytes": 1310119,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/t_concrete_wall_002/t_concrete_wall_002_nor_gl_1k.jpg"
+        },
+        "roughness": {
+          "file": "concrete_roughness.jpg",
+          "sha256": "0b214625200363dc1e270e78947e6347f91e24309213516104ab2f89cafb49dd",
+          "size_bytes": 389249,
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/t_concrete_wall_002/t_concrete_wall_002_rough_1k.jpg"
+        }
+      }
+    }
+  }
+}
