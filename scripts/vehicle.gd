@@ -22,6 +22,9 @@ var rotor_speed: float = 0.0
 var weather_code: int = 0
 var distance_km: float = 0.0
 var tire_grip: float = 1.0
+var tune_motor: int = 0
+var tune_tires: int = 0
+var tune_brakes: int = 0
 
 func configure(record: Dictionary) -> void:
     definition = record.duplicate(true)
@@ -61,9 +64,9 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
     var kind: String = str(definition.get("kind","car"))
-    tire_grip = DRIVE_MODEL.grip_factor(kind,weather_code)
-    var top_speed: float = DRIVE_MODEL.maximum_speed_kmh(definition,condition,fuel)/3.6
-    var accel: float = maxf(0.5,float(definition.get("acceleration",6.0)))
+    tire_grip = DRIVE_MODEL.grip_factor(kind,weather_code) * (1.0 + 0.06*float(tune_tires))
+    var top_speed: float = DRIVE_MODEL.maximum_speed_kmh(definition,condition,fuel)*(1.0+0.045*float(tune_motor))/3.6
+    var accel: float = maxf(0.5,float(definition.get("acceleration",6.0)))*(1.0+0.075*float(tune_motor))
     var handling: float = clampf(float(definition.get("handling",0.72)),0.3,1.8)
     var steer_input: float = 0.0
     if controlled and fuel > 0.0 and condition > 0.0:
@@ -76,7 +79,7 @@ func _physics_process(delta: float) -> void:
             acceleration *= 1.8
         speed = move_toward(speed,target_speed,delta*acceleration)
         if Input.is_action_pressed("jump") and category != "Helikopter":
-            speed = move_toward(speed,0.0,delta*20.0*tire_grip)
+            speed = move_toward(speed,0.0,delta*(20.0+float(tune_brakes)*5.0)*tire_grip)
         steer_angle = move_toward(steer_angle,steer_input,delta*(2.1+tire_grip))
         if absf(speed) > 0.2:
             var steering_authority: float = clampf(tire_grip*(1.0-absf(speed)/maxf(30.0,top_speed*2.1)),0.25,1.0)

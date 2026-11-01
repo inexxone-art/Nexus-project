@@ -2,7 +2,7 @@
 config_version=5
 
 [application]
-config/name="PROJECT NEXUS – Quality Slice 2.0 (Alpha)"
+config/name="PROJECT NEXUS – Legacy Systems 2.1 (Alpha)"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
 

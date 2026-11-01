@@ -33,6 +33,8 @@ jobs:
         run: python3 tests/validate_v18.py
       - name: Validate V2.0 interconnected gameplay and mobile controls
         run: python3 tests/validate_v20.py
+      - name: Validate V2.1 player economy and history wiring
+        run: python3 tests/validate_v21.py
       - name: Trailer pipeline unit checks
         run: python3 -m unittest discover -s tests -p "test_*.py"
       - name: Import assets and check script syntax
@@ -65,3 +67,7 @@ jobs:
         run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/vehicle_detail_smoke.gd
       - name: World Quality V2.0 integration smoke test
         run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/quality_v20_smoke.gd
+      - name: V2.1 career economy and chronicle smoke test
+        run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/legacy_logic_smoke.gd
+      - name: V2.1 real world economy save/load integration
+        run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/legacy_world_smoke.gd
