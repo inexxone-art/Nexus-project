@@ -55,8 +55,8 @@ void fragment() {
                   +0.07*cos(world_point.z*0.092-world_point.x*0.043);
     ALBEDO = clamp(base*map_tint*blotch*(1.0-0.32*wet),vec3(0.0),vec3(1.0));
     float stone_roughness = tri_channel(rock_roughness,coord,weights);
-    float grass_roughness = tri_channel(grass_roughness,coord,weights);
-    ROUGHNESS = clamp(mix(grass_roughness,stone_roughness,rock_amount)*(1.0-0.30*wet),0.17,1.0);
+    float grass_rough_sample = tri_channel(grass_roughness,coord,weights);
+    ROUGHNESS = clamp(mix(grass_rough_sample,stone_roughness,rock_amount)*(1.0-0.30*wet),0.17,1.0);
     METALLIC = 0.0;
     SPECULAR = 0.5;
 }
