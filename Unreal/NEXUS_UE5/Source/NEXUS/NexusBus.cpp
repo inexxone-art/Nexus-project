@@ -18,6 +18,9 @@ void ANexusBus::BeginPlay()
     InitialTransform=GetActorTransform();
     if(!HighPolyBus.IsNull()) PhysicsBody->SetStaticMesh(HighPolyBus.LoadSynchronous());
     if(!PhysicsBody->GetStaticMesh())
+        PhysicsBody->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,
+            TEXT("/Game/AAA/Geometry/Hero/SM_NEXUS_RescueBus_12m.SM_NEXUS_RescueBus_12m")));
+    if(!PhysicsBody->GetStaticMesh())
     {
         static ConstructorHelpers::FObjectFinder<UStaticMesh> Placeholder(TEXT("/Engine/BasicShapes/Cube.Cube"));
         if(Placeholder.Succeeded())
