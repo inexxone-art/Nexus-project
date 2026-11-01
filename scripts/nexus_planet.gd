@@ -5,6 +5,8 @@ const CAMPAIGN = preload("res://scripts/nexus_campaign.gd")
 const PLAYER_SCRIPT = preload("res://scripts/player.gd")
 const LORE = preload("res://scripts/nexus_lore.gd")
 const DISCOVERIES_SCRIPT = preload("res://scripts/nexus_planet_discoveries.gd")
+const PLANET_CITIES_SCRIPT = preload("res://scripts/nexus_planet_cities_v27.gd")
+var planet_cities: NexusPlanetCitiesV27
 
 var discoveries: NexusPlanetDiscoveries
 var campaign: Dictionary
@@ -54,6 +56,9 @@ func _ready() -> void:
     _make_distant_landmarks()
     _make_vegetation()
     _make_ruins()
+    planet_cities = PLANET_CITIES_SCRIPT.new()
+    add_child(planet_cities)
+    planet_cities.configure(biome, int(planet["seed"]), Callable(self,"height_at"))
     _make_objective()
     _make_shuttle()
     _make_player()

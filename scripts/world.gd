@@ -29,6 +29,9 @@ const SHIP_WALK_SCRIPT = preload("res://scripts/nexus_ship_walkthrough.gd")
 const WEATHER_SURFACE_SCRIPT = preload("res://scripts/nexus_weather_surface.gd")
 const PRODUCTION_ASSETS = preload("res://scripts/nexus_production_assets.gd")
 const WORLD_STRUCTURE_SCRIPT = preload("res://scripts/nexus_world_structure.gd")
+const MEGAMAP_SCRIPT = preload("res://scripts/nexus_megamap_v27.gd")
+const HEIGHTFIELD_SCRIPT = preload("res://scripts/nexus_terrain_v26.gd")
+var mega_map: NexusMegaMapV27
 var world_structure: NexusWorldStructure
 var legacy: NexusLegacy
 var legacy_panel: NexusLegacyPanel
@@ -135,6 +138,8 @@ func _ready() -> void:
     _make_trees()
     world_structure = WORLD_STRUCTURE_SCRIPT.new()
     add_child(world_structure)
+    mega_map = MEGAMAP_SCRIPT.new()
+    add_child(mega_map)
     story = STORY_SCRIPT.new()
     add_child(story)
     world_operations = WORLD_OPS_SCRIPT.new()
@@ -151,6 +156,7 @@ func _ready() -> void:
     player.global_position = Vector3(4, 0.4, 7)
     add_child(player)
     world_structure.bind_actor(player)
+    mega_map.set_actor(player)
     episode_one = EPISODE_SCRIPT.new()
     episode_one.objective_changed.connect(_on_episode_objective)
     episode_one.chapter_completed.connect(_on_episode_complete)
@@ -310,22 +316,13 @@ func _make_environment() -> void:
     add_child(sky_light)
 
 func _make_land() -> void:
+    # V2.7: physically collidable, continuous heightfield; original mission POIs
+    # stay at their legacy elevations. Adlerklamm is carved below road height.
     ground_body = StaticBody3D.new()
-    ground_body.name = "Boden"
+    ground_body.name = "Boden | World heightfield with playable ravine"
     add_child(ground_body)
-    var collision = CollisionShape3D.new()
-    var shape = BoxShape3D.new()
-    shape.size = Vector3(460, 1, 460)
-    collision.shape = shape
-    collision.position.y = -0.5
-    ground_body.add_child(collision)
-    var plane = MeshInstance3D.new()
-    var mesh = PlaneMesh.new()
-    mesh.size = Vector2(460, 460)
-    plane.mesh = mesh
-    plane.material_override = surface_material(Color("a4b69a"), "nexus_pbr_forest", 75)
-    ground_body.add_child(plane)
-    # Scenic alpine mountains are now generated as continuous ridges by cinematic_landscape.gd.
+    HEIGHTFIELD_SCRIPT.populate_ground(ground_body)
+    # Long-range alpine backdrop remains owned by cinematic_landscape.gd.
 
 func _make_roads() -> void:
     var road: Material = weather_surface.make_road_material(16.0)
@@ -733,6 +730,8 @@ func _on_graphics_profile(mode: int) -> void:
     performance_panel.mode = clampi(mode,0,2)
     if world_structure != null:
         world_structure.apply_graphics_tier(mode)
+    if mega_map != null:
+        mega_map.set_graphics_tier(mode)
     var high: bool = mode == 2
     if visual_polish != null:
         visual_polish.set_graphics_quality(high)
