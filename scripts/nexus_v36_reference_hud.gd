@@ -191,7 +191,13 @@ func _refresh() -> void:
     mission_head = mission_steps[0]
     var label_weather: String = ["Sonne","Wolken","Regen","Schnee"][clampi(int(world.world_clock.weather),0,3)]
     weather.text = "%s   |   Tag %d   %02d:%02d" % [label_weather,world.legacy.world_days+1 if world.legacy != null else 1,int(world.world_clock.hour),int(fposmod(world.world_clock.hour*60.0,60.0))]
-    compass.text = "SW    240      W    285    300       NW    330       N    015"
+    var facing: Vector3 = -world.player.global_basis.z
+    if world.vehicle_in_use != null:
+        facing = -world.vehicle_in_use.global_basis.z
+    var degrees: int = posmod(roundi(rad_to_deg(atan2(facing.x,-facing.z))),360)
+    var cardinal: Array[String] = ["N","NE","E","SE","S","SW","W","NW"]
+    var index: int = (roundi(float(degrees)/45.0))%8
+    compass.text = "◂    %s      %03d°       %s       %03d°      %s    ▸" % [cardinal[(index+7)%8],posmod(degrees-45,360),cardinal[index],degrees,cardinal[(index+1)%8]]
     resource_rows["wood"].text = str(world.wood)
     resource_rows["iron"].text = str(world.iron)
     resource_rows["iron_ore"].text = str(industry.inventory["iron_ore"])
