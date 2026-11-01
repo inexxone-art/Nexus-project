@@ -30,6 +30,11 @@ func bind_game(world_node) -> void:
     owner_world = world_node
     _terrain_surface()
     _render_environment()
+    if owner_world.mega_map != null:
+        for child in owner_world.mega_map.get_children():
+            if child is NexusAdlerklammEnvironmentV35:
+                if child.river != null and child.river.material_override is ShaderMaterial:
+                    canyon_river_material = child.river.material_override
 
 func _rock_material() -> StandardMaterial3D:
     var mat := StandardMaterial3D.new()
@@ -124,7 +129,8 @@ func _spawn_cliff_sides() -> void:
                 var b := _cliff_pt(x1,t0,side)
                 var c := _cliff_pt(x0,t1,side)
                 var d := _cliff_pt(x1,t1,side)
-                for p in [a,c,b,b,c,d] if side<0 else [a,b,c,b,d,c]:
+                var corners: Array[Vector3] = [a,c,b,b,c,d] if side < 0 else [a,b,c,b,d,c]
+                for p in corners:
                     st.set_uv(Vector2(p.x*0.05,p.y*0.05))
                     st.add_vertex(p)
         st.generate_normals()
@@ -176,7 +182,7 @@ func _spawn_alpine_forest() -> void:
     var trunk_material := StandardMaterial3D.new()
     trunk_material.albedo_color = Color("574638")
     trunk_material.roughness = 0.95
-    trunk_multimesh.mesh.material = trunk_material
+    (trunk_multimesh.mesh as CylinderMesh).material = trunk_material
     trunk_multimesh.instance_count = 490
     for i in range(pine_multimesh.instance_count):
         var px := rng.randf_range(88.0,229.0)
