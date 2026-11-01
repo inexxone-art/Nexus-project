@@ -1,5 +1,6 @@
 extends CharacterBody3D
 class_name NexusPlayer
+const ACTOR_RIG = preload("res://scripts/nexus_actor_rig.gd")
 
 var active: bool = true
 var first_person: bool = false
@@ -10,6 +11,8 @@ var pivot: Node3D
 var camera: Camera3D
 var body_visual: MeshInstance3D
 var health: float = 100.0
+var rig: NexusActorRig
+var invulnerable_time: float = 0.0
 var animation_time: float = 0.0
 
 func _ready() -> void:
@@ -33,6 +36,9 @@ func _ready() -> void:
     material.roughness = 0.8
     body_visual.material_override = material
     add_child(body_visual)
+    body_visual.visible = false
+    rig = ACTOR_RIG.new()
+    add_child(rig)
 
     pivot = Node3D.new()
     pivot.name = "CameraPivot"
@@ -55,6 +61,9 @@ func _unhandled_input(event: InputEvent) -> void:
         pivot.rotation.x = clamp(pivot.rotation.x - event.relative.y * 0.0022, -0.94, 0.94)
 
 func _process(delta: float) -> void:
+    invulnerable_time = maxf(0.0, invulnerable_time-delta)
+    if rig != null:
+        rig.animate_motion(delta,Vector2(velocity.x,velocity.z).length() if active else 0.0, Input.is_action_pressed("sprint"))
     if body_visual != null and active and not first_person:
         var horizontal_speed: float = Vector2(velocity.x,velocity.z).length()
         animation_time += delta*horizontal_speed*1.8
@@ -87,8 +96,20 @@ func switch_view() -> void:
     if camera == null:
         return
     first_person = not first_person
-    body_visual.visible = not first_person
+    body_visual.visible = false
+    if rig != null:
+        rig.visible = not first_person
     camera.position = Vector3(0, 0.02, 0.0) if first_person else Vector3(0, 0.48, 4.9)
     camera.rotation = Vector3.ZERO
     if not first_person:
         camera.look_at(Vector3(0, 0.1, -8), Vector3.UP)
+
+func take_damage(amount: float) -> bool:
+    if amount <= 0.0 or invulnerable_time > 0.0 or not active:
+        return false
+    health = maxf(0.0,health-amount)
+    invulnerable_time = 0.65
+    return true
+
+func receive_medical_help(amount: float) -> void:
+    health = clampf(health+maxf(0.0,amount),0.0,100.0)
