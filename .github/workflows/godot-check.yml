@@ -25,6 +25,8 @@ jobs:
         run: python3 tests/validate_fleet.py
       - name: Verify V1.4 design and feature integration
         run: python3 tests/validate_v14.py
+      - name: Verify trailer shotlist and original-footage policy
+        run: python3 -m unittest discover -s tests -p test_trailer_pipeline.py -v
       - name: Import assets and check script syntax
         run: |
           set -o pipefail
