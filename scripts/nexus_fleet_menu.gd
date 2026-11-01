@@ -20,6 +20,9 @@ var selected_id: String = ""
 var preview_viewport: SubViewport
 var preview_root: Node3D
 var vehicle_visual: Node3D
+var preview_camera: Camera3D
+var preview_spin_pause: float = 0.0
+var preview_zoom_factor: float = 1.0
 
 func _ready() -> void:
     name = "NEXUS Fahrzeughalle | V1.7"
@@ -53,6 +56,7 @@ func _ready() -> void:
     search.text_changed.connect(_on_filter_text)
     filters.add_child(search)
     _make_preview(main)
+    _make_showcase_buttons(main)
     details = Label.new()
     details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     main.add_child(details)
@@ -94,6 +98,8 @@ func _make_preview(main: VBoxContainer) -> void:
     var subcontainer := SubViewportContainer.new()
     subcontainer.custom_minimum_size = Vector2(240,190)
     subcontainer.stretch = true
+    subcontainer.mouse_filter = Control.MOUSE_FILTER_STOP
+    subcontainer.gui_input.connect(_on_preview_input)
     main.add_child(subcontainer)
     preview_viewport = SubViewport.new()
     preview_viewport.size = Vector2i(512,240)
@@ -140,6 +146,57 @@ func _make_preview(main: VBoxContainer) -> void:
     preview_root.add_child(camera)
     camera.look_at(Vector3(0,1.6,0),Vector3.UP)
     camera.current = true
+    preview_camera = camera
+
+func _make_showcase_buttons(main: VBoxContainer) -> void:
+    var title := Label.new()
+    title.text = "V1.8 HERO-DETAILMODELLE · 3 aufwendig ausgearbeitete Prototypen"
+    title.add_theme_font_size_override("font_size", 11)
+    main.add_child(title)
+    var buttons := HBoxContainer.new()
+    main.add_child(buttons)
+    for entry in [{"id":"CAR_041","label":"Sportwagen"},{"id":"HELI_01","label":"Rettungsheli"},{"id":"EXC_02","label":"Bagger 14t"}]:
+        var b := Button.new()
+        b.text = str(entry["label"])
+        b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        b.pressed.connect(_jump_to_showcase.bind(str(entry["id"])))
+        buttons.add_child(b)
+
+func _jump_to_showcase(id: String) -> void:
+    select_group.select(0)
+    search.text = ""
+    page = 0
+    var records := CATALOG.filtered("Alle")
+    for i in range(records.size()):
+        if str(records[i].get("id", "")) == id:
+            page = int(i / PAGE_SIZE)
+            break
+    _select(id)
+
+func _on_preview_input(event: InputEvent) -> void:
+    if vehicle_visual == null:
+        return
+    if event is InputEventScreenDrag:
+        vehicle_visual.rotation.y += event.relative.x * 0.014
+        preview_spin_pause = 5.0
+    elif event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_LEFT):
+        vehicle_visual.rotation.y += event.relative.x * 0.010
+        preview_spin_pause = 5.0
+    elif event is InputEventMouseButton and event.pressed:
+        if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+            preview_zoom_factor = clampf(preview_zoom_factor*0.90, 0.6, 1.5)
+            _position_preview_camera()
+        elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+            preview_zoom_factor = clampf(preview_zoom_factor*1.10, 0.6, 1.5)
+            _position_preview_camera()
+
+func _position_preview_camera() -> void:
+    if preview_camera == null or vehicle_visual == null:
+        return
+    var length_m: float = float(vehicle_visual.spec.get("length", 4.7))
+    var d: float = maxf(7.0, length_m*1.65) * preview_zoom_factor
+    preview_camera.position = Vector3(d*0.55, d*0.37, d*0.86)
+    preview_camera.look_at(Vector3(0,1.55,0), Vector3.UP)
 
 func _show_vehicle(record: Dictionary) -> void:
     if preview_root == null: return
@@ -150,11 +207,9 @@ func _show_vehicle(record: Dictionary) -> void:
     vehicle_visual.set_vehicle(record,str(record.get("group","Auto")))
     preview_root.add_child(vehicle_visual)
     vehicle_visual.rotation.y = 0.5
-    var cam := preview_root.get_node_or_null("Camera3D") as Camera3D
-    if cam != null:
-        var target_distance: float = maxf(7.0,float(record.get("length",4.7))*1.7)
-        cam.position = Vector3(target_distance*0.57,target_distance*0.36,target_distance*0.84)
-        cam.look_at(Vector3(0,1.6,0),Vector3.UP)
+    preview_zoom_factor = 1.0
+    preview_spin_pause = 0.0
+    _position_preview_camera()
     details.text = "%s\n%s | %d km/h | %d Sitze\nLaenge %.2f m · Breite %.2f m · Leistung %.1f · Handling %.2f\nEinsatz: %s" % [
         record.get("name","Unbekannt"),record.get("family","Modell"),int(record.get("top_kmh",0)),
         int(record.get("seats",1)),float(record.get("length",4.5)),float(record.get("width",2.0)),
@@ -162,7 +217,9 @@ func _show_vehicle(record: Dictionary) -> void:
 
 func _process(delta: float) -> void:
     if visible and vehicle_visual != null:
-        vehicle_visual.rotation.y += delta*0.28
+        preview_spin_pause = maxf(0.0, preview_spin_pause-delta)
+        if preview_spin_pause <= 0.0:
+            vehicle_visual.rotation.y += delta*0.22
         vehicle_visual.animate_vehicle(delta,0.0,0.0,false,100.0)
 
 func toggle() -> void:

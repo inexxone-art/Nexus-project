@@ -4,7 +4,9 @@ extends Node3D
 const CAMPAIGN = preload("res://scripts/nexus_campaign.gd")
 const PLAYER_SCRIPT = preload("res://scripts/player.gd")
 const LORE = preload("res://scripts/nexus_lore.gd")
+const DISCOVERIES_SCRIPT = preload("res://scripts/nexus_planet_discoveries.gd")
 
+var discoveries: NexusPlanetDiscoveries
 var campaign: Dictionary
 var planet: Dictionary
 var pid: String
@@ -55,6 +57,10 @@ func _ready() -> void:
     _make_objective()
     _make_shuttle()
     _make_player()
+    discoveries = DISCOVERIES_SCRIPT.new()
+    add_child(discoveries)
+    discoveries.discovery_found.connect(_notice)
+    discoveries.bind_planet(player,pid,campaign)
     _restore_visit()
     _make_hud()
     _refresh_objective()
@@ -468,8 +474,8 @@ func _process(delta: float) -> void:
         var target_pos = Vector2(objective_marker.position.x,objective_marker.position.z)
         var player_pos = Vector2(player.global_position.x,player.global_position.z)
         var task = "SCANNER ANSTEUERN" if mission_stage == 0 else ("GEGNER SICHERN %d/3" % mini(kills,3) if mission_stage == 1 and kills < 3 else ("KERN BERGEN" if mission_stage == 1 else ("ZUM LANDER ZURUECK" if mission_stage == 2 else "ERFORSCHUNG ERFOLGREICH")))
-        hud.text = "PROJECT NEXUS | PLANETEN-EXPEDITION V1.3\n%s / %s\n%s\nAUFTRAG: %s | Entfernung: %d m\nGesundheit: %d  Munition: %d  Fragmente: %d/6\nWASD bewegen | Maus zielen | Linksklick schiessen | E nutzen | R nachladen | G Sternenkarte" % [
-            planet["name"],planet["subtitle"],planet["chapter"],task,roundi(target_pos.distance_to(player_pos)),roundi(hp),ammo,int(campaign.get("intel",0))]
+        hud.text = "PROJECT NEXUS | PLANETEN-EXPEDITION V1.3\n%s / %s\n%s\nAUFTRAG: %s | Entfernung: %d m\nGesundheit: %d  Munition: %d  Fragmente: %d/6 | Geheimnisse: %d/3\nWASD bewegen | Maus zielen | Linksklick schiessen | E nutzen | R nachladen | G Sternenkarte" % [
+            planet["name"],planet["subtitle"],planet["chapter"],task,roundi(target_pos.distance_to(player_pos)),roundi(hp),ammo,int(campaign.get("intel",0)),3-discoveries.remaining()]
         message_label.text = "" if message_time <= 0.0 else message_label.text
 
 func _spawn_enemy(where: Vector3) -> void:
