@@ -14,6 +14,8 @@ const REBUILD_IRON := 6
 const REBUILD_CEMENT := 4
 const REBUILD_ASPHALT := 3
 const PRODUCTION = preload("res://scripts/nexus_production_assets.gd")
+const BUS_ART_V37 = preload("res://scripts/nexus_bus_art_v37.gd")
+const BRIDGE_FRACTURE_V37 = preload("res://scripts/nexus_bridge_fracture_v37.gd")
 
 var stage: String = "ready"
 var rebuild_progress: int = 0
@@ -117,6 +119,8 @@ func _spawn_bus() -> void:
     _part(bus,"Windshield",Vector3(0,0.4,-5.29),Vector3(2.28,1.65,0.05),glass)
     for x in [-0.75,0.75]:
         _part(bus,"Headlamp",Vector3(x,-1.09,-5.33),Vector3(0.4,0.28,0.07),_material(Color("f8e6af"),0.0,0.25))
+    var bus_geometry := BUS_ART_V37.new()
+    bus.add_child(bus_geometry)
     add_child(bus)
 
 func _spawn_segment(index: int) -> void:
@@ -138,6 +142,9 @@ func _spawn_segment(index: int) -> void:
     for side in [-1.0,1.0]:
         _part(piece,"Jagged edge parapet",Vector3(float(side)*4.7,0.78,0),Vector3(0.36,0.9,SEGMENT_LENGTH-0.16),concrete)
         _part(piece,"Exposed steel",Vector3(float(side)*2.8,-0.33,0),Vector3(0.12,0.14,SEGMENT_LENGTH+0.16),metal)
+    var exposed_section := BRIDGE_FRACTURE_V37.new()
+    piece.add_child(exposed_section)
+    exposed_section.setup(SEGMENT_LENGTH-0.06,index)
     add_child(piece)
     pieces.append(piece)
 
