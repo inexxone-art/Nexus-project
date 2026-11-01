@@ -1,0 +1,9 @@
+{
+  "project":"PROJECT NEXUS",
+  "version":"1.3.0-cinematic-fleet-solar-alpha",
+  "engine":"Godot 4.4.1",
+  "source":"V1.2 solar campaign + new fleet, biome materials, cinematic set dressing and missions",
+  "counts":{"vehicle_profiles":123,"car_profiles":70,"tank_profiles":20,"helicopter_profiles":10,"excavator_profiles":3,"utility_profiles":20,"planets":6,"new_pbr_material_families":8},
+  "features":{"vehicle_profiles":"implemented - procedural archetypes","photorealism":"not achieved","singleplayer":"prototype source","coop":"experimental LAN avatar preview","48_hour_campaign":"design target only","all_phases":"prototype slices","Godot_runtime_test":"not performed locally"},
+  "truthful_release_note":"No production-quality assets, shipped executable or complete campaign claimed."
+}

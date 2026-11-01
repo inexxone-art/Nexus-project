@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PROJECT NEXUS | ALPINE WORLD V0.6</title>
+<style>
+:root{--bg:#080e15;--panel:rgba(7,15,23,.82);--line:rgba(151,205,226,.23);--accent:#96ffcb;--txt:#e8f5f7;--muted:#a0b6be;--orange:#ffc782}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#091019;color:var(--txt);font-family:Inter,Segoe UI,Arial,sans-serif;overflow:hidden}canvas#world{position:absolute;inset:0;width:100%;height:100%;display:block;outline:none}#vignette{pointer-events:none;position:absolute;inset:0;background:radial-gradient(ellipse 75% 70% at 50% 44%,transparent 45%,rgba(0,4,8,.37) 100%)}button,select{font:inherit}button{cursor:pointer;user-select:none}button:disabled{opacity:.45;cursor:not-allowed}.glass{background:var(--panel);backdrop-filter:blur(18px);border:1px solid var(--line);box-shadow:0 10px 45px #0006;border-radius:13px}#hudtop{position:absolute;top:15px;left:18px;right:18px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;pointer-events:none}#brand{padding:13px 16px;min-width:285px}#brand .tiny{letter-spacing:3px;font-size:10px;font-weight:700;color:#b7cec9}#brand h1{font-size:22px;letter-spacing:3px;line-height:1.1;margin:3px 0;font-weight:900}#brand .sub{font-size:10px;letter-spacing:1.2px;color:var(--accent)}#stats{display:flex;gap:8px;align-items:center}#stats .stat{padding:10px 13px;min-width:105px}#stats b{display:block;font-size:17px;letter-spacing:.2px}#stats small{font-size:10px;color:var(--muted);letter-spacing:1px}#buttons{display:flex;gap:7px;pointer-events:auto}#buttons button,.miniBtn{background:rgba(11,21,30,.9);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:11px 12px;font-size:12px;font-weight:700;transition:.15s}#buttons button:hover,.miniBtn:hover{background:#17313a;border-color:#8de7c9}.accentBtn{background:#72edb7!important;color:#0b241a!important;border-color:#72edb7!important}#leftpanel{position:absolute;left:18px;top:125px;width:275px;pointer-events:none}#mission{padding:15px}#mission .eyebrow{color:#93eabd;font-size:10px;letter-spacing:2px;font-weight:800}#mission h3{font-size:15px;margin:7px 0 6px}#mission p{font-size:12px;line-height:1.6;color:#d1e2df;margin:0}#progress{width:100%;height:5px;background:#ffffff19;border-radius:8px;overflow:hidden;margin-top:11px}#progress div{height:100%;background:#72e9b5;width:0%;transition:width .3s}#actionLog{margin-top:9px;color:#b5cfd0;font-size:11px;text-shadow:0 1px 5px black}#compass{position:absolute;top:110px;left:50%;transform:translateX(-50%);text-shadow:0 1px 6px #000;padding:6px 12px;font-weight:800;letter-spacing:3px;font-size:11px}#crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:20px;height:20px;pointer-events:none}#crosshair:before,#crosshair:after{content:"";position:absolute;background:rgba(234,255,248,.88);box-shadow:0 0 8px #000}#crosshair:before{height:1px;width:20px;top:10px}#crosshair:after{width:1px;height:20px;left:10px}#hint{position:absolute;left:50%;bottom:135px;transform:translateX(-50%);text-align:center;max-width:80vw;font-size:12px;letter-spacing:.3px;padding:10px 18px;border-radius:10px;background:rgba(3,13,18,.77);border:1px solid #d8faf320;color:#d5e8e7;pointer-events:none}#quickbar{position:absolute;bottom:21px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;padding:8px;background:rgba(4,12,18,.82);border:1px solid var(--line);border-radius:15px;box-shadow:0 4px 24px #0008;pointer-events:auto}#quickbar button{background:#ffffff0b;border:1px solid #ffffff14;color:#d2e3e4;border-radius:8px;min-width:75px;padding:9px 6px;font-size:10px;text-align:center}#quickbar button b{font-size:20px;display:block;padding-bottom:4px}#quickbar button.active{background:rgba(115,245,184,.2);border-color:#a7ffcd;color:#fff}#rightpanel{position:absolute;top:126px;right:18px;width:202px;pointer-events:none}#minibox{padding:11px}#minibox .head{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:800;letter-spacing:1px;margin-bottom:8px}#minimap{width:178px;height:178px;border:1px solid #ffffff20;background:#131f20;border-radius:8px}#location{font-size:10px;color:#b8cbd0;line-height:1.6;margin-top:8px}#prompt{position:absolute;inset:0;background:linear-gradient(120deg,rgba(3,11,18,.84),rgba(3,11,18,.41));display:flex;align-items:center;justify-content:center;z-index:8}#prompt .intro{width:min(650px,90vw);text-align:center;padding:35px 34px}#prompt .upper{font-size:12px;letter-spacing:5px;color:var(--accent)}#prompt h2{font-size:clamp(36px,6vw,68px);margin:8px 0 13px;letter-spacing:4px}#prompt p{line-height:1.7;color:#c8e0e1;font-size:14px}#prompt button{font-size:15px;padding:15px 24px;border:0;background:var(--accent);font-weight:900;color:#04251b;border-radius:9px;margin-top:12px}#prompt small{display:block;color:#93b2bb;margin-top:15px;line-height:1.7}#toast{position:absolute;left:50%;top:23%;transform:translateX(-50%);background:rgba(6,20,24,.92);border:1px solid #8affbd99;padding:13px 18px;box-shadow:0 8px 30px #0008;color:#dcffe9;border-radius:11px;display:none;text-align:center;z-index:5;font-size:13px;max-width:85vw}#modalShade{position:absolute;inset:0;background:rgba(0,5,13,.75);z-index:9;display:none;align-items:center;justify-content:center;padding:18px}#modal{width:min(870px,96vw);max-height:88vh;overflow:auto;background:linear-gradient(140deg,#0f2530,#0a131b);border:1px solid #a4e4d143;box-shadow:0 30px 100px #000a;border-radius:18px;padding:25px}#modal h2{font-size:26px;margin:0 0 6px;letter-spacing:1px}#modal p{color:#b8cfd4;font-size:13px;line-height:1.7}#modal .close{float:right;background:transparent;color:#d6e8ea;border:1px solid #a4e4d14c;border-radius:7px;padding:8px 12px;font-weight:bold}#modal .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px;margin:15px 0}#modal .tile{background:#ffffff07;border:1px solid #ffffff1d;border-radius:12px;padding:15px;cursor:pointer;transition:.15s}#modal .tile:hover{border-color:#9bfaca;background:#a9ffb912}#modal .tile.selected{border-color:#a0facc;background:#a9ffb919}#modal .tile h4{margin:6px 0;font-size:14px}#modal .tile p{font-size:11px;margin:2px 0}#modal .tile .symbol{font-size:27px}#modal .row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:13px}.launchBtn{border:0;background:#9dffcf;color:#06281b;padding:11px 16px;border-radius:8px;font-weight:900}.warn{color:#ffd3a8!important}.good{color:#9affd0!important}.tag{font-size:10px;letter-spacing:1px;color:#c3e6df;background:#ffffff10;border-radius:5px;padding:4px 7px}.meter{height:7px;border-radius:7px;background:#ffffff19;overflow:hidden;margin:6px 0}.meter span{display:block;height:100%;background:#8dffb7}.sep{border:0;border-top:1px solid #ffffff1a;margin:18px 0}#flightScreen{position:absolute;inset:0;z-index:10;background:radial-gradient(circle at 50% 35%,#1d4060,#050b19 64%,#010407);display:none;align-items:center;justify-content:center;text-align:center}#flightScreen .stars{position:absolute;inset:0;pointer-events:none;opacity:.8;background-image:radial-gradient(2px 2px at 18% 23%,white,transparent),radial-gradient(1px 1px at 60% 16%,white,transparent),radial-gradient(2px 2px at 77% 65%,#bbfaff,transparent),radial-gradient(1px 1px at 37% 78%,white,transparent),radial-gradient(2px 2px at 93% 40%,white,transparent);background-size:180px 140px;animation:drift 8s linear infinite}@keyframes drift{to{background-position:0 400px}}#flightScreen h2{letter-spacing:4px;font-size:35px;margin:12px}#flightPlanet{width:120px;height:120px;border-radius:50%;margin:12px auto;background:radial-gradient(circle at 25% 22%,#cfebde,#56879e 38%,#20465e 74%,#112d3c 100%);box-shadow:0 0 30px #74e4ca55,0 0 100px #75c3ff22;transition:transform .2s;position:relative}#flightPilot{font-size:12px;color:#b6cad4;margin-bottom:10px;letter-spacing:1px}#flightScreen .clock{font-weight:900;font-size:56px;letter-spacing:6px;color:#adffda}#flightScreen button{padding:10px 17px;border-radius:9px;border:1px solid #80d5c3;background:#133139;color:#e0fff5;margin:12px}#flightScreen .inner{position:relative;z-index:2;padding:25px}#footer{position:absolute;bottom:5px;left:18px;font-size:10px;color:#ffffff6e;pointer-events:none}#warning{position:absolute;left:18px;bottom:17px;font-size:10px;color:#b1c3c5;pointer-events:none}@media(max-width:900px){#brand{min-width:0}#brand h1{font-size:16px}#stats .stat{min-width:0;padding:8px}#stats .stat:nth-child(3){display:none}#buttons{flex-wrap:wrap;justify-content:flex-end}#buttons button{padding:8px}#rightpanel{display:none}#leftpanel{top:102px;width:230px}#quickbar button{min-width:48px;font-size:9px}#quickbar button b{font-size:15px}}
+#combatHud{position:absolute;top:106px;right:18px;width:260px;padding:11px 13px;background:rgba(6,15,20,.85);border:1px solid #83c1ac4a;border-radius:11px;box-shadow:0 5px 25px #0005;pointer-events:none}#combatHud .combatTitle{color:#a5ffce;font-weight:900;letter-spacing:1.5px;font-size:9px}#combatHud .combatData{display:flex;gap:13px;margin:9px 0 7px;font-size:12px;font-weight:800}#combatHud .combatTrack{height:5px;background:#ffffff20;border-radius:5px;overflow:hidden}#healthBar{height:100%;width:100%;background:#84edac;transition:width .2s}#combatInfo{font-size:10px;color:#a9c8c8;line-height:1.5;margin-top:8px}#medicView{position:absolute;inset:0;display:none;justify-content:center;align-items:center;background:rgba(8,17,25,.6);z-index:6;pointer-events:none}#medicView .medicCard{background:#081c29e8;border:1px solid #9af2ce55;border-radius:17px;width:min(450px,85vw);padding:28px;text-align:center;box-shadow:0 14px 80px #000c}#medicView .medicHeadline{letter-spacing:2px;color:#a9ffdb;font-weight:900}#medicView p{font-size:13px;color:#cad9e0}.medicTrack{height:8px;border-radius:9px;background:#ffffff28;overflow:hidden;margin-top:18px}#medicProgress{height:100%;width:0;background:#95ffca;transition:width .1s}@media(max-width:900px){#combatHud{display:none}}
+
+#buildInfo{display:none;position:absolute;bottom:105px;left:50%;transform:translateX(-50%);padding:10px 16px;border:1px solid #a4edc45b;background:#081a20e8;border-radius:10px;text-align:center;pointer-events:none;font-size:12px;min-width:380px;z-index:3}
+#buildInfo strong{color:#9dffc8}#buildInfo small{display:block;color:#9dbfc5;margin-top:4px}
+@media(max-width:700px){#buildInfo{min-width:0;width:92vw;bottom:98px;font-size:10px}}
+
+/* Illustrated concept used only on landing screen; gameplay remains procedural 3D */
+#prompt{background:linear-gradient(90deg,rgba(1,9,18,.80),rgba(1,9,18,.44)),url('NEXUS_GRAFIKZIEL_KONZEPT.webp') center / cover no-repeat}
+#prompt .intro{background:rgba(3,14,22,.88);box-shadow:0 20px 110px #000b;max-width:690px}
+#prompt .intro::after{content:'KONZEPTBILD – KEINE INGAME-GRAFIK';display:block;color:#bdd2d3;font-size:10px;letter-spacing:1.6px;margin-top:12px}
+#hudtop{font-size:12px}#brand h1{letter-spacing:2px}
+</style></head><body>
+<canvas id="world" tabindex="0"></canvas><div id="vignette"></div>
+<div id="hudtop"><div id="brand" class="glass"><div class="tiny">INDEPENDENT WORLD SIMULATOR</div><h1>PROJECT NEXUS</h1><div class="sub">PRECISION BUILD · V0.6 · OFFLINE PROTOTYPE</div></div><div id="stats"><div class="glass stat"><small>GUTHABEN</small><b id="money">1.800 €</b></div><div class="glass stat"><small>HOLZ / METALL</small><b id="resources">30 / 20</b></div><div class="glass stat"><small>ZEITALTER</small><b id="eraStat">MODERNE</b></div></div><div id="buttons"><button onclick="openBuildPanel()">🧱 Bauplaner</button><button onclick="openPanel('civilization')">⌛ Zivilisation</button><button onclick="startSolarVoyage()">🪐 Raumflug</button><button onclick="openPanel('garage')">🚗 Fahrzeuge</button><button onclick="openPanel('industries')">🏭 Industrie</button><button onclick="openPanel('armory')">🪖 1945</button><button onclick="openPanel('market')">🏪 Handel</button><button onclick="openPanel('lab')">🚀 Raketenlabor</button><button onclick="openPanel('atlas')">☰ Welt & Systeme</button><button class="accentBtn" onclick="saveGame()">💾 Speichern</button></div></div>
+<div id="leftpanel"><div id="mission" class="glass"><div class="eyebrow">AKTIVER AUFTRAG</div><h3 id="missionTitle">Waldwirtschaft beginnt</h3><p id="missionText">Fälle 3 Bäume mit der Motorsäge und liefere das Holz am Sägewerk ab.</p><div id="progress"><div id="progressBar"></div></div></div><div id="actionLog">WASD bewegen · Maus schauen · H Hilfe</div></div>
+<div id="compass">N · 000°</div><div id="combatHud"><div class="combatTitle">TACTICAL OPERATIONS · ALPHA</div><div class="combatData"><span id="healthTag">❤ 100</span><span id="armorTag">▣ 35</span><span id="stanceTag">STEHEN</span><span id="ammoTag">30 / 90</span></div><div class="combatTrack"><div id="healthBar"></div></div><div id="combatInfo">Frontzone: X 60–140 / Z −145 · C ducken · Z liegen · Rechtsklick zielen · R nachladen</div></div><div id="medicView"><div class="medicCard"><div class="medicHeadline">🚑 RETTUNGSKRÄFTE UNTERWEGS</div><p id="medicState">KI-Sanitäter fahren zum Einsatzort.</p><div class="medicTrack"><div id="medicProgress"></div></div></div></div><div id="driveHUD" style="display:none;position:absolute;bottom:109px;right:20px;background:#06131ad9;border:1px solid #93ffcc66;padding:13px 18px;border-radius:14px;min-width:185px"><div style="font-size:10px;letter-spacing:2px;color:#aaffd1">FAHRZEUGTELEMETRIE</div><div style="font-size:27px;font-weight:900"><span id="speedValue">0</span> <small style="font-size:10px">km/h*</small></div><div id="driveStats" style="font-size:11px;color:#b5c9ca">Tank · Zustand</div><div style="font-size:9px;color:#759396">*Spielwert · vereinfachte Physik</div></div><div id="crosshair"></div><div id="hint">Klicke auf „Welt betreten“ – danach mit WASD bewegen.</div>
+<div id="rightpanel"><div id="minibox" class="glass"><div class="head"><span>◉ SEKTORKARTE</span><span id="biome">TERRA</span></div><canvas id="minimap" width="356" height="356"></canvas><div id="location">Position 0 / 0<br>Erkundungszone · 600 × 600 m</div></div></div>
+<div id="quickbar"><button id="q0" class="active" onclick="setTool(0)"><b>👋</b>Hand</button><button id="q1" onclick="setTool(1)"><b>🪓</b>Holz</button><button id="q2" onclick="setTool(2)"><b>⛏️</b>Mine</button><button id="q3" onclick="setTool(3)"><b>🧱</b>Bauen</button><button id="q4" onclick="setTool(4)"><b>🔫</b>Action</button><button id="q5" onclick="setTool(5)"><b>🛸</b>FPV</button><button id="q6" onclick="setTool(6)"><b>🚜</b>Fahren</button></div><div id="buildInfo"></div><div id="warning">V0.6 · Atmosphärische Alpenwelt & Szenendetails · Offline-3D-Alpha · kein Multiplayer</div><div id="toast"></div>
+<div id="prompt"><div class="intro glass"><div class="upper">EINE WELT. VIELE ZEITALTER. EIN SONNENSYSTEM.</div><h2>PROJECT<br>NEXUS</h2><p>Begehbare Werkstatt, Fahrphysik, Holzstämme mit Seilwinde, Maschinenbedienung, Industrie, Kampfzone, Bauen und Raumfahrt-Forschung. Eine spielbare Offline-Alpha – keine fertige AAA-Welt und kein Online-Multiplayer.</p><button id="startBtn">▶ WELT BETRETEN</button><small>Eigenständiger WebGL-3D-Prototyp ohne Installation<br>WASD · Maus · E Einsteigen/Interagieren · 1–7 Werkzeuge · C/Z Körperhaltung · G Trupp · H Hilfe<br>Empfehlung: Desktop-Chrome oder Edge mit aktivierter Hardwarebeschleunigung</small></div></div>
+<div id="modalShade"><div id="modal" role="dialog" aria-modal="true"><button class="close" onclick="closePanel()">✕ Schließen</button><div id="modalContent"></div></div></div>
+<div id="flightScreen" class="solarFlight"><div class="stars"></div><div class="inner" style="width:min(1100px,96vw);max-height:96vh;overflow:auto"><div style="color:#a2ffca;letter-spacing:5px">PROJECT NEXUS · FLUGKABINE</div><h2 id="flightName">SONNENSYSTEM-NAVIGATION</h2><div id="flightPilot">W Schub · S Bremsen · A/D Kurs steuern · Leertaste zur Landung am Ziel</div><canvas id="solarNav" width="960" height="510" style="width:100%;max-height:60vh;background:#06101c;border:1px solid #82b4c442;border-radius:14px;display:block;margin:14px auto"></canvas><p id="flightSubtitle" style="color:#bdd6e2">Fliege selbst zum nächsten Planeten – kein Planetenmenü</p><div style="display:flex;gap:24px;align-items:center;justify-content:center"><div class="clock" id="flightClock">00:00</div><div id="flightDistance" style="font-size:14px;color:#a4bbc6">Nächster Himmelskörper …</div></div><div class="row" style="justify-content:center"><button onclick="flightBoost()">⏩ Test-Beschleunigung umschalten</button><button onclick="tryLand()">🛬 Landung versuchen</button></div><p style="font-size:11px;color:#9ab3bb">Steuerbare 2D-Flugnavigation als Prototyp – noch kein nahtloser 3D-Flug zwischen maßstabsgetreuen Planeten.</p></div></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id), canvas=$('world');
+let gl=canvas.getContext('webgl2',{antialias:true,alpha:false,powerPreference:'high-performance'});
+const planets=[
+{id:'terra',name:'Terra',era:'Moderne',color:'#62ab7a',sky:[.49,.71,.82],ground:[.32,.49,.31],rock:[.45,.43,.38],water:[.10,.35,.52],trees:true,seed:3,info:'Wälder, Städte, Industrie und große Landschaften'},
+{id:'aurelia',name:'Aurelia',era:'Antike',color:'#d8b971',sky:[.83,.65,.51],ground:[.67,.53,.32],rock:[.63,.40,.28],water:[.10,.42,.48],trees:true,seed:18,info:'Sonnige Täler, alte Ruinen und Steinbauten'},
+{id:'boreas',name:'Boreas',era:'Mittelalter',color:'#b5e7f2',sky:[.52,.66,.80],ground:[.65,.73,.73],rock:[.51,.60,.65],water:[.18,.43,.56],trees:true,seed:38,info:'Vereiste Wälder, Burgen und Bergbaureviere'},
+{id:'ferrum',name:'Ferrum',era:'Industrie',color:'#a1a4a9',sky:[.56,.52,.46],ground:[.45,.43,.38],rock:[.40,.39,.36],water:[.24,.30,.33],trees:false,seed:51,info:'Erzreiche Industrielandschaft mit Maschinenbau'},
+{id:'vargos',name:'Vargos',era:'1945',color:'#a4af97',sky:[.53,.62,.60],ground:[.36,.42,.31],rock:[.43,.44,.35],water:[.17,.31,.35],trees:true,seed:61,info:'Historisch inspirierte Fronten mit fiktiven Armeen und Lazaretten'},
+{id:'ares',name:'Ares',era:'Raumfahrt',color:'#d77e57',sky:[.40,.24,.24],ground:[.56,.29,.19],rock:[.46,.24,.20],water:[.15,.17,.25],trees:false,seed:70,info:'Rote Wüsten, Krater und erste Außenposten'},
+{id:'noctis',name:'Noctis',era:'Zukunft',color:'#958dd8',sky:[.22,.25,.39],ground:[.26,.29,.41],rock:[.34,.34,.47],water:[.16,.20,.40],trees:true,seed:85,info:'Kristalle, fremde Architektur und Alien-Artefakte'},
+{id:'elysium',name:'Elysium',era:'Urzeit',color:'#65d99b',sky:[.40,.72,.66],ground:[.24,.52,.33],rock:[.37,.44,.31],water:[.08,.47,.51],trees:true,seed:99,info:'Uralte Dschungel und seltene Tierwelten'},
+{id:'thalassa',name:'Thalassa',era:'Zukunft',color:'#7ba9fa',sky:[.38,.58,.78],ground:[.35,.56,.62],rock:[.30,.46,.51],water:[.05,.35,.59],trees:false,seed:111,info:'Ozeane, Inseln und Tiefseegeheimnisse'}];
+const eras=['Urzeit','Antike','Mittelalter','Industrie','1945','Moderne','Zukunft','Raumfahrt'];
+const pieces=[{id:'floor',name:'Fundament',emoji:'▩',size:[3,.45,3],wood:2,metal:0},{id:'wall',name:'Wand',emoji:'▥',size:[3,3,.3],wood:2,metal:0},{id:'roof',name:'Dach',emoji:'⌂',size:[3,.3,3],wood:3,metal:0},{id:'door',name:'Türmodul',emoji:'▣',size:[3,3,.3],wood:2,metal:1},{id:'beam',name:'Träger',emoji:'┿',size:[.45,3,.45],wood:1,metal:1},{id:'road',name:'Straße',emoji:'═',size:[3,.1,3],wood:0,metal:1},{id:'solar',name:'Solarmodul',emoji:'▤',size:[3,.5,3],wood:0,metal:3},{id:'rail',name:'Schiene',emoji:'╞',size:[3,.25,3],wood:0,metal:2},{id:'bridge',name:'Brücke',emoji:'▰',size:[3,.5,3],wood:2,metal:2},{id:'tower',name:'Wachturm',emoji:'♜',size:[3,5,3],wood:4,metal:2},{id:'pipe',name:'Rohrleitung',emoji:'╬',size:[3,.5,.5],wood:0,metal:2},{id:'rocket',name:'Startrampe',emoji:'▲',size:[6,1,6],wood:8,metal:12},{id:'window',name:'Fenster',emoji:'▧',size:[3,3,.25],wood:1,metal:1},{id:'stairs',name:'Treppe',emoji:'▤',size:[3,1.5,3],wood:2,metal:1},{id:'factory',name:'Fabrikmodul',emoji:'▦',size:[6,4,6],wood:6,metal:8},{id:'garage',name:'Garage',emoji:'▰',size:[6,4,6],wood:8,metal:6},{id:'lamp',name:'Beleuchtung',emoji:'✦',size:[.5,3,.5],wood:0,metal:1},{id:'farm',name:'Gewächshaus',emoji:'▥',size:[6,3,6],wood:5,metal:4},{id:'bunker',name:'Bunkermodul',emoji:'▣',size:[6,3,6],wood:0,metal:10},{id:'helipad',name:'Helipad',emoji:'H',size:[9,.35,9],wood:0,metal:10}];
+let buildOptions={grid:.5,height:0,rotation:0,magnet:true};
+let state={planet:'terra',era:'Moderne',money:1800,wood:30,metal:20,stone:18,paper:0,fuel:78,delivered:0,cut:0,mission:0,builds:{},trees:{},rocks:{},rocket:{engine:0,guidance:0,hull:0,fuel:0},rocketFails:0,unlocked:[],player:{x:0,z:19},stats:{shots:0,targets:0},health:100,armor:35,ammo:30,reserve:90,stance:"stehen",rescues:0,infusion:0,gear:["Smartphone","Motorsäge","Werkzeugkoffer","Bargeld","Nahrung","Funkgerät"],frontCleared:false,oil:0,food:0,gold:0,squadOrder:"folgen",meteor:0,alloy:0,planks:0,vehicleOwned:[],vehicleUpgrades:{},planetEras:{},weapon:'Training',weaponUnlocked:['Training'],meteorCollected:{},production:{},felledLogs:{},rev:1};
+let running=false,modalOpen=false,tool=0,selectedPiece=0,viewMode=0,mode='walk',player={x:0,y:5,z:19,vY:0},heading=0,pitch=-.1,vehicle=null,drone={x:0,y:10,z:0,battery:100},flight=null;
+let staticBuffer=null,staticCount=0,dynamicBuffer=null,dynamicCount=0,vehicleBuffer=null,vehicleCount=0,treeData=[],rockData=[],targets=[],baseObjects=[],dynamicDirty=true,renderTime=0,frame=0,lastTime=0,keys={},camera={x:0,y:5,z:20,yaw:0,pitch:0};
+let toastUntil=0,hintLast='';const TAU=Math.PI*2;
+let downed=false,downedClock=0,aiming=false,shotCooldown=0,enemyAttackClock=2,zombieAttackClock=3,medics=[],deathLoss=[],frontMessageShown=false,zombies=[],squad=[{x:8,z:23},{x:9,z:20}];
+function toggleSquad(){state.squadOrder=state.squadOrder==='folgen'?'halten':'folgen';toast('Truppbefehl: '+(state.squadOrder==='folgen'?'Folgen':'Position halten'));}
+function moveSquad(dt){if(state.planet!=='terra'||state.squadOrder!=='folgen'||mode!=='walk')return;for(let i=0;i<squad.length;i++){let a=squad[i],fx=player.x+Math.sin(heading+Math.PI)*((i+1)*2.4),fz=player.z-Math.cos(heading+Math.PI)*((i+1)*2.4),d=Math.hypot(fx-a.x,fz-a.z);if(d>.5){let pace=Math.min(d,dt*8);a.x+=(fx-a.x)/d*pace;a.z+=(fz-a.z)/d*pace;}}if(frame%9===0)dynamicDirty=true;}
+
+function eyeHeight(){return state.stance==='liegen'?.65:state.stance==='ducken'?1.15:1.7}
+function cycleStance(next){if(mode!=='walk'||downed)return;state.stance=state.stance===next?'stehen':next;player.y=terrain(player.x,player.z)+eyeHeight();player.vY=0;toast('Körperhaltung: '+state.stance);}
+function takeDamage(d){if(downed||modalOpen||mode!=='walk')return;let absorb=Math.min(state.armor,d*.55);state.armor-=absorb;state.health=Math.max(0,state.health-(d-absorb));if(state.health<=0)becomeDowned();}
+function becomeDowned(){downed=true;downedClock=0;medics=[{x:player.x+17,z:player.z+12},{x:player.x-17,z:player.z+8}];document.exitPointerLock?.();$('medicView').style.display='flex';toast('Bewusstlos – KI-Rettungskräfte alarmiert');}
+function onSecondCollapse(){downed=false;$('medicView').style.display='none';deathLoss=[];openDeathPanel();}
+function finishRescue(){downed=false;$('medicView').style.display='none';state.rescues++;state.health=55;state.armor=0;state.infusion=270;toast('Wiederbelebt · 4:30 Min. Infusion und eingeschränkte Bewegung');}
+function updateMedical(dt){if(state.infusion>0){state.infusion=Math.max(0,state.infusion-dt);if(state.infusion===0)toast('Erholung beendet – Infusion entfernt');}
+ if(!downed)return;
+ downedClock+=dt;
+ for(const m of medics){const dx=player.x-m.x,dz=player.z-m.z,len=Math.hypot(dx,dz)||1;m.x+=dx/len*Math.min(len,dt*4.5);m.z+=dz/len*Math.min(len,dt*4.5);}
+ $('medicProgress').style.width=clamp(downedClock/11*100,0,100)+'%';$('medicState').textContent=downedClock<5?'Rettungsfahrzeug trifft ein …':downedClock<9?'Sanitäter untersuchen deinen Charakter …':'Wiederbelebung läuft …';
+ if(downedClock>=11){if(state.infusion>0)onSecondCollapse();else finishRescue();}}
+function openDeathPanel(){modalOpen=true;$('modalShade').style.display='flex';let items=state.gear||[];if(items.length<3)items=['Smartphone','Motorsäge','Werkzeugkoffer','Bargeld','Nahrung','Funkgerät'];state.gear=items;
+ $('modalContent').innerHTML='<h2>🎒 Neuer Einsatzort – Ausrüstung wählen</h2><p>Du wurdest während der Infusion erneut schwer verletzt. Du wirst an einen sicheren Ort versetzt. Wähle genau drei Ausrüstungsgegenstände, die du zurücklässt. Eigentum, Fahrzeuge und Bauwerke bleiben erhalten.</p><div class="grid">'+items.map((it,i)=>`<div class="tile" id="lost${i}" onclick="toggleLost(${i})"><div class="symbol">${['📱','🪓','🧰','💶','🥫','📻'][i%6]}</div><h4>${escapeHtml(it)}</h4><p>Behalten</p></div>`).join('')+'</div><div class="row"><button class="launchBtn" id="respawnBtn" disabled onclick="finishRespawn()">Drei Gegenstände wählen (0 / 3)</button></div>';
+}
+function toggleLost(i){const items=state.gear||[];if(i>=items.length)return;let idx=deathLoss.indexOf(i);if(idx>=0)deathLoss.splice(idx,1);else if(deathLoss.length<3)deathLoss.push(i);items.forEach((it,j)=>{let el=$('lost'+j);if(el){el.classList.toggle('selected',deathLoss.includes(j));el.querySelector('p').textContent=deathLoss.includes(j)?'Geht verloren':'Behalten';}});$('respawnBtn').disabled=deathLoss.length!==3;$('respawnBtn').textContent=`An neuem Ort erscheinen (${deathLoss.length} / 3)`;}
+function finishRespawn(){if(deathLoss.length!==3)return;let lost=deathLoss.map(i=>state.gear[i]);state.gear=state.gear.filter((_,i)=>!deathLoss.includes(i));if(lost.includes('Bargeld'))state.money=Math.max(0,state.money-250);if(lost.includes('Motorsäge'))state.wood=Math.max(0,state.wood-4);if(lost.includes('Werkzeugkoffer'))state.metal=Math.max(0,state.metal-3);
+ player.x=14;player.z=23;state.stance='stehen';player.vY=0;resetCamera();state.health=100;state.armor=25;state.infusion=0;mode='walk';closePanel();toast('Neuer Ort: Sanitätsstation · Zurückgelassen: '+lost.join(', '));saveGame();}
+window.toggleLost=toggleLost;window.finishRespawn=finishRespawn;
+function updateFrontAI(dt){if(!['terra','vargos'].includes(state.planet)||downed)return;
+ let frontDist=Math.hypot(player.x-93,player.z+153);if(frontDist<145&&!frontMessageShown){frontMessageShown=true;toast('FRONTZONE · KI-Patrouillen aktiv · Deckung nutzen · Verletzungen möglich');}
+ const active=frontDist<135&&mode==='walk';enemyAttackClock-=dt;
+ for(let t of targets){if(!t.alive)continue;const dist=Math.hypot(player.x-t.x,player.z-t.z);if(active&&dist<90){const dx=player.x-t.x,dz=player.z-t.z,m=Math.hypot(dx,dz)||1,walk=(dist>22?.83:.05)*dt;t.x+=dx/m*walk;t.z+=dz/m*walk;}else{t.phase=(t.phase||0)+dt*.45;t.x=t.homeX+Math.sin(t.phase)*2.5;t.z=t.homeZ+Math.cos(t.phase)*2.5;}t.y=terrain(t.x,t.z)+1.1;}
+ if(active&&enemyAttackClock<=0){let closest=targets.filter(t=>t.alive).sort((a,b)=>Math.hypot(player.x-a.x,player.z-a.z)-Math.hypot(player.x-b.x,player.z-b.z))[0];if(closest&&Math.hypot(player.x-closest.x,player.z-closest.z)<75){const mitigation=state.stance==='liegen'?.4:state.stance==='ducken'?.65:1;takeDamage((5+Math.floor(Math.random()*7))*mitigation);enemyAttackClock=3.1+Math.random()*1.9;}else enemyAttackClock=2.0;}
+ // zombie outbreak at the research station: very simple chasing AI
+ const dzombie=Math.hypot(player.x+113,player.z+151),zactive=dzombie<100&&mode==='walk';zombieAttackClock-=dt;
+ for(let z of zombies){if(!z.alive)continue;const d=Math.hypot(player.x-z.x,player.z-z.z);if(zactive&&d<55){const dx=player.x-z.x,dzz=player.z-z.z,ll=Math.hypot(dx,dzz)||1;if(ll>2.2){z.x+=dx/ll*dt*2.3;z.z+=dzz/ll*dt*2.3;}}else{z.phase+=dt*.6;z.x=z.homeX+Math.sin(z.phase)*1.3;z.z=z.homeZ+Math.cos(z.phase)*1.3;}}
+ if(zactive&&zombieAttackClock<=0&&zombies.some(z=>z.alive&&Math.hypot(player.x-z.x,player.z-z.z)<3.4)){takeDamage(7);zombieAttackClock=2.3;}else if(zombieAttackClock<=0)zombieAttackClock=1.1;
+ if(!state.frontCleared&&targets.length>0&&targets.every(t=>!t.alive)){state.frontCleared=true;state.money+=600;toast('✓ Frontabschnitt gesichert · +600 € · Rückzug zur Basis möglich');}
+ if(frame%8===0)dynamicDirty=true;
+}
+
+function clamp(v,a,b){return Math.min(b,Math.max(a,v))}function lerp(a,b,t){return a+(b-a)*t}function h2(x,z,s){let q=Math.sin((x+10)*12.9898+(z-5)*78.233+s*31.413)*43758.5453;return q-Math.floor(q)}
+function fract(v){return v-Math.floor(v)}function mixColor(a,b,t){return a.map((v,i)=>lerp(v,b[i],t))}
+function noise(x,z,s){let i=Math.floor(x),j=Math.floor(z),fx=x-i,fz=z-j;let u=fx*fx*(3-2*fx),v=fz*fz*(3-2*fz);return lerp(lerp(h2(i,j,s),h2(i+1,j,s),u),lerp(h2(i,j+1,s),h2(i+1,j+1,s),u),v)}
+function terrain(x,z,p=getPlanet()){let seed=p.seed;let n=noise(x/46,z/46,seed),n2=noise(x/17,z/17,seed+7),n3=noise(x/5,z/5,seed+12);let height=(n-.43)*21+(n2-.5)*8+(n3-.5)*1.7;let flatten=clamp((Math.hypot(x,z)-36)/34,0,1);let radius=Math.hypot(x,z);let high=(p.id==='terra'||p.id==='boreas'||p.id==='vargos');if(high){let exposure=clamp((radius-245)/230,0,1);let ridge=noise(x/115,z/115,seed+56);let peak=Math.pow(noise(x/64,z/64,seed+27),1.7);let jagged=noise(x/21,z/21,seed+99);height+=exposure*(44+ridge*52+peak*85+(jagged-.5)*19);}return height*flatten;}
+function getPlanet(){return planets.find(p=>p.id===state.planet)||planets[0]}function color(hex){let h=hex.replace('#','');return [parseInt(h.slice(0,2),16)/255,parseInt(h.slice(2,4),16)/255,parseInt(h.slice(4,6),16)/255]}
+function shade(c,m=1){return c.map(v=>clamp(v*m,0,1))}
+class Mesh{constructor(){this.v=[]}tri(a,b,c,col){let ux=b[0]-a[0],uy=b[1]-a[1],uz=b[2]-a[2],vx=c[0]-a[0],vy=c[1]-a[1],vz=c[2]-a[2],nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx,l=Math.hypot(nx,ny,nz)||1;nx/=l;ny/=l;nz/=l;for(let p of[a,b,c])this.v.push(...p,nx,ny,nz,...col)}quad(a,b,c,d,col){this.tri(a,b,c,col);this.tri(a,c,d,col)}box(x,y,z,sx,sy,sz,col,rot=0){let xx=sx/2,yy=sy/2,zz=sz/2,co=Math.cos(rot),si=Math.sin(rot);let base=[[-xx,-yy,-zz],[xx,-yy,-zz],[xx,yy,-zz],[-xx,yy,-zz],[-xx,-yy,zz],[xx,-yy,zz],[xx,yy,zz],[-xx,yy,zz]].map(([px,py,pz])=>[x+px*co-pz*si,y+py,z+px*si+pz*co]);for(let [v,m]of [[[0,3,2,1],.78],[[4,5,6,7],1.00],[[0,4,7,3],.85],[[1,2,6,5],.90],[[3,7,6,2],1.1],[[0,1,5,4],.70]])this.quad(...v.map(i=>base[i]),shade(col,m));}cyl(x,y,z,r,h,col,n=8,rt=0,rb=r){let center=y,bot=y-h/2,top=y+h/2;for(let i=0;i<n;i++){let a=(i/n)*TAU,b=((i+1)/n)*TAU;let p=[x+Math.cos(a)*rb,bot,z+Math.sin(a)*rb],q=[x+Math.cos(b)*rb,bot,z+Math.sin(b)*rb],u=[x+Math.cos(b)*rt,top,z+Math.sin(b)*rt],v=[x+Math.cos(a)*rt,top,z+Math.sin(a)*rt];this.quad(p,q,u,v,shade(col,1+Math.sin(a)*.12));if(rt>0)this.tri([x,top,z],v,u,shade(col,1.13));if(rb>0)this.tri([x,bot,z],q,p,shade(col,.7))}}sphere(x,y,z,r,col,rings=6,sects=10){for(let i=0;i<rings;i++){let a=i/rings*Math.PI,b=(i+1)/rings*Math.PI;for(let j=0;j<sects;j++){let c=j/sects*TAU,d=(j+1)/sects*TAU;let p=(polar,az)=>[x+r*Math.sin(polar)*Math.cos(az),y+r*Math.cos(polar),z+r*Math.sin(polar)*Math.sin(az)];this.quad(p(a,c),p(a,d),p(b,d),p(b,c),col)}}}line(x,y,z,xx,yy,zz,r,col){let dx=xx-x,dz=zz-z,dist=Math.hypot(dx,dz);this.box((x+xx)/2,(y+yy)/2,(z+zz)/2,dist,r,r,col,Math.atan2(dz,dx))}}
+const vertex=`#version 300 es\nprecision highp float;in vec3 aPos;in vec3 aNormal;in vec3 aColor;uniform mat4 uVP;out vec3 vPos,vNormal,vColor;void main(){gl_Position=uVP*vec4(aPos,1.);vPos=aPos;vNormal=aNormal;vColor=aColor;}`;
+const fragment=`#version 300 es
+precision highp float;
+in vec3 vPos,vNormal,vColor;
+uniform vec3 uCam,uFog,uSun;
+uniform float uFogStrength;
+out vec4 frag;
+float hash3(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
+float noise3(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(mix(hash3(i),hash3(i+vec3(1,0,0)),f.x),mix(hash3(i+vec3(0,1,0)),hash3(i+vec3(1,1,0)),f.x),f.y),mix(mix(hash3(i+vec3(0,0,1)),hash3(i+vec3(1,0,1)),f.x),mix(hash3(i+vec3(0,1,1)),hash3(i+vec3(1,1,1)),f.x),f.y),f.z);}
+void main(){
+ vec3 n=normalize(vNormal);vec3 light=normalize(uSun);
+ float sun=max(dot(n,light),0.0);
+ float skyFill=.47+.30*max(n.y,0.0);
+ float indirect=.12*max(dot(n,normalize(vec3(-.45,.65,-.6))),0.);
+ float grain=noise3(vPos*3.4)*.11+noise3(vPos*18.)*.045;
+ float weather=noise3(vPos*.29)*.12;
+ vec3 albedo=vColor*(.88+grain+weather);
+ // Small-scale surface detail for stone, timber, ground and aged industrial facades.
+ float grayness=1.-clamp(max(abs(vColor.r-vColor.g),abs(vColor.g-vColor.b))*2.5,0.,1.);
+ albedo*=1.+grayness*(noise3(vPos*1.9)-.5)*.17;
+ float micro=(noise3(vPos*12.)-.5)*.13;
+ float rough=clamp(.94-grayness*.24,0.,1.);
+ vec3 halfVector=normalize(light+normalize(uCam-vPos));
+ float spec=pow(max(dot(n,halfVector),0.),mix(11.,44.,1.-rough))*(1.-rough)*.18;
+ vec3 sunColor=vec3(1.00,.92,.79);
+ vec3 ambient=vec3(.71,.81,.90);
+ vec3 lit=albedo*(ambient*(skyFill+indirect)+sunColor*(sun*.84+.08))*(.94+micro);
+ lit+=sunColor*spec;
+ float dist=length(uCam-vPos);
+ float fog=1.-exp(-dist*dist*uFogStrength);
+ fog=clamp(fog+clamp((vPos.y-uCam.y)/180.,0.,.20),0.,.89);
+ lit=mix(lit,uFog,fog);
+ lit=lit/(lit+vec3(.38));
+ lit=pow(clamp(lit,0.,1.),vec3(.92));
+ frag=vec4(lit,1.);
+}`;
+function compile(type,src){let sh=gl.createShader(type);gl.shaderSource(sh,src);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(sh));return sh}
+let prog,loc={},gpu={};if(gl){try{prog=gl.createProgram();gl.attachShader(prog,compile(gl.VERTEX_SHADER,vertex));gl.attachShader(prog,compile(gl.FRAGMENT_SHADER,fragment));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(prog));gl.useProgram(prog);for(let name of['uVP','uCam','uFog','uSun','uFogStrength'])loc[name]=gl.getUniformLocation(prog,name);for(let name of['aPos','aNormal','aColor'])loc[name]=gl.getAttribLocation(prog,name);gl.enable(gl.DEPTH_TEST);gl.clearColor(.4,.6,.7,1);}catch(e){gl=null;alert('WebGL-Fehler: '+e.message)}}
+
+// Sky shader: atmospheric gradient, distant cloud layers and sunlight; rendered behind geometry.
+let skyProgram=null,skyLoc={};
+if(gl){try{
+ const vs=`#version 300 es
+ precision highp float;out vec2 uv;
+ void main(){vec2 p=vec2(gl_VertexID==2?3.:-1.,gl_VertexID==1?3.:-1.);uv=p*.5+.5;gl_Position=vec4(p,0.,1.);}`;
+ const fs=`#version 300 es
+ precision highp float;in vec2 uv;out vec4 frag;uniform float time;uniform vec3 sky;
+ float hh(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+ float nn(vec2 x){vec2 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(mix(hh(i),hh(i+vec2(1,0)),f.x),mix(hh(i+vec2(0,1)),hh(i+vec2(1,1)),f.x),f.y);}
+ void main(){
+ float h=uv.y;vec3 zenith=mix(sky*.55,vec3(.20,.39,.57),.53);
+ vec3 horizon=mix(sky,vec3(.88,.84,.72),.40);
+ vec3 c=mix(horizon,zenith,smoothstep(.31,.98,h));
+ float f=nn(vec2(uv.x*6.+time*.0015,uv.y*7.));
+ float clouds=nn(vec2(uv.x*13.+time*.002,uv.y*12.))*.43+f*.57;
+ float cloudMask=smoothstep(.49,.71,clouds)*.52*smoothstep(.25,.55,h);
+ c=mix(c,vec3(1.,.94,.85),cloudMask);
+ vec2 sunPos=vec2(.78,.76);float sun=length((uv-sunPos)*vec2(1.5,1.));
+ c+=vec3(1.,.78,.47)*(.13*exp(-sun*sun*24.)+.7*exp(-sun*sun*4000.));
+ c=mix(vec3(.67,.70,.67),c,smoothstep(.27,.51,h));
+ frag=vec4(clamp(c,0.,1.),1.);
+ }`;
+ skyProgram=gl.createProgram();gl.attachShader(skyProgram,compile(gl.VERTEX_SHADER,vs));gl.attachShader(skyProgram,compile(gl.FRAGMENT_SHADER,fs));gl.linkProgram(skyProgram);
+ if(!gl.getProgramParameter(skyProgram,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(skyProgram));
+ for(let k of ['time','sky'])skyLoc[k]=gl.getUniformLocation(skyProgram,k);
+}catch(e){console.warn('Sky disabled',e);skyProgram=null;}}
+function drawSky(p){if(!gl||!skyProgram)return;gl.disable(gl.DEPTH_TEST);gl.useProgram(skyProgram);gl.uniform1f(skyLoc.time,renderTime);gl.uniform3fv(skyLoc.sky,new Float32Array(p.sky));gl.drawArrays(gl.TRIANGLES,0,3);gl.enable(gl.DEPTH_TEST);}
+function upload(mesh,old){if(!gl)return null;if(old){gl.deleteVertexArray(old.vao);gl.deleteBuffer(old.buf)}let vao=gl.createVertexArray(),buf=gl.createBuffer();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(mesh.v),gl.STATIC_DRAW);let stride=9*4;for(let [key,n,off]of[['aPos',3,0],['aNormal',3,12],['aColor',3,24]]){let i=loc[key];gl.enableVertexAttribArray(i);gl.vertexAttribPointer(i,n,gl.FLOAT,false,stride,off)}gl.bindVertexArray(null);return {vao,buf,count:mesh.v.length/9}}
+function draw(b){if(!b||!b.count)return;gl.bindVertexArray(b.vao);gl.drawArrays(gl.TRIANGLES,0,b.count)}
+function matMul(a,b){let o=new Float32Array(16);for(let j=0;j<4;j++)for(let i=0;i<4;i++)for(let k=0;k<4;k++)o[j*4+i]+=a[k*4+i]*b[j*4+k];return o}function perspective(fovy,aspect,near,far){let f=1/Math.tan(fovy/2),o=new Float32Array(16);o[0]=f/aspect;o[5]=f;o[10]=(far+near)/(near-far);o[11]=-1;o[14]=2*far*near/(near-far);return o}
+function lookAt(eye,target,up=[0,1,0]){let z=normalize([eye[0]-target[0],eye[1]-target[1],eye[2]-target[2]]),x=normalize(cross(up,z)),y=cross(z,x);return new Float32Array([x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-dot(x,eye),-dot(y,eye),-dot(z,eye),1])}function cross(a,b){return[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]}function dot(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]}function normalize(a){let n=Math.hypot(...a)||1;return a.map(v=>v/n)}
+function addTree(m,x,z,h,s,seed,id){let stump=[.29,.22,.15],green=mixColor([.075,.20,.15],[.16,.33,.22],h2(x,z,seed));m.cyl(x,h+s*.75,z,s*.075,s*1.5,stump,7);for(let i=0;i<5;i++){let y=h+s*(.77+i*.36),rad=s*(.47-i*.078);m.cyl(x,y,z,rad,s*.70,shade(green,.78+i*.087),8,0,.01);}treeData.push({x,z,h,s,id,active:true})}
+function addRock(m,x,z,h,s,p,id){m.cyl(x,h+s*.3,z,s,s*.6,shade(p.rock,.8+h2(x,z,p.seed)*.4),7,s*.1,s*.65);rockData.push({x,z,h,s,id,active:true})}
+function road(m,x1,z1,x2,z2,w=6){let dx=x2-x1,dz=z2-z1,len=Math.hypot(dx,dz),n=Math.ceil(len/5);for(let i=0;i<n;i++){let t1=i/n,t2=(i+1)/n,x=x1+dx*(t1+t2)/2,z=z1+dz*(t1+t2)/2,sy=terrain(x,z)+.16;m.box(x,sy,z,w,.18,len/n+.16,[.20,.25,.26],Math.atan2(dx,dz));if(i%3===0)m.box(x,sy+.11,z,.13,.015,1.5,[.8,.8,.63],Math.atan2(dx,dz))}}
+function industrial(m){const getH=(x,z)=>terrain(x,z);let wood=[.44,.28,.17],concrete=[.54,.57,.55],steel=[.32,.40,.44],roof=[.29,.35,.37],window=[.12,.33,.43];
+// sawmill & paper industry
+{let y=getH(29,-20);m.box(29,y+.17,-20,22,.34,16,[.40,.41,.38]);m.box(18.15,y+4,-20,.45,8,16,concrete);m.box(39.85,y+4,-20,.45,8,16,concrete);m.box(29,y+4,-27.85,22,8,.4,concrete);m.box(21.5,y+4,-12.17,7,8,.4,concrete);m.box(36.5,y+4,-12.17,7,8,.4,concrete);m.box(29,y+8.8,-20,24,1.0,18,roof);m.box(29,y+.9,-21,3,1.3,8,[.27,.32,.33]);for(let i=0;i<7;i++)m.cyl(24+i*1.35,y+1.2,-22,.23,1.5,wood,8);m.box(29,y+3.2,-23.4,3,.55,.9,[.82,.64,.27]);m.box(29,y+4,-12.05,6,.4,.2,[.92,.75,.42]);}for(let i=0;i<8;i++)m.cyl(19+i*2.7,getH(19+i*2.7,-.2)+.4,-.2,.38,9,wood,8,0,.38);
+m.box(-31,getH(-31,-20)+3,-20,20,6,15,[.49,.52,.51]);m.box(-31,getH(-31,-20)+6.3,-20,22,1,17,roof);m.cyl(-38,getH(-38,-22)+9,-22,1.2,17,steel,12);m.cyl(-23,getH(-23,-22)+8,-22,.9,14,steel,12);m.box(-31,getH(-31,-12)+3,-12,12,4,.2,window);
+// fuel station and roof
+m.box(-14,getH(-14,28)+1.5,28,15,3.5,6,[.52,.58,.55]);m.box(-14,getH(-14,28)+4.3,34,20,.45,9,[.19,.56,.43]);for(let i=0;i<3;i++){m.box(-20+i*6,getH(-20+i*6,34)+1.25,34,.8,2.5,.9,[.19,.69,.56]);m.box(-20+i*6,getH(-20+i*6,34)+2.1,34,.6,.25,.5,[.06,.12,.15]);}
+// office
+m.box(6,getH(6,-23)+4.5,-23,12,9,12,[.55,.57,.55]);m.box(6,getH(6,-23)+9.3,-23,14,1,14,[.34,.37,.39]);for(let x of[2,6,10])for(let y of[3,6])m.box(x,y,-16.92,1.6,1.5,.12,[.15,.37,.47]);
+// garage hangar
+{let y=getH(40,27),wall=[.39,.47,.49],edge=[.21,.28,.31],floor=[.38,.41,.41];
+ m.box(40,y+.18,27,20,.36,20,floor);m.box(30.1,y+4,27,.5,8,20,wall);m.box(49.9,y+4,27,.5,8,20,wall);
+ m.box(40,y+4,36.8,20,8,.45,wall);m.box(33.25,y+4,17.2,6.5,8,.45,wall);m.box(46.75,y+4,17.2,6.5,8,.45,wall);
+ m.box(40,y+8.6,27,22,.65,22,edge);m.box(40,y+8.1,17,9,.35,.7,[.90,.71,.25]);
+ for(let xx of [31,49])for(let zz of [19,24,29,34])m.box(xx,y+4.2,zz,.16,3.2,1.8,[.19,.38,.45]);
+ m.box(34,y+1.05,30,4,1.5,2.3,[.33,.33,.34]);m.box(34,y+1.95,30,4,.18,2.5,[.63,.68,.66]);
+ m.box(45,y+1.1,31,3.7,1.8,2.8,[.23,.31,.34]);m.box(45,y+2.25,31,2.7,.6,1.4,[.58,.64,.65]);
+ for(let k=0;k<4;k++){m.cyl(32.2+k*1.8,y+.56,34.1,.56,1.05,[.10,.12,.13],12);m.cyl(32.2+k*1.8,y+1.23,34.1,.42,.15,[.36,.40,.42],12);}
+ for(let k=0;k<3;k++)m.box(34+k*5.3,y+8.14,25,2.3,.08,.7,[.92,.89,.60]);
+ m.box(40,y+.04,18,5,.08,1.0,[.79,.68,.33]);m.box(40,y+.04,22,5,.08,1.0,[.79,.68,.33]);
+ m.box(45,y+2.7,31.1,.45,.45,.18,[.31,.87,.60]);
+}
+// landing pad
+m.box(5,.13,57,23,.23,23,[.3,.37,.38]);m.cyl(5,.25,57,7,.08,[.81,.88,.74],36);m.cyl(5,.32,57,6,.09,[.23,.34,.36],36);m.box(5,.39,57,8,.05,1,[.9,.89,.74]);m.box(5,.41,57,1,.05,8,[.9,.89,.74]);
+// solar and wind turbine
+for(let i=0;i<5;i++){m.box(45+i*4,2,-5,3,.14,5,[.12,.29,.46],-.22);m.box(45+i*4,.9,-5,.13,1.8,.13,steel)}m.cyl(-53,13,-5,1.0,26,[.67,.70,.67],12);m.sphere(-53,27,-5,1.8,[.72,.77,.78]);for(let i=0;i<3;i++){let a=i*TAU/3;m.line(-53,27,-5,-53+Math.cos(a)*12,27+Math.sin(a)*12,-5,.6,[.8,.82,.83]);}
+// construction yard
+for(let i=0;i<6;i++)m.box(2+i*1.6,.65,5,1.3,1.2,3,wood);m.cyl(10,2,7,1.0,4,[.64,.66,.63],12);m.box(15,.6,7,3,1.2,3,[.5,.43,.3]);
+// bridge and reservoir
+road(m,-60,55,-26,55,6);m.box(-50,.1,72,25,.2,17,[.19,.32,.44]);m.box(-50,1.2,72,2,2,17,[.49,.53,.54]);
+// Detailed road markings, guard posts and painted workshop parking bays
+ for(let zz=-105;zz<110;zz+=13){let yy=getH(.45,zz);m.box(.45,yy+.25,zz,.17,.045,6,[.9,.83,.60]);}
+ for(let xx=-97;xx<103;xx+=13){let yy=getH(xx,.2);m.box(xx,yy+.25,.2,6,.045,.17,[.9,.83,.60]);}
+ for(let xx of [24,31,38,45,52])m.box(xx,getH(xx,10)+.23,10,.14,.055,9,[.84,.85,.77]);
+ // cargo shelves near the sawmill
+ for(let k=0;k<7;k++){let xx=15+k*1.3,y=getH(xx,-36);m.box(xx,y+.4,-36,1.1,.8,4,[.44,.31,.19]);m.box(xx,y+.86,-36,1.1,.1,4,[.65,.45,.24]);}
+ // city skyline: built-up district outside hub
+for(let i=0;i<16;i++){let x=73+(i%4)*16,z=-62+Math.floor(i/4)*19,hh=8+Math.floor(h2(i,3,17)*18);m.box(x,terrain(x,z)+hh/2,z,11,hh,12,shade([.42,.48,.52],.75+h2(i,2,8)*.5));m.box(x,terrain(x,z)+hh+.5,z,11.8,1,12.8,[.28,.33,.38]);for(let k=0;k<Math.floor(hh/4);k++)m.box(x,terrain(x,z)+2.4+k*3.5,z+6.01,7,1.3,.1,[.13,.34,.43])}
+}
+
+// V0.6 scenic geometry: hand-authored playable landmarks using original geometry.
+function gableHouse(m,x,z,w,d,h,seed=0){
+ let gy=terrain(x,z),stone=[.58,.56,.50],wood=[.32,.22,.17],roof=seed%2?[.43,.20,.16]:[.32,.28,.25];
+ m.box(x,gy+h*.5,z,w,h,d,shade(stone,.90+(seed%5)*.04));
+ m.box(x,gy+h+.10,z,w+.5,.17,d+.5,wood);
+ // Roof composed of two pitched planes; triangular gable ends.
+ let e=h+Math.min(3.0,w*.31),xl=x-w*.54,xr=x+w*.54,zz=d*.56;
+ m.quad([xl,gy+h,z-zz],[x,gy+e,z-zz],[x,gy+e,z+zz],[xl,gy+h,z+zz],roof);
+ m.quad([x,gy+e,z-zz],[xr,gy+h,z-zz],[xr,gy+h,z+zz],[x,gy+e,z+zz],shade(roof,.83));
+ for(let dir of [-1,1]){let front=z+dir*d/2;m.box(x,gy+1.38,front+dir*.05,w*.20,2.76,.16,[.22,.17,.12]);for(let xx of [-w*.32,w*.32]){m.box(x+xx,gy+2.14,front+dir*.09,w*.18,1.30,.11,[.13,.23,.25]);m.box(x+xx,gy+2.14,front+dir*.15,.09,1.40,.16,wood);}}
+ for(let xx of [-w*.46,w*.46])m.box(x+xx,gy+h*.5,z,.14,h,d,wood);
+ m.box(x+w*.24,gy+e+.70,z+d*.16,w*.28,1.4,w*.26,[.45,.43,.39]);
+}
+function guardTower(m,x,z,size=6,height=13){let y=terrain(x,z);m.cyl(x,y+height/2,z,size*.5,height,[.50,.49,.44],10);m.cyl(x,y+height+.65,z,size*.68,1.3,[.33,.31,.30],10);m.cyl(x,y+height+2,z,size*.58,1.5,[.30,.24,.21],10,0,.02);for(let a=0;a<8;a++){let th=a*TAU/8;m.box(x+Math.cos(th)*size*.55,y+height+1,z+Math.sin(th)*size*.55,.8,1.6,.9,[.59,.57,.51],th);}}
+function addScenicLandmarks(m,p){
+ const P=(x,z)=>terrain(x,z,p);const stone=[.55,.54,.50],mortar=[.38,.37,.35],blue=[.16,.30,.38];
+ // Walled alpine village and castle: traversable outdoors, decorative interiors in the prototype.
+ if(['terra','boreas','aurelia'].includes(p.id)){
+ let cx=-179,cz=113;
+ for(let i=0;i<16;i++){let x=cx+(i%4)*12+(i%3)*.7,z=cz+Math.floor(i/4)*14;gableHouse(m,x,z,7+(i%3),8+(i%2),5+(i%3),i);}
+ for(let i=0;i<11;i++){let x=cx-29+i*8.3,z=cz+59,y=P(x,z);m.box(x,y+2.0,z,7.9,4,.9,stone);m.box(x,y+4.4,z,1.15,.85,1.1,stone);}
+ guardTower(m,cx-30,cz+58,7,15);guardTower(m,cx+57,cz+58,7,17);
+ // Temple with tower and clustered defensive walls.
+ let xx=cx+44,zz=cz-2,yy=P(xx,zz);
+ m.box(xx,yy+5,zz,12,10,21,[.63,.61,.53]);m.box(xx,yy+10.1,zz,13,1.1,22,[.35,.29,.29]);
+ for(let j=0;j<4;j++)m.box(xx+(j%2?4.5:-4.5),yy+6.0,zz-7+j*4,1.3,3,.18,blue);
+ guardTower(m,xx,zz+11,6,21);
+ // castle on the ridge (a major silhouette landmark)
+ let kx=cx-42,kz=cz+102,ky=P(kx,kz);
+ m.box(kx,ky+5,kz,21,10,25,stone);m.box(kx,ky+11,kz,25,2,27,[.35,.32,.29]);
+ for(let a of [-12,12])for(let b of [-13,13])guardTower(m,kx+a,kz+b,6,16);
+ for(let j=0;j<12;j++)m.box(kx-9+j*1.75,ky+11.9,kz-12,1.2,1.8,1.5,[.65,.62,.57]);
+ // Rustic bridge / stream bank.
+ for(let i=0;i<9;i++){let z=cz-18+i*2.7,y=P(cx+5,z)+.25;m.box(cx+5,y,z,12,.3,2.9,[.50,.46,.40]);for(let x of [cx-.8,cx+10.8])m.box(x,y+1.25,z,.35,2.5,.35,woodBrown());}
+ }
+ if(['terra','vargos'].includes(p.id)){
+ // Actual rescue outpost (visual geometry; rescue gameplay still uses existing medic logic).
+ let rx=-36,rz=-77,ry=P(rx,rz);m.box(rx,ry+.18,rz,36,.34,25,[.36,.39,.39]);
+ m.box(rx-10,ry+3.8,rz+4,12,7.6,11,[.71,.72,.68]);m.box(rx-10,ry+7.9,rz+4,13,1,12,[.30,.35,.36]);
+ for(let i=0;i<4;i++){m.box(rx-10+(i-1.5)*2,ry+5,rz+9.58,1.1,2,.15,blue)}
+ let ax=rx+9,az=rz+1; m.cyl(ax,ry+.25,az,9,.5,[.28,.34,.35],24);m.box(ax,ry+.55,az,11,.06,.7,[.90,.87,.67]);m.box(ax,ry+.58,az,1,.06,11,[.90,.87,.67]);
+ for(let i=0;i<6;i++){let x=rx-17+i*6,z=rz+12; m.box(x,ry+3,z,.28,6,.28,[.63,.64,.62]);m.box(x,ry+5.6,z,.85,.45,.6,[.97,.86,.56]);}
+ // Emergency ambulance in parking area.
+ let bx=rx-16,bz=rz-6,by=P(bx,bz);m.box(bx,by+1.35,bz,2.4,2.5,5.3,[.84,.87,.82]);m.box(bx,by+2.1,bz-1.9,2.15,1.15,.11,[.22,.42,.52]);
+ for(let xx of [-1.2,1.2])for(let zz of [-1.8,1.8])m.cyl(bx+xx,by+.55,bz+zz,.63,.38,[.11,.12,.12],12);
+ m.box(bx,by+2.7,bz,1.7,.13,.55,[.2,.47,.86]);
+ }
+ if(p.id==='terra'){
+ // Stronger quarantine station silhouette: guard towers, security perimeter, floodlights.
+ let qx=-113,qz=-151;for(let i=-4;i<=4;i++){let x=qx+i*6,z=qz+19,y=P(x,z);m.box(x,y+2.1,z,.28,4.2,.27,stone);m.box(x,y+4.15,z,5.9,.14,.18,[.22,.23,.23]);}
+ for(let side of [-1,1]){let x=qx+side*24,z=qz+19;guardTower(m,x,z,5,12);m.box(x,P(x,z)+14,z,.95,1.0,.8,[.97,.89,.62]);}
+ m.box(qx,P(qx,qz+19)+4.8,qz+19,18,2,.8,[.22,.30,.33]);
+ }
+ if(p.id==='vargos'){
+ // Damaged masonry buildings, cover, abandoned checkpoint props.
+ for(let i=0;i<11;i++){let x=65+(i%4)*13,z=-181+Math.floor(i/4)*16,y=P(x,z);m.box(x,y+3.2,z,10,6.4,9,shade([.47,.45,.39],.8+(i%3)*.1));m.box(x+2,y+6.55,z,6,.5,8,[.34,.32,.29]);m.box(x-3,y+4.0,z+4.6,2.4,2.7,.15,[.11,.12,.12]);}
+ }
+}
+function woodBrown(){return [.30,.22,.16]}
+function populateWorld(){let p=getPlanet(),m=new Mesh();treeData=[];rockData=[];baseObjects=[];targets=[];zombies=[];let step=9,extent=640;
+for(let x=-extent;x<extent;x+=step)for(let z=-extent;z<extent;z+=step){let a=[x,terrain(x,z),z],b=[x+step,terrain(x+step,z),z],c=[x+step,terrain(x+step,z+step),z+step],d=[x,terrain(x,z+step),z+step],v=terrain(x+step*.5,z+step*.5),t=clamp((v+1)/61,0,1),g=mixColor(p.ground,p.rock,t*.75),variation=.85+h2(x,z,p.seed)*.27;
+let slope=Math.max(Math.abs(a[1]-b[1]),Math.abs(a[1]-d[1]))/step;
+if(slope>.38)g=mixColor(g,p.rock,clamp((slope-.38)*.9,0,.9));
+if((p.id==='terra'||p.id==='boreas'||p.id==='vargos')&&v>93){let snow=clamp((v-93)/37,0,.93);g=mixColor(g,[.85,.88,.87],snow);}
+g=shade(g,variation);m.quad(a,d,c,b,g)}
+// layered visual horizon, biomes & landscape landmarks
+addScenicLandmarks(m,p);
+if(p.id==='terra'||p.id==='aurelia'||p.id==='ferrum'){road(m,-100,0,100,0,8);road(m,0,-110,0,110,8);road(m,-80,54,75,54,6);road(m,74,-80,74,65,7);industrial(m);}
+let removed=state.trees[p.id]||[],mined=state.rocks[p.id]||[];
+for(let i=0;i<1050;i++){let forestRange=i<740?610:1190,x=(h2(i,13,p.seed)-.5)*forestRange,z=(h2(i,99,p.seed)-.5)*forestRange;if(Math.hypot(x,z)<82||Math.abs(x)<10&&Math.abs(z)<115||Math.abs(z)<9&&Math.abs(x)<110)continue;let hh=terrain(x,z,p),sz=4+h2(i,45,p.seed)*7; if(p.trees&&h2(i,50,p.seed)>.22&&!removed.includes(i))addTree(m,x,z,hh,sz,p.seed,i);else if(h2(i,92,p.seed)>.64&&!mined.includes(i))addRock(m,x,z,hh,1.8+h2(i,71,p.seed)*3,p,i);}
+// small undergrowth: low-poly grass clumps around forest (not collidable)
+ if(p.trees)for(let i=0;i<175;i++){let x=(h2(i,591,p.seed)-.5)*535,z=(h2(i,881,p.seed)-.5)*535;if(Math.hypot(x,z)<59)continue;let y=terrain(x,z);let green=shade(p.ground,.8+h2(i,90,p.seed)*.6);m.cyl(x,y+.25,z,.45,.5,green,4,.01,.44);}
+ for(let i=0;i<155;i++){let x=(h2(i,59,p.seed)-.5)*570,z=(h2(i,87,p.seed)-.5)*570;if(Math.hypot(x,z)<70)continue;let hh=terrain(x,z,p);if(h2(i,2,p.seed)>.27&&!mined.includes(i+10000))addRock(m,x,z,hh,.55+h2(i,23,p.seed)*1.8,p,i+10000)}
+if(p.id!=='terra'&&p.id!=='aurelia'&&p.id!=='ferrum'){// settlements on alien worlds
+for(let i=0;i<8;i++){let a=i*TAU/8,r=22+i%3*8,x=Math.cos(a)*r,z=Math.sin(a)*r,h=terrain(x,z);m.cyl(x,h+3.4,z,3.5,6.8,shade(p.rock,1.3),8,2.6,3.8);m.cyl(x,h+7.4,z,3.2,1.5,shade(p.ground,1.5),8,0,3);m.box(x,h+.75,z+3.4,1.6,1.5,.3,[.12,.27,.30]);}}
+// Meteorite exploration landmark: mining nearby stones can yield exotic metals.
+ {let mx=-93,mz=72,my=terrain(mx,mz);m.cyl(mx,my+2.5,mz,5.3,5.0,[.12,.17,.25],9,1.3,3.1);m.cyl(mx,my+5.1,mz,2.5,1.2,[.24,.58,.65],9,0,2.2);for(let k=0;k<9;k++){let x=mx+Math.sin(k*2.4)*8,z=mz+Math.cos(k*2.4)*7; m.cyl(x,terrain(x,z)+.6,z,1.1,1.2,[.21,.27,.31],6);}}
+ // physical rocket launch station
+let bx=-65,bz=27,bh=terrain(bx,bz);m.cyl(bx,bh+.3,bz,8,.6,[.36,.43,.43],24);m.cyl(bx,bh+12,bz,1.65,23,[.82,.86,.80],16,0,1.65);m.cyl(bx,bh+25.3,bz,1.65,4.5,[.88,.42,.25],16,0,1.65);m.cyl(bx,bh+4,bz,2.1,2.5,[.41,.45,.48],16);for(let t=0;t<4;t++){let a=t*TAU/4;m.box(bx+Math.cos(a)*2,bh+3.7,bz+Math.sin(a)*2,.7,6,3,[.76,.34,.23],a)}m.box(bx-6,bh+13,bz,1.2,26,1.2,[.40,.44,.45]);for(let j=0;j<7;j++)m.box(bx-4,bh+2+j*3.7,bz,4,.15,.5,[.47,.52,.53]);
+// oil production: pumpjacks and refining tanks, simplified economy
+if(p.id==='terra'){
+const px=-122,pz=52,yy=terrain(px,pz);m.box(px,yy+1,pz,9,2,9,[.37,.40,.40]);m.box(px,yy+7,pz,1,12,1,[.35,.36,.38]);m.box(px,yy+11,pz,11,.6,.8,[.32,.33,.34]);m.box(px+3,yy+6,pz,1,8,1,[.44,.33,.20]);m.cyl(-155,terrain(-155,52)+4,52,4.5,8,[.67,.70,.68],16);m.cyl(-149,terrain(-149,43)+3,43,3,6,[.68,.69,.67],16);m.box(-139,terrain(-139,52)+1,52,25,1,.55,[.26,.35,.38]);
+// small farm fields
+for(let j=0;j<7;j++)for(let i=0;i<14;i++){let x=103+i*2.6,z=85+j*3,y=terrain(x,z);m.box(x,y+.10,z,1.2,.18,2.3,[.32,.29,.17]);m.box(x,y+.55,z,1.05,.82,1.7,[.44,.58,.25]);}
+// abandoned research station and quarantine perimeter
+let rx=-113,rz=-151,ry=terrain(rx,rz);m.box(rx,ry+5,rz,22,10,18,[.45,.49,.53]);m.box(rx,ry+10.5,rz,23,.7,20,[.28,.36,.38]);m.box(rx+4,ry+4.4,rz+9.2,6,3,.4,[.19,.46,.44]);for(let i=0;i<6;i++){let x=rx-25+i*9,z=rz-22+(i%3)*8;zombies.push({x,z,homeX:x,homeZ:z,health:3,alive:true,phase:i});}
+}
+// Historic inspired 1945 front sector and monumental railway artillery (static prop, not real ballistics).
+ if(p.id==='vargos'){
+  let gx=98,gz=-92,gy=terrain(gx,gz);for(let i=-7;i<=7;i++){let z=gz+i*3,y=terrain(gx,z);m.box(gx-2,y+.12,z,.2,.22,2.2,[.34,.36,.35]);m.box(gx+2,y+.12,z,.2,.22,2.2,[.34,.36,.35]);m.box(gx,y+.05,z,6,.17,.5,[.37,.24,.16]);}
+  m.box(gx,gy+2,gz,7,4,20,[.32,.37,.30]);m.box(gx,gy+4.7,gz-3,5,3,9,[.42,.45,.36]);m.box(gx,gy+6.1,gz-15,1.6,1.4,20,[.22,.25,.25]);
+  for(let j=0;j<6;j++){let x=35+j*15,z=-125+j%2*10,y=terrain(x,z);m.box(x,y+.5,z,10,1.1,3,[.33,.34,.26]);}
+ }
+ // front-style scenario zone
+for(let j=0;j<14;j++){let z=-175+j*7,x=60+Math.sin(j*.8)*5,y=terrain(x,z);m.box(x,y+.45,z,8,.9,2,[.42,.37,.28]);m.box(x-6,y+.3,z,2,.6,4,[.38,.36,.31]);}
+for(let i=0;i<8;i++){let x=60+i*10,z=-140+(i%3)*-12;targets.push({x,z,homeX:x,homeZ:z,y:terrain(x,z)+1.1,health:3,alive:true,t:0,phase:i})}
+staticBuffer=upload(m,staticBuffer);dynamicDirty=true;setSky(p);$('biome').textContent=p.name.toUpperCase();}
+function setSky(p){canvas.style.background=`rgb(${p.sky.map(v=>Math.floor(v*255)).join(',')})`;let g=p.sky;gl.clearColor(g[0],g[1],g[2],1)}
+function makeVehicles(){let m=new Mesh();const y=terrain(player.x,player.z);let car=[.77,.35,.19],black=[.10,.14,.15];let carX=12,carZ=17;vehicleDefs=[{type:'jeep',x:carX,z:carZ,y:terrain(carX,carZ),yaw:Math.PI,gas:95,speed:0},{type:'tank',x:86,z:-162,y:terrain(86,-162),yaw:Math.PI,gas:100,speed:0},{type:'heli',x:5,z:56,y:terrain(5,56)+1,yaw:0,gas:100,speed:0}];for(const owned of state.vehicleOwned||[]){if(owned.planet===state.planet)vehicleDefs.push(owned);}}
+let vehicleDefs=[];
+function addVehicle(m,v){addDetailedVehicle(m,v)}
+
+// PROJECT NEXUS V0.3 EXPANSION: self-contained simulation additions.
+const VEHICLES=[
+ ['city','Stadt & Alltag','Kompaktwagen',680,31,false, 'terrestrial'],
+ ['city','Stadt & Alltag','Sportwagen Vortex GT',2200,65,false,'sport'],
+ ['city','Stadt & Alltag','Hypercar Nova X',5400,83,false,'sport'],
+ ['city','Stadt & Alltag','Geländewagen Ranger',1100,34,false,'offroad'],
+ ['city','Stadt & Alltag','Motorrad Falcon',740,48,false,'bike'],
+ ['city','Stadt & Alltag','Bus',1900,22,false,'truck'],
+ ['industry','Forst & Landwirtschaft','Forsttraktor',880,16,false,'tractor'],
+ ['industry','Forst & Landwirtschaft','Harvester',3600,13,false,'machine'],
+ ['industry','Forst & Landwirtschaft','Forwarder',2800,17,false,'truck'],
+ ['industry','Forst & Landwirtschaft','Mähdrescher',2200,14,false,'machine'],
+ ['industry','Bau & Industrie','Bagger',1500,11,false,'machine'],
+ ['industry','Bau & Industrie','Radlader',1250,17,false,'machine'],
+ ['industry','Bau & Industrie','Kranwagen',2350,16,false,'truck'],
+ ['industry','Bau & Industrie','Sattelzug',1900,27,false,'truck'],
+ ['war','Historische Front 1945','Historischer Kampfpanzer',2700,18,false,'armor'],
+ ['war','Historische Front 1945','Halbkettenfahrzeug',1580,22,false,'armor'],
+ ['war','Moderne Verteidigung','Moderner Kampfpanzer',6200,21,false,'armor'],
+ ['air','Luftfahrt','Rettungshelikopter',3200,30,true,'helicopter'],
+ ['air','Luftfahrt','Transporthelikopter',4350,28,true,'helicopter'],
+ ['air','Luftfahrt','Propellerflugzeug',2900,48,true,'plane'],
+ ['air','Luftfahrt','Düsenjet',9000,100,true,'plane'],
+ ['water','Schifffahrt','Motorboot',1120,22,false,'boat'],
+ ['water','Schifffahrt','Frachtschiff',7200,9,false,'ship'],
+ ['space','Raumfahrt','Planetarer Rover',3100,26,false,'offroad'],
+ ['space','Raumfahrt','Forschungs-Shuttle',13500,56,true,'shuttle']
+];
+const VEHICLE_MAP={};for(let i=0;i<VEHICLES.length;i++){let t=VEHICLES[i];VEHICLE_MAP['unit'+i]={type:'unit'+i,category:t[1],name:t[2],price:t[3],speed:t[4],flight:t[5],shape:t[6],space:t[0]==='space'};}
+const HISTORIC_GEAR=[
+ ['Karabiner 98k','Historisches Gewehr','Standard',320],
+ ['M1 Garand','Historisches Gewehr','Standard',340],
+ ['PPSh-41','Historische Maschinenpistole','Schnell',370],
+ ['MP 40','Historische Maschinenpistole','Schnell',330],
+ ['Thompson','Historische Maschinenpistole','Schnell',390],
+ ['Sten','Historische Maschinenpistole','Schnell',290],
+ ['MG 42','Historisches MG','Schwer',520],
+ ['Bren','Historisches MG','Schwer',480],
+ ['M1918 BAR','Historisches Automatikgewehr','Schwer',450],
+ ['Mosin-Nagant','Historisches Gewehr','Standard',310],
+ ['Schwerer Gustav','Stationäres historisches Geschütz','Szenario-Objekt',0]
+];
+function normalizeState(){
+ const defaults={felledLogs:{},meteor:0,alloy:0,planks:0,vehicleOwned:[],vehicleUpgrades:{},planetEras:{},weapon:'Training',weaponUnlocked:['Training'],meteorCollected:{},production:{}};
+ for(const [k,v] of Object.entries(defaults))if(state[k]===undefined||state[k]===null)state[k]=Array.isArray(v)?[]:typeof v==='object'?{}:v;
+ if(!state.planetEras[state.planet])state.planetEras[state.planet]=state.era;
+}
+function ownedVehicle(v){return (state.vehicleOwned||[]).find(x=>x.id===v)}
+function buyVehicle(idx){let spec=VEHICLE_MAP['unit'+idx];if(!spec)return false;normalizeState();if(state.money<spec.price){toast('Nicht genug Spielgeld: '+spec.price+' € benötigt');return false}
+ if(spec.space&&(state.meteor<2||state.alloy<1)){toast('Raumfahrzeuge benötigen 2 Meteoritenmetall und 1 Legierung.');return false;}
+ state.money-=spec.price;if(spec.space){state.meteor-=2;state.alloy--;}
+ let i=state.vehicleOwned.length,id='vehicle'+(Date.now()%100000000)+'_'+i;
+ let unit={id,type:spec.type,planet:state.planet,x:35+(i%5)*7,z:17+Math.floor(i/5)*8,y:0,yaw:Math.PI,gas:100,speed:0,condition:100};unit.y=terrain(unit.x,unit.z)+ (spec.flight?1:0);state.vehicleOwned.push(unit);vehicleDefs.push(unit);dynamicDirty=true;saveGame();toast('✓ '+spec.name+' gekauft – steht am Fahrzeughof (X 35, Z 17).');renderGarage();return true;}
+function upgradeVehicle(id){normalizeState();let unit=state.vehicleOwned.find(v=>v.id===id);if(!unit)return false;let lev=state.vehicleUpgrades[id]||0;if(lev>=3){toast('Maximale Ausbaustufe erreicht');return false;}let price=180*(lev+1),metal=2+lev;if(state.money<price||state.metal<metal){toast('Tuning benötigt '+price+' € und '+metal+' Metall');return false;}state.money-=price;state.metal-=metal;state.vehicleUpgrades[id]=lev+1;toast('✓ Motor-/Fahrwerkstuning Stufe '+(lev+1));saveGame();renderGarage();return true;}
+function refuelOwned(id){let unit=state.vehicleOwned.find(v=>v.id===id);if(!unit)return false;if(Math.hypot(unit.x-40,unit.z-27)>33&&Math.hypot(unit.x+14,unit.z-34)>18){toast('Tanken nur an Werkstatt oder Tankstelle möglich');return false;}let price=Math.ceil((100-unit.gas)*2);if(!price){toast('Tank ist bereits voll');return true;}if(state.money<price){toast('Zu wenig Geld');return false;}state.money-=price;unit.gas=100;saveGame();renderGarage();return true;}
+function renderGarage(){let owned=(state.vehicleOwned||[]).filter(v=>v.planet===state.planet);$('modalContent').innerHTML=`<h2>🚘 Fahrzeugmarkt & Tuning</h2><p>25 Fahrzeugmodelle in sieben Bereichen. Kaufbare Fahrzeuge erscheinen am Fahrzeughof (X 35, Z 17), können gefahren und getankt werden. Es sind einfache 3D-Modelle mit Arcade-Physik – keine realistischen Fahrsimulatoren.</p><div class="row"><span class="tag">Kontostand: ${state.money.toLocaleString('de-DE')} €</span><span class="tag">Meteoritenmetall: ${state.meteor}</span><span class="tag">Legierung: ${state.alloy}</span></div><h3>Markt</h3><div class="grid">${VEHICLES.map((v,i)=>{let o=VEHICLE_MAP['unit'+i];return `<div class="tile"><span class="tag">${o.category}</span><h4>${escapeHtml(o.name)}</h4><p>${o.flight?'Luftfahrzeug':'Boden-/Wasserfahrzeug'} · ${o.speed} Geschwindigkeitseinheiten</p><p>Preis: ${o.price.toLocaleString('de-DE')} € ${o.space?'· 2 Meteor + 1 Legierung':''}</p><button class="miniBtn" onclick="buyVehicle(${i})">Kaufen & am Hof bereitstellen</button></div>`}).join('')}</div><h3>Deine Fahrzeuge auf ${getPlanet().name}</h3><div class="grid">${owned.map(v=>{let spec=VEHICLE_MAP[v.type];let level=state.vehicleUpgrades[v.id]||0;return `<div class="tile"><h4>${spec?.name||v.type}</h4><p>Tank ${Math.floor(v.gas)} % · Tuning ${level}/3 · X ${Math.round(v.x)} Z ${Math.round(v.z)}</p><button class="miniBtn" onclick="upgradeVehicle('${v.id}')">Tuning +1</button> <button class="miniBtn" onclick="refuelOwned('${v.id}')">Tanken</button></div>`}).join('')||'<p>Noch kein gekauftes Fahrzeug auf diesem Planeten.</p>'}</div>`;}
+function transaction(type){normalizeState();const jobs={
+ sawmill:{label:'Sägewerk: 4 Holz → 6 Bretter',in:{wood:4},out:{planks:6}},
+ paper:{label:'Papierfabrik: 4 Holz → 6 Papier',in:{wood:4},out:{paper:6}},
+ refinery:{label:'Raffinerie: 5 Rohöl → 15 Treibstoff',in:{oil:5},out:{fuel:15}},
+ mine:{label:'Stahlwerk: 4 Metall + 2 Stein → 2 Legierung',in:{metal:4,stone:2},out:{alloy:2}},
+ farm:{label:'Mühle: 5 Lebensmittel → 2 Vorräte + 65 €',in:{food:5},out:{money:65}},
+ hightech:{label:'Raumfahrt-Fertigung: 2 Meteor + 2 Legierung → 1 Technologiepaket (Geld)',in:{meteor:2,alloy:2},out:{money:1200}},
+ market:{label:'Holzhandel: 6 Bretter → 175 €',in:{planks:6},out:{money:175}}
+};let job=jobs[type];if(!job)return false;for(const [k,v] of Object.entries(job.in))if((state[k]||0)<v){toast('Fehlender Rohstoff: '+k+' (benötigt '+v+')');return false}
+ for(const [k,v] of Object.entries(job.in))state[k]-=v;for(const [k,v] of Object.entries(job.out))state[k]=(state[k]||0)+v;
+ toast('✓ '+job.label);saveGame();renderIndustries();return true;}
+function renderIndustries(){normalizeState();const counts=[['Holz',state.wood],['Metall',state.metal],['Stein',state.stone],['Rohöl',state.oil],['Benzin/Diesel',state.fuel],['Bretter',state.planks],['Papier',state.paper],['Gold',state.gold],['Nahrung',state.food],['Meteoritenmetall',state.meteor],['Legierung',state.alloy]];
+ $('modalContent').innerHTML=`<h2>🏭 Industrien & Rohstoffe</h2><p>Forstwirtschaft, Bergbau, Ölförderung, Papierindustrie, Landwirtschaft und Raumfahrt-Fertigung sind als vereinfachte Produktionsketten spielbar. Rohöl bekommst du an der Ölpumpe, Lebensmittel am Feld, Meteoritenmetall selten aus abgebauten Felsen.</p><div class="row">${counts.map(([n,v])=>`<span class="tag">${n}: ${v}</span>`).join('')}</div><h3>Produktionsaufträge</h3><div class="grid">${[['sawmill','🪵','4 Holz → 6 Bretter'],['paper','📄','4 Holz → 6 Papier'],['refinery','🛢️','5 Rohöl → 15 Treibstoff'],['mine','⛏️','4 Metall + 2 Stein → 2 Legierung'],['farm','🌾','5 Nahrung → 65 €'],['market','📦','6 Bretter → 175 €'],['hightech','☄️','2 Meteor + 2 Legierung → 1200 €']].map(([id,ic,title])=>`<div class="tile"><div class="symbol">${ic}</div><h4>${title}</h4><button class="miniBtn" onclick="transaction('${id}')">Produzieren</button></div>`).join('')}</div><p class="warn">Maschinenketten sind als funktionierende Inventar-Rezepte umgesetzt. Vollständige Produktionsanimationen, Transportlogistik und Maschinenbedienung folgen später.</p>`;}
+function buyWeapon(name){let gear=HISTORIC_GEAR.find(x=>x[0]===name);if(!gear||gear[3]<=0)return false;if(state.money<gear[3]){toast('Geld nicht ausreichend');return false;}if(!state.weaponUnlocked.includes(name)){state.money-=gear[3];state.weaponUnlocked.push(name);}state.weapon=name;state.ammo=30;state.reserve=Math.max(state.reserve,75);toast('Ausrüstung gewählt: '+name);saveGame();renderArmory();return true;}
+function equipWeapon(name){if(!state.weaponUnlocked.includes(name))return false;state.weapon=name;toast('Ausgerüstet: '+name);renderArmory();return true;}
+function renderArmory(){normalizeState();$('modalContent').innerHTML=`<h2>🪖 Historische Front 1945 – Ausrüstung</h2><p>Original benannte historische Gegenstände als Spielkatalog: keine physikalisch authentischen Nachbildungen. Die fiktive Front auf Vargos bietet Patrouillen, Panzerkulissen, Schützengräben und das monumentale stationäre Eisenbahngeschütz als Schauplatz.</p><div class="row"><span class="tag">Aktuelle Auswahl: ${escapeHtml(state.weapon)}</span><span class="tag">Spielgeld: ${state.money.toLocaleString('de-DE')} €</span></div><div class="grid">${HISTORIC_GEAR.map(w=>`<div class="tile"><span class="tag">${escapeHtml(w[1])}</span><h4>${escapeHtml(w[0])}</h4><p>${w[3]?`Spielpreis ${w[3]} € · abstrakte Kategorie ${w[2]}`:'Stationäres Kulissenobjekt auf Vargos, nicht bedienbar'}</p>${w[3]?`<button class="miniBtn" onclick="${state.weaponUnlocked.includes(w[0])?'equipWeapon':'buyWeapon'}('${w[0]}')">${state.weaponUnlocked.includes(w[0])?'Ausrüsten':'Freischalten'}</button>`:''}</div>`).join('')}</div><p class="warn">Kein realitätsgetreues Waffenverhalten oder vollständiger historischer Katalog. Multiplayer-Krieg und großflächige Zerstörung sind Entwicklungsziele.</p>`;}
+function marketBuy(item){const opts={Smartphone:240,Motorsäge:140,Werkzeugkoffer:180,Nahrung:25,Funkgerät:90};if(!(item in opts))return false;if(state.money<opts[item]){toast('Nicht genug Spielgeld');return false;}state.money-=opts[item];if(item==='Nahrung')state.food+=2;else state.gear.push(item);saveGame();toast('✓ '+item+' im Geschäft gekauft');renderMarket();return true;}
+function renderMarket(){normalizeState();const opts=[['Smartphone',240,'📱'],['Motorsäge',140,'🪓'],['Werkzeugkoffer',180,'🧰'],['Nahrung',25,'🥫'],['Funkgerät',90,'📻']];$('modalContent').innerHTML=`<h2>🏪 Stadtshop & Supermarkt</h2><p>Nach Unfällen kannst du verlorene Gegenstände ersetzen. Dein Konto und dein Eigentum bleiben erhalten, sofern du nur Ausrüstungsgegenstände verlierst.</p><div class="grid">${opts.map(([n,c,ic])=>`<div class="tile"><div class="symbol">${ic}</div><h4>${n}</h4><p>${c} €</p><button class="miniBtn" onclick="marketBuy('${n}')">Kaufen</button></div>`).join('')}</div><p>Inventar: ${state.gear.map(escapeHtml).join(' · ')}</p>`;}
+function advanceCivilization(){normalizeState();const idx=eras.indexOf(state.planetEras[state.planet]||getPlanet().era);if(idx>=eras.length-1){toast('Höchste Entwicklungsstufe erreicht');return false;}let cost=100+idx*75, metal=2+idx;if(state.money<cost||state.metal<metal){toast('Forschung benötigt '+cost+' € und '+metal+' Metall');return false;}state.money-=cost;state.metal-=metal;let next=eras[idx+1];state.planetEras[state.planet]=next;state.era=next;dynamicDirty=true;saveGame();toast('✓ '+getPlanet().name+' erreicht das Zeitalter '+next);renderCivilization();return true;}
+function renderCivilization(){normalizeState();let current=state.planetEras[state.planet]||getPlanet().era,idx=eras.indexOf(current);$('modalContent').innerHTML=`<h2>⌛ Entwicklung der Zivilisationen</h2><p>Jeder Planet beginnt in einem eigenen Zeitalter. Du kannst die Zivilisation deines aktuellen Planeten durch Forschung dauerhaft weiterentwickeln. Die verschiedenen Stufen verändern in dieser Alpha vor allem das Baudesign und den gespeicherten Weltstatus.</p><div class="grid">${planets.map(p=>`<div class="tile"><div class="symbol" style="color:${p.color}">●</div><h4>${p.name}</h4><p>Gründung: ${p.era}</p><p class="good">Aktuell: ${state.planetEras[p.id]||p.era}</p></div>`).join('')}</div><div class="row"><button class="launchBtn" onclick="advanceCivilization()">Forschung: ${idx>=eras.length-1?'Maximale Stufe':eras[idx+1]}</button><span class="tag">Kosten: ${100+idx*75} € + ${2+idx} Metall</span></div><p class="warn">Autonom entwickelte KI-Zivilisationen und historisch präzise Technologiebäume sind noch nicht umgesetzt.</p>`;}
+// V0.6: geometry made from original meshes; moving road wheels, animated rotor and articulated boom.
+function addDetailedVehicle(m,v){
+ let spec=VEHICLE_MAP[v.type],shape=spec?.shape||(v.type==='tank'?'armor':v.type==='heli'?'helicopter':'offroad');
+ let palette={sport:[.72,.15,.19],offroad:[.56,.28,.16],terrestrial:[.25,.49,.65],bike:[.62,.17,.14],truck:[.28,.50,.61],tractor:[.25,.49,.22],machine:[.91,.58,.12],armor:[.32,.39,.28],helicopter:[.25,.45,.47],plane:[.74,.77,.79],shuttle:[.61,.70,.81],boat:[.33,.54,.66],ship:[.32,.43,.54]};
+ let body=palette[shape]||[.38,.50,.58],dark=[.075,.095,.11],glass=[.10,.22,.29],metal=[.43,.49,.50],red=[.85,.13,.10],light=[.88,.88,.75];
+ let x=v.x,z=v.z,y=v.y,yaw=v.yaw,cs=Math.cos(yaw),sn=Math.sin(yaw);
+ const P=(lx,ly,lz)=>[x+lx*cs-lz*sn,y+ly,z+lx*sn+lz*cs];
+ const B=(lx,ly,lz,sx,sy,sz,col,twist=0)=>{let p=P(lx,ly,lz);m.box(...p,sx,sy,sz,col,yaw+twist)};
+ const C=(lx,ly,lz,r,h,col,n=10)=>{let p=P(lx,ly,lz);m.cyl(...p,r,h,col,n)};
+ const wheel=(lx,ly,lz,r=.64,width=.34)=>{
+   let N=12, spin=v.wheelSpin||0; for(let j=0;j<N;j++){
+    let a=j*Math.PI*2/N+spin,b=(j+1)*Math.PI*2/N+spin;
+    const ring=(w,ang,rr)=>P(lx+w,ly+Math.cos(ang)*rr,lz+Math.sin(ang)*rr);
+    m.quad(ring(-width,a,r),ring(-width,b,r),ring(width,b,r),ring(width,a,r),shade(dark,(j%2)?1.45:.9));
+    m.quad(ring(width,a,r),ring(width,b,r),ring(width,b,r*.53),ring(width,a,r*.53),[.34,.38,.40]);
+    m.quad(ring(-width,b,r),ring(-width,a,r),ring(-width,a,r*.53),ring(-width,b,r*.53),[.23,.25,.26]);
+   }
+   let hub=P(lx+width+.012,ly,lz);m.sphere(...hub,r*.19,metal,5,8);
+ };
+ const beam=(a,b,thick,col)=>{
+   const aa=P(...a),bb=P(...b);let vx=bb[0]-aa[0],vy=bb[1]-aa[1],vz=bb[2]-aa[2],ln=Math.hypot(vx,vy,vz)||1;
+   let nx=-vz/Math.max(.001,Math.hypot(vx,vz)),nz=vx/Math.max(.001,Math.hypot(vx,vz)),ny=0;
+   let tx=(vy*nz),ty=(vz*nx-vx*nz),tz=(-vy*nx),tl=Math.hypot(tx,ty,tz)||1;
+   tx/=tl;ty/=tl;tz/=tl;let p=(u,v,w)=>[aa[0]+vx*u+nx*v*thick+tx*w*thick,aa[1]+vy*u+ny*v*thick+ty*w*thick,aa[2]+vz*u+nz*v*thick+tz*w*thick];
+   // oriented prism faces for hydraulic-arm visualization
+   let ring0=[p(0,-.5,-.5),p(0,.5,-.5),p(0,.5,.5),p(0,-.5,.5)],ring1=[p(1,-.5,-.5),p(1,.5,-.5),p(1,.5,.5),p(1,-.5,.5)];
+   for(let j=0;j<4;j++)m.quad(ring0[j],ring1[j],ring1[(j+1)%4],ring0[(j+1)%4],col);
+ };
+ // Models have decorative components, visually different by class. They are NOT real suspension/hydraulic physics.
+ if(['sport','terrestrial','offroad'].includes(shape)){
+  let low=shape==='sport';B(0,1,0,2.65,low?.58:1.05,low?4.9:4.7,body);B(0,1.70,-.32,2.12,low?.55:.92,2.45,glass);B(0,2.06,-.30,2.20,.14,2.6,shade(body,1.1));
+  B(0,1.07,-2.48,2.4,.29,.2,dark);B(0,1.05,2.48,2.3,.25,.2,dark);B(0,1.30,-2.53,1.4,.16,.07,metal);
+  if(low){B(0,1.54,2.16,2.4,.10,.50,dark);B(0,1.42,2.06,.16,.62,.20,dark)}
+  for(let zz of [-1.60,1.60])for(let xx of [-1.28,1.28])wheel(xx,.64,zz,low?.53:.66,.28);
+  for(let xx of [-.85,.85]){B(xx,1.10,-2.48,.55,.24,.11,light);B(xx,1.10,2.48,.55,.23,.10,red);}
+ } else if(shape==='tractor'||shape==='truck'||shape==='machine'){
+  const isTractor=shape==='tractor',isMachine=shape==='machine';
+  B(0,1.24,.72,2.65,1.22,5.15,body);B(0,2.40,-1.32,2.3,1.70,2.20,shade(body,.84));B(0,2.47,-2.47,1.90,1.13,.09,glass);
+  B(0,3.35,-1.30,2.42,.19,2.23,dark);B(0,2.5,-.19,2.05,.95,.09,glass);
+  for(let xx of [-1.30,1.30])for(let zz of [-1.5,1.75])wheel(xx,.76,zz,isTractor?.91:.78,.32);
+  B(0,1.37,2.70,2.52,.16,.14,metal);B(0,1.85,-2.42,2.12,.14,.16,metal);
+  if(shape==='truck'){B(0,2.2,2.1,2.46,2.22,2.8,[.44,.50,.50]);B(0,3.4,2.1,2.6,.17,2.8,dark);}
+  if(isMachine){let t=v.arm||0;let ly=3.1+Math.sin(t)*.75,lz=-4.45+Math.cos(t)*.35,ey=2.15+Math.sin(t+.5)*.75,ez=-6.3;
+   beam([0,2.3,-1.7],[0,ly,lz],.52,[.87,.59,.15]);beam([0,ly,lz],[0,ey,ez],.36,[.78,.49,.12]);
+   B(0,ey-.35,ez-.30,1.65,.72,1.25,[.31,.33,.34]);B(0,ey-.78,ez-.85,1.58,.20,.29,dark);
+   B(0,1.4,2.6,2.3,.2,.3,metal);
+  }
+ } else if(shape==='armor'){
+  B(0,1.18,0,3.2,1.36,6.20,body);B(0,2.10,-.56,2.55,.84,2.75,shade(body,1.1));B(0,2.65,-.55,1.70,.26,1.6,metal);
+  B(0,2.15,-3.25,.48,.44,3.6,dark);B(0,1.42,2.98,2.8,.22,.4,shade(body,.7));
+  for(let xx of [-1.78,1.78]){B(xx,.74,0,.55,1.24,6.25,dark);for(let zz of [-2.25,-1.2,0,1.2,2.25])wheel(xx*1.01,.71,zz,.52,.18);}
+ } else if(shape==='helicopter'){
+  B(0,2.0,-.4,2.45,1.85,5.15,body);B(0,2.37,-2.65,2.05,1.06,.18,glass);B(0,2.0,3.65,.6,.62,5.35,body);B(0,1.0,-.30,3.15,.16,4.6,dark);
+  B(0,3.34,0,.42,.9,.42,metal);let rr=renderTime*13;
+  for(let a=0;a<4;a++){let ang=rr+a*Math.PI/2;B(Math.cos(ang)*3.2,3.78,Math.sin(ang)*3.2,6.4,.11,.29,dark,ang);}
+  B(0,2.50,6.15,.24,2,.14,dark,renderTime*9);
+  for(let xx of [-1.15,1.15])B(xx,.82,-.2,.14,.13,4.5,dark);
+ } else if(shape==='plane'||shape==='shuttle'){
+  B(0,2,0,1.85,1.64,8.75,body);B(0,2.10,-.35,14.5,.19,2.3,shade(body,1.15));B(0,2.36,3.25,6.2,.17,2.25,body);
+  B(0,3.6,3.4,.25,2.8,2.3,body);B(0,2.65,-2.45,1.40,.85,1.92,glass);
+  for(let xx of [-.8,.8])B(xx,1.10,-2.5,.35,.5,.45,dark);
+ } else if(shape==='bike'){
+  B(0,1.16,0,.72,.43,2.65,body);B(0,1.50,.2,.85,.2,.8,dark);
+  wheel(0,.68,-1.1,.60,.18);wheel(0,.68,1.25,.60,.18);B(0,1.55,-1.0,1.15,.12,.18,metal);
+ } else {B(0,1.2,0,3.5,1.50,shape==='ship'?13.5:6.5,body);B(0,2.5,.5,2.65,1.2,3,metal);}
+}
+window.buyVehicle=buyVehicle;window.upgradeVehicle=upgradeVehicle;window.refuelOwned=refuelOwned;window.transaction=transaction;window.buyWeapon=buyWeapon;window.equipWeapon=equipWeapon;window.marketBuy=marketBuy;window.advanceCivilization=advanceCivilization;
+
+function buildDynamic(){let m=new Mesh(),p=getPlanet();let all=state.builds[state.planet]||[];for(let b of all){let pc=pieces.find(k=>k.id===b.type)||pieces[0],x=b.x,y=b.y,z=b.z,rot=b.rot||0,base=state.era==='Zukunft'?[.28,.62,.68]:state.era==='Mittelalter'?[.49,.35,.24]:[.67,.51,.32],c=b.type==='solar'?[.12,.35,.53]:b.type==='road'?[.32,.37,.38]:b.type==='rail'?[.39,.44,.43]:b.type==='rocket'?[.55,.59,.60]:base;
+m.box(x,y,z,...pc.size,c,rot);if(b.type==='roof')m.box(x,y+.2,z,2.8,.16,2.8,shade(c,.75),rot);if(b.type==='door')m.box(x,y,z,.95,2.15,.39,[.24,.20,.16],rot);if(b.type==='solar'){for(let i=-1;i<=1;i++)m.box(x+i*.9,y+.31,z, .7,.05,2.5,[.09,.22,.37],rot)}if(b.type==='tower')m.box(x,y+2.7,z,4,.35,4,shade(c,.7),rot);}
+// hint construction ghost when in build mode
+if(tool===3&&!modalOpen){let g=buildTarget();if(g){let pc=pieces[selectedPiece];m.box(g.x,g.y,g.z,...pc.size,canPlaceHere(pc,g)?[.36,.91,.62]:[.88,.28,.24],g.rot);}}
+for(let v of vehicleDefs)addVehicle(m,v);
+if(state.planet==='terra'){let px=-122,pz=52,py=terrain(px,pz),osc=Math.sin(renderTime*2.1);m.box(px+2.3,py+10.7+osc*.8,pz,6.8,.32,.62,[.66,.48,.22],osc*.025);m.box(px+5.1,py+9.2+osc*1.0,pz,.55,2.5,.56,[.39,.38,.38]);
+let sx=29,sz=-23.4,sy=terrain(29,-20)+3.65;for(let j=0;j<7;j++){let a=j*Math.PI*2/7+renderTime*5;m.box(sx+Math.cos(a)*.98,sy+Math.sin(a)*.98,sz,.42,.18,.12,[.83,.84,.76],a);}}
+
+ for(let log of (state.felledLogs?.[state.planet]||[])){if(log.delivered)continue;let y=terrain(log.x,log.z);m.box(log.x,y+.47,log.z,log.len,.76,.76,[.46,.29,.15],log.yaw);for(let d of [-1,1]){let ax=log.x+Math.cos(log.yaw)*log.len*.49*d,az=log.z+Math.sin(log.yaw)*log.len*.49*d;m.box(ax,y+.47,az,.11,.60,.64,[.7,.52,.32],log.yaw);}if(towLogId===log.id&&vehicle){m.line(vehicle.x,vehicle.y+1,vehicle.z,log.x,y+.50,log.z,.12,[.69,.67,.57]);}}
+ 
+for(const ally of squad)if(state.planet==='terra'){let yy=terrain(ally.x,ally.z);m.box(ally.x,yy+.90,ally.z,.9,1.55,.8,[.20,.38,.48]);m.sphere(ally.x,yy+1.92,ally.z,.40,[.78,.66,.50],5,6);m.box(ally.x,yy+1.35,ally.z,.95,.20,.81,[.12,.23,.30]);}for(let undead of zombies)if(undead.alive){let yy=terrain(undead.x,undead.z);m.box(undead.x,yy+.8,undead.z,.92,1.5,.7,[.27,.44,.31]);m.sphere(undead.x,yy+1.82,undead.z,.41,[.39,.57,.36],5,6);}for(let medic of medics)if(downed){let yy=terrain(medic.x,medic.z);m.box(medic.x,yy+.9,medic.z,.9,1.65,.8,[.89,.92,.90]);m.box(medic.x,yy+1.15,medic.z,.93,.33,.82,[.88,.27,.26]);m.sphere(medic.x,yy+2,medic.z,.4,[.91,.72,.55],5,6);}
+
+for(let t of targets)if(t.alive){let posY=terrain(t.x,t.z);m.box(t.x,posY+.75,t.z,.8,1.5,.5,[.50,.24,.17]);m.sphere(t.x,posY+1.85,t.z,.47,[.74,.65,.47],5,7)}
+dynamicBuffer=upload(m,dynamicBuffer);dynamicDirty=false;}
+function resetCamera(){player.y=terrain(player.x,player.z)+eyeHeight();camera.x=player.x;camera.y=player.y;camera.z=player.z}
+function cameraDirection(){let a=camera.yaw,b=camera.pitch;return [Math.sin(a)*Math.cos(b),Math.sin(b),-Math.cos(a)*Math.cos(b)]}
+// V0.6 precise construction. Ray hit checks the oriented part, not only its global bounding box.
+function buildTarget(){
+ let dir=cameraDirection(),hit=null,hitPart=null,hitNormal='top';
+ const arr=state.builds[state.planet]||[];
+ for(let t=1.0;t<27;t+=.17){
+  let x=camera.x+dir[0]*t,y=camera.y+dir[1]*t,z=camera.z+dir[2]*t;
+  if(Math.abs(x)>295||Math.abs(z)>295)break;
+  for(let b of arr){let sp=pieces.find(p=>p.id===b.type)||pieces[0];let co=Math.cos(b.rot||0),si=Math.sin(b.rot||0),rx=(x-b.x)*co+(z-b.z)*si,rz=-(x-b.x)*si+(z-b.z)*co,ry=y-b.y;
+   if(Math.abs(rx)<sp.size[0]/2+.02&&Math.abs(rz)<sp.size[2]/2+.02&&Math.abs(ry)<sp.size[1]/2+.02){
+    hit={x,y,z};hitPart=b;let delta=[sp.size[0]/2-Math.abs(rx),sp.size[1]/2-Math.abs(ry),sp.size[2]/2-Math.abs(rz)];
+    let smallest=Math.min(...delta);hitNormal=smallest===delta[1]?'top':smallest===delta[0]?(rx>0?'right':'left'):(rz>0?'front':'back');break;
+   }
+  }
+  if(hit)break;
+  if(y<=terrain(x,z)+.1){hit={x,z,y:terrain(x,z)};break}
+ }
+ if(!hit){let d=9,x=camera.x+dir[0]*d,z=camera.z+dir[2]*d;hit={x,z,y:terrain(x,z)};}
+ let pc=pieces[selectedPiece],step=buildOptions.grid;
+ let x=Math.round(hit.x/step)*step,z=Math.round(hit.z/step)*step;
+ let y=terrain(x,z)+pc.size[1]/2+buildOptions.height;
+ let rot=(Math.round(heading/(Math.PI/12))*Math.PI/12+buildOptions.rotation)%TAU;
+ if(hitPart&&buildOptions.magnet){let bs=pieces.find(p=>p.id===hitPart.type)||pieces[0];let br=hitPart.rot||0,ax=Math.cos(br),az=Math.sin(br),vx=-Math.sin(br),vz=Math.cos(br);
+   rot=(br+buildOptions.rotation)%TAU;
+   if(hitNormal==='top'){x=Math.round(hit.x/step)*step;z=Math.round(hit.z/step)*step;y=hitPart.y+bs.size[1]/2+pc.size[1]/2+buildOptions.height;}
+   else if(hitNormal==='right'||hitNormal==='left'){let sg=hitNormal==='right'?1:-1;x=hitPart.x+sg*ax*(bs.size[0]+pc.size[0])/2;z=hitPart.z+sg*az*(bs.size[0]+pc.size[0])/2;y=hitPart.y+buildOptions.height;}
+   else {let sg=hitNormal==='front'?1:-1;x=hitPart.x+sg*vx*(bs.size[2]+pc.size[2])/2;z=hitPart.z+sg*vz*(bs.size[2]+pc.size[2])/2;y=hitPart.y+buildOptions.height;}
+ }
+ if(Math.abs(x)>293||Math.abs(z)>293)return null;
+ return{x:Math.round(x*1000)/1000,y:Math.round(y*1000)/1000,z:Math.round(z*1000)/1000,rot};
+}
+function footprintOverlap(a,sa,b,sb){
+  let thetaA=a.rot||0,thetaB=b.rot||0;
+  const cx=Math.abs(a.x-b.x),cz=Math.abs(a.z-b.z);
+  if(cx>sa.size[0]+sb.size[0]+2||cz>sa.size[2]+sb.size[2]+2)return false;
+  for(let angle of [thetaA,thetaA+Math.PI/2,thetaB,thetaB+Math.PI/2]){
+    let x=Math.cos(angle),z=Math.sin(angle),sep=Math.abs((a.x-b.x)*x+(a.z-b.z)*z),
+    ra=(Math.abs(Math.cos(thetaA)*x+Math.sin(thetaA)*z)*sa.size[0]+Math.abs(-Math.sin(thetaA)*x+Math.cos(thetaA)*z)*sa.size[2])/2,
+    rb=(Math.abs(Math.cos(thetaB)*x+Math.sin(thetaB)*z)*sb.size[0]+Math.abs(-Math.sin(thetaB)*x+Math.cos(thetaB)*z)*sb.size[2])/2;
+    if(sep>=ra+rb-.035)return false;
+  }
+  return true;
+}
+function canBuild(pc){return state.wood>=pc.wood&&state.metal>=pc.metal&&(state.builds[state.planet]||[]).length<1500;}
+function canPlaceHere(pc,g){
+ if(!g)return false;
+ if(!canBuild(pc))return false;
+ for(let b of state.builds[state.planet]||[]){let bs=pieces.find(p=>p.id===b.type)||pieces[0];if(Math.abs(b.y-g.y)<(bs.size[1]+pc.size[1])/2-.035&&footprintOverlap(g,pc,b,bs))return false;}
+ return true;
+}
+function cycleGrid(){const grids=[.25,.5,1,1.5,3];buildOptions.grid=grids[(grids.indexOf(buildOptions.grid)+1)%grids.length];dynamicDirty=true;toast('Präzisionsraster: '+buildOptions.grid+' m');}
+function rotateBuild(step=Math.PI/12){buildOptions.rotation=(buildOptions.rotation+step)%TAU;rotOffset=buildOptions.rotation;dynamicDirty=true;toast('Bauteil gedreht · '+Math.round(buildOptions.rotation*180/Math.PI)+'°');}
+function raiseBuild(step){buildOptions.height=clamp(Math.round((buildOptions.height+step)*4)/4,-8,30);dynamicDirty=true;toast('Bauhöhe: '+buildOptions.height.toFixed(2)+' m');}
+function toggleMagnet(){buildOptions.magnet=!buildOptions.magnet;dynamicDirty=true;toast('Magnetverbindung '+(buildOptions.magnet?'aktiv':'aus'));}
+function buildOptionsHtml(){return '<h2>🧱 Präzisions-Bauplaner V0.6</h2><p>Alle 20 Bauarten sind frei kombinierbar. Verbinde Flächen durch Magnet-Einrasten, oder arbeite ohne Magnet im Raster.</p>'+
+ '<div class="grid"><div class="tile"><h4>Raster</h4><p>'+buildOptions.grid+' Meter</p><button class="miniBtn" onclick="cycleGrid();openBuildPanel()">Raster wechseln (N)</button></div>'+
+ '<div class="tile"><h4>Höhe</h4><p>'+buildOptions.height.toFixed(2)+' Meter</p><button class="miniBtn" onclick="raiseBuild(.5);openBuildPanel()">+ 0,5m</button> <button class="miniBtn" onclick="raiseBuild(-.5);openBuildPanel()">− 0,5m</button></div>'+
+ '<div class="tile"><h4>Rotation</h4><p>'+Math.round(buildOptions.rotation*180/Math.PI)+'°</p><button class="miniBtn" onclick="rotateBuild();openBuildPanel()">+15° (R)</button> <button class="miniBtn" onclick="rotateBuild(Math.PI/2);openBuildPanel()">+90°</button></div>'+
+ '<div class="tile"><h4>Magnetverbinder</h4><p>'+(buildOptions.magnet?'Aktiv':'Aus')+'</p><button class="miniBtn" onclick="toggleMagnet();openBuildPanel()">Umschalten (X)</button></div></div>'+
+ '<p><b>Nächste Bedienung:</b> 4 für Bauen, Mausrad für Bauteil, N für Raster, R zum Drehen, Bild ↑ / ↓ für Bauhöhe, X für Magnet. Linksklick setzen; Rechtsklick entfernt eigene Bauteile. Grüner Vorschau-Körper = frei, Rot = Kollision oder zu wenig Material.</p>';
+}
+function openBuildPanel(){modalOpen=true;document.exitPointerLock?.();$('modalShade').style.display='flex';$('modalContent').innerHTML=buildOptionsHtml();}
+function setTool(i){tool=i;for(let j=0;j<7;j++)$('q'+j).classList.toggle('active',i===j);if(i===3){hint('BAU · Linksklick setzen · Mausrad Bauteil · N Raster · R 15° · Bild ↑/↓ Höhe · X Magnet');}else if(i===1)hint('MOTORSÄGE · Baum aus der Nähe mit Linksklick fällen');else if(i===2)hint('BERGBAU · Felsen in der Nähe mit Linksklick abbauen');else if(i===4)hint('TAKTIK · Linksklick feuern · Rechtsklick zielen · C ducken · Z liegen · R nachladen');else if(i===5){toggleDrone();}else if(i===6)hint('FAHRZEUGE · Bei Auto, Panzer oder Helikopter E drücken');else hint('WASD bewegen · E interagieren · H Steuerung');dynamicDirty=true;}
+function hint(msg){$('hint').textContent=msg;hintLast=msg}
+function toast(msg){$('toast').textContent=msg;$('toast').style.display='block';toastUntil=performance.now()+3500;$('actionLog').textContent=msg;}
+function saveGame(){try{if(mode==='walk'){state.player.x=player.x;state.player.z=player.z;}else if(vehicle){state.player.x=vehicle.x;state.player.z=vehicle.z;}state.buildOptions={...buildOptions};localStorage.setItem('PROJECT_NEXUS_UNIVERSE_SAVE_V1',JSON.stringify(state));toast('✓ Spielstand auf diesem Gerät gespeichert');return true}catch(e){toast('Speichern fehlgeschlagen: Browser-Speicher nicht verfügbar');return false}}
+function loadGame(){try{let s=JSON.parse(localStorage.getItem('PROJECT_NEXUS_UNIVERSE_SAVE_V1')||localStorage.getItem('PROJECT_NEXUS_ORIGIN_SAVE_V1')||'null');if(s&&s.rev===1){state=Object.assign(state,s);if(state.buildOptions)Object.assign(buildOptions,state.buildOptions);player.x=state.player?.x||0;player.z=state.player?.z||19;heading=0;resetCamera();return true}}catch(e){console.warn('Spielstand beschädigt:',e)}return false}
+function actionClick(btn){if(!running||modalOpen||flight)return;if(document.pointerLockElement!==canvas&&btn===0){canvas.requestPointerLock?.();return}if(btn===2){if(tool===3)removeBuild();else if(tool===4){aiming=!aiming;toast(aiming?'Präzisionsvisier aktiv':'Normaler Zielmodus');}return}if(tool===1)cutTree();else if(tool===2)mineRock();else if(tool===3)placeBuild();else if(tool===4)shoot();else if(tool===0)interact();}
+function distance(x,z){return Math.hypot(player.x-x,player.z-z)}
+function cutTree(){let near=treeData.filter(t=>t.active&&distance(t.x,t.z)<7).sort((a,b)=>distance(a.x,a.z)-distance(b.x,b.z))[0];if(!near){toast('Kein Baum in Reichweite (7 m). Gehe in den Wald.');return;}let arr=state.trees[state.planet]||[];arr.push(near.id);state.trees[state.planet]=arr;state.wood+=2;state.cut++;normalizeState();if(!state.felledLogs[state.planet])state.felledLogs[state.planet]=[];state.felledLogs[state.planet].push({id:'log_'+near.id,x:near.x,z:near.z,yaw:h2(near.x,near.z,48)*6.28,len:clamp(near.s*.65,2.8,6.2),delivered:false});toast('Baum gefällt · +2 Holz · Stamm liegt am Waldboden (Traktor + Q)');populateWorld();updateMission();}
+function mineRock(){let near=rockData.filter(r=>r.active&&distance(r.x,r.z)<7).sort((a,b)=>distance(a.x,a.z)-distance(b.x,b.z))[0];if(!near){toast('Kein Erz/Fels in Reichweite (7 m).');return;}let arr=state.rocks[state.planet]||[];arr.push(near.id);state.rocks[state.planet]=arr;state.metal+=3;state.stone+=2;if((['ares','noctis','ferrum','vargos'].includes(state.planet)&&h2(near.x,near.z,41)>.57)||h2(near.x,near.z,41)>.94){state.meteor++;toast('☄ Meteoritenmetall gewonnen · +1!');}if(h2(near.x,near.z,43)>.78){state.gold++;state.money+=60;toast('+3 Metall · +2 Stein · Goldader gefunden (+60 €)');}else toast('+3 Metall · +2 Stein');populateWorld();updateMission();}
+function placeBuild(){let spec=pieces[selectedPiece],g=buildTarget();if(!g){toast('Außerhalb des spielbaren Sektors');return false}if(!canBuild(spec)){toast('Zu wenig Material oder Bauteilgrenze erreicht.');return false}if(!canPlaceHere(spec,g)){toast('Kollision – Bauteil drehen oder Position ändern');return false}
+let arr=state.builds[state.planet]||[];state.wood-=spec.wood;state.metal-=spec.metal;arr.push({type:spec.id,x:g.x,y:g.y,z:g.z,rot:g.rot});state.builds[state.planet]=arr;dynamicDirty=true;toast('✓ '+spec.name+' eingebaut · X '+g.x+' Z '+g.z+' H '+g.y);updateMission();return true;}
+function removeBuild(){let dir=cameraDirection(),arr=state.builds[state.planet]||[],best=-1,bestDist=18;for(let i=0;i<arr.length;i++){let b=arr[i],v=[b.x-camera.x,b.y-camera.y,b.z-camera.z],along=dot(v,dir),perp=Math.hypot(...v.map((c,j)=>c-dir[j]*along));if(along>0&&along<bestDist&&perp<2){best=i;bestDist=along}}if(best<0){toast('Kein eigenes Bauteil in Reichweite');return;}let b=arr.splice(best,1)[0],spec=pieces.find(p=>p.id===b.type)||pieces[0];state.wood+=Math.max(0,Math.floor(spec.wood*.5));state.metal+=Math.max(0,Math.floor(spec.metal*.5));dynamicDirty=true;toast(spec.name+' entfernt · Teil der Rohstoffe erstattet');}
+function shoot(){if(shotCooldown>0){return;}if(state.ammo<=0){toast('Magazin leer · R nachladen');return;}state.ammo--;shotCooldown=aiming?.21:.16;let dir=cameraDirection(),best=null,bestDist=aiming?175:120;for(let t of targets){if(!t.alive)continue;let ty=terrain(t.x,t.z)+1.1,v=[t.x-camera.x,ty-camera.y,t.z-camera.z],along=dot(v,dir),perp=Math.hypot(...v.map((a,i)=>a-dir[i]*along));if(along>0&&along<bestDist&&perp<(aiming?1.1:1.75)){best=t;bestDist=along}}for(const z of zombies){if(!z.alive)continue;let vy=terrain(z.x,z.z)+1.1,v=[z.x-camera.x,vy-camera.y,z.z-camera.z],along=dot(v,dir),perp=Math.hypot(...v.map((a,i)=>a-dir[i]*along));if(along>0&&along<bestDist&&perp<(aiming?1.1:1.75)){best=z;bestDist=along;}}
+state.stats.shots++;if(best){best.health--;if(best.health<=0){best.alive=false;state.stats.targets++;state.money+=30;toast('Ziel ausgeschaltet · +30 € Trainingsprämie')}else toast('Treffer · Übungsziel beschädigt');dynamicDirty=true;}else toast('Schuss abgegeben · Kein Ziel getroffen');}
+// World V0.4: local vehicle and construction collision, vehicle workspaces, timber winch
+let towLogId=null;
+function felledLogs(){normalizeState();return state.felledLogs[state.planet]||[];}
+function activeTowLog(){return felledLogs().find(x=>x.id===towLogId&&!x.delivered)||null;}
+function tractorVehicle(v){if(!v)return false;let sp=VEHICLE_MAP[v.type];return sp?.shape==='tractor'||sp?.shape==='truck';}
+function toggleWinch(){if(!vehicle||!tractorVehicle(vehicle)){toast('Seilwinde: Traktor oder Lkw erforderlich.');return false;}
+ if(towLogId){towLogId=null;toast('Seilwinde gelöst');dynamicDirty=true;return true;}
+ let nearest=felledLogs().filter(x=>!x.delivered).map(x=>({log:x,d:Math.hypot(vehicle.x-x.x,vehicle.z-x.z)})).sort((a,b)=>a.d-b.d)[0];
+ if(!nearest||nearest.d>13){toast('Kein gefällter Stamm im 13-m-Radius.');return false;}
+ towLogId=nearest.log.id;toast('Seilwinde befestigt · langsam zur Holzannahme fahren · Q lösen');dynamicDirty=true;return true;
+}
+function updateTow(dt){let log=activeTowLog();if(!vehicle||!log)return;let bx=vehicle.x-Math.sin(vehicle.yaw)*6.4,bz=vehicle.z+Math.cos(vehicle.yaw)*6.4,dd=Math.hypot(bx-log.x,bz-log.z);if(dd>25){towLogId=null;toast('Seil zu stark belastet · abgekoppelt');return;}
+ let pull=Math.min(dd,dt*clamp(5.0+Math.abs(vehicle.speed||0)*.25,5,16));if(dd>.05){log.x+=(bx-log.x)/dd*pull;log.z+=(bz-log.z)/dd*pull;log.yaw=Math.atan2(vehicle.z-log.z,vehicle.x-log.x);}dynamicDirty=true;
+}
+function deliverTimber(){let logs=felledLogs().filter(l=>!l.delivered&&Math.hypot(l.x-29,l.z+20)<26);if(!logs.length){toast('Holzannahme: Erst Stämme aus dem Wald mit Seilwinde herziehen.');return false;}
+ for(let l of logs)l.delivered=true;let money=logs.length*145;state.money+=money;state.planks=(state.planks||0)+logs.length*4;state.delivered+=logs.length;towLogId=null;toast('✓ '+logs.length+' Stamm/Stämme geliefert · +'+money+' € · +'+logs.length*4+' Bretter');dynamicDirty=true;saveGame();return true;}
+// Only the open workshop's visible structural walls are solid for now.
+function worldCollision(x,z,r=.52){const rects=[[30.1,27,.25,10],[49.9,27,.25,10],[40,36.8,10,.23],[33.25,17.2,3.25,.22],[46.75,17.2,3.25,.22],
+ [18.15,-20,.23,8],[39.85,-20,.23,8],[29,-27.85,11,.22],[21.5,-12.17,3.5,.22],[36.5,-12.17,3.5,.22]];
+ if(['terra','aurelia','ferrum'].includes(state.planet))for(let [cx,cz,hx,hz] of rects)if(Math.abs(x-cx)<hx+r&&Math.abs(z-cz)<hz+r)return true;
+ for(let b of state.builds?.[state.planet]||[]){if(!['wall','window','beam','factory','garage','bunker'].includes(b.type))continue;let sp=pieces.find(p=>p.id===b.type);if(sp){let yaw=b.rot||0,c=Math.cos(yaw),ss=Math.sin(yaw),lx=(x-b.x)*c+(z-b.z)*ss,lz=-(x-b.x)*ss+(z-b.z)*c;if(Math.abs(lx)<sp.size[0]/2+r&&Math.abs(lz)<sp.size[2]/2+r)return true;}}
+ return false;
+}
+function vehicleClass(v){let shape=VEHICLE_MAP[v?.type]?.shape||v?.type;return shape||'terrestrial';}
+function tuneDriving(v,throttle,turn,dt){let cls=vehicleClass(v),fast=VEHICLE_MAP[v.type]?.speed||(cls==='tank'?13:25),params={sport:[16,.9,.83],offroad:[9,1.2,.74],truck:[4.7,.63,.9],tractor:[4.0,.9,.85],machine:[3.5,.7,.88],armor:[5.4,.54,.86],plane:[11,.68,.94],helicopter:[8,.82,.87]};let [accel,steer,friction]=params[cls]||[8,1,.85];let max=fast*(1+.15*(state.vehicleUpgrades?.[v.id||v.type]||0));if(v.gas<=.05)throttle=0;
+ if(throttle>0)v.speed=clamp(v.speed+accel*dt,-max*.36,max);else if(throttle<0){v.speed=Math.max(-max*.36,v.speed-accel*1.45*dt);}else{v.speed*=Math.pow(friction,dt*3.1);if(Math.abs(v.speed)<.03)v.speed=0;}
+ if(keys.Space&&mode==='drive'){v.speed*=Math.pow(.18,dt*4);}
+ let speedFactor=clamp(Math.abs(v.speed)/8,.18,1.4);v.yaw+=turn*steer*speedFactor*dt*Math.sign(v.speed||1)*(keys.Space?.65:1);
+ let nx=clamp(v.x+Math.sin(v.yaw)*v.speed*dt,-291,291),nz=clamp(v.z-Math.cos(v.yaw)*v.speed*dt,-291,291);
+ if(worldCollision(nx,nz,cls==='armor'?2.5:1.4)&&cls!=='plane'&&cls!=='helicopter'){
+ let impact=Math.abs(v.speed);v.speed*=-.13;v.condition=clamp((v.condition??100)-Math.max(2,impact*.30),0,100);toast('Kollision · Fahrzeugzustand '+Math.round(v.condition)+' %');
+ }else{v.x=nx;v.z=nz;}
+ v.gas=Math.max(0,v.gas-Math.abs(v.speed)*dt*.006);
+ if((v.condition??100)<20)v.speed*=.9;
+}
+function repairOwned(id){let unit=state.vehicleOwned.find(v=>v.id===id);if(!unit)return false;let missing=100-(unit.condition??100);if(missing<1){toast('Kein Reparaturbedarf');return true;}let cost=Math.ceil(missing*3);if(state.money<cost){toast('Reparatur kostet '+cost+' €');return false;}state.money-=cost;unit.condition=100;toast('Fahrzeug repariert · '+cost+' €');saveGame();renderWorkshop();return true;}
+function renderWorkshop(){let owned=(state.vehicleOwned||[]).filter(v=>v.planet===state.planet&&Math.hypot(v.x-40,v.z-27)<50);
+ $('modalContent').innerHTML=`<h2>🔧 Begehbare Werkstatt</h2><p>Du hast den Werkstattbereich betreten. Hier kannst du Fahrzeuge in der Nähe reparieren und Tuningteile einbauen. Tanken erfolgt am Tankbereich oder an der Werkstatt. Maschinen und Arbeitstische sind direkt in der 3D-Welt aufgebaut.</p><div class="row"><span class="tag">Geld: ${state.money.toLocaleString('de-DE')} €</span><span class="tag">Metall: ${state.metal}</span></div><div class="grid">${owned.map(v=>`<div class="tile"><h4>${escapeHtml(VEHICLE_MAP[v.type]?.name||v.type)}</h4><p>Tank: ${Math.round(v.gas)} % · Zustand: ${Math.round(v.condition??100)} % · Tuning ${state.vehicleUpgrades[v.id]||0}/3</p><button class="miniBtn" onclick="repairOwned('${v.id}')">Reparieren</button> <button class="miniBtn" onclick="refuelOwned('${v.id}');renderWorkshop()">Tanken</button> <button class="miniBtn" onclick="upgradeVehicle('${v.id}');renderWorkshop()">Tuning</button></div>`).join('')||'<p>Keine eigenen Fahrzeuge in der Werkstattnähe.</p>'}</div>`;}
+window.toggleWinch=toggleWinch;window.deliverTimber=deliverTimber;window.repairOwned=repairOwned;window.renderWorkshop=renderWorkshop;
+function nearestVehicle(){let v=null,d=8;for(let it of vehicleDefs){let dis=Math.hypot(player.x-it.x,player.z-it.z);if(dis<d){v=it;d=dis}}return v}
+function exitVehicle(){if(!vehicle)return;towLogId=null;player.x=vehicle.x+3;player.z=vehicle.z+2;resetCamera();vehicle=null;mode='walk';toast('Fahrzeug verlassen');dynamicDirty=true;}
+function enterVehicle(v){vehicle=v;v.condition=v.condition??100;v.speed=v.speed||0;mode=(v.type==='heli'||VEHICLE_MAP[v.type]?.flight)?'heli':'drive';heading=v.yaw;toast(v.type==='heli'?'Helikopter gestartet – W/S Schub, Space steigen, Strg sinken':v.type==='tank'?'Panzer gestartet – W/S fahren, A/D lenken':'Fahrzeug gestartet – W/S Gas, A/D Lenken');}
+function toggleDrone(){if(mode==='drone'){mode='walk';player.x=drone.startX;player.z=drone.startZ;resetCamera();toast('FPV-Drohne gelandet');return}if(mode!=='walk'){toast('Zuerst Fahrzeug verlassen');return}drone.startX=player.x;drone.startZ=player.z;drone.x=player.x;drone.y=terrain(player.x,player.z)+9;drone.z=player.z;drone.battery=100;mode='drone';toast('FPV aktiviert · W/S vor/zurück · A/D seitlich · Space hoch · Strg runter · F landen');}
+function interact(){if(mode==='drive'||mode==='heli'){exitVehicle();return}if(mode==='drone'){toggleDrone();return}if(['terra','aurelia','ferrum'].includes(state.planet)&&Math.hypot(player.x-40,player.z-27)<8){openPanel('workshop');return;}let v=nearestVehicle();if(v){enterVehicle(v);return;}if(state.planet==='terra'||state.planet==='aurelia'||state.planet==='ferrum'){
+if(distance(29,-20)<18){if(felledLogs().some(l=>!l.delivered&&Math.hypot(l.x-29,l.z+20)<26)){deliverTimber();return;}if(state.cut>=3&&state.mission===0){state.mission=1;state.money+=350;state.wood+=6;toast('✓ Erster Holzauftrag abgeschlossen · +350 € und +6 Bretter');}else if(state.wood>=4){state.wood-=4;state.money+=100;state.delivered++;toast('4 Holz verkauft · +100 €');}else toast('Sägewerk: Du brauchst mindestens 4 Holz');updateMission();return;}
+if(distance(-31,-20)<16){if(state.wood>=4){state.wood-=4;state.paper+=6;state.money+=80;toast('Papierfabrik: 4 Holz → 6 Papier · +80 €');}else toast('Papierfabrik benötigt 4 Holz');return;}
+if(distance(-14,33)<17){let tank=vehicleDefs[0];let price=Math.ceil((100-tank.gas)*1.5);if(price<=0){toast('Tank ist bereits voll');return;}if(state.money<price){toast('Nicht genug Guthaben für Tankfüllung');return;}state.money-=price;tank.gas=100;toast('Fahrzeug vollgetankt · -'+price+' €');return;}
+if(distance(40,27)<17){if(state.money>=120){state.money-=120;state.fuel=Math.min(100,state.fuel+25);toast('Werkstatt: Ausrüstung & Treibstoff gewartet · -120 €');}else toast('Werkstatt benötigt 120 €');return;}}
+if(state.planet==='terra'){
+ if(distance(-122,52)<19){state.oil+=5;toast('Ölpumpe: +5 Rohöl · Gesamt '+state.oil);return;}
+ if(distance(-155,52)<18){if(state.oil>=5){state.oil-=5;state.money+=110;state.fuel=Math.min(100,state.fuel+8);toast('Raffinerie: 5 Rohöl → Treibstoff + 110 €');}else toast('Raffinerie benötigt mindestens 5 Rohöl');return;}
+ if(distance(121,96)<32){state.food+=7;state.money+=55;toast('Felder geerntet: +7 Lebensmittel, +55 €');return;}
+ if(distance(-113,-151)<17){toast('Forschungsstation: Quarantänezone · Zombie-Ausbruch');return;}
+ }
+ if(distance(-65,27)<15){if(Object.values(state.rocket).some(x=>x<1))openPanel('lab');else startSolarVoyage();return;}toast('Kein Interaktionspunkt in Reichweite');}
+function updateMission(){let t='Die erste Holzernte',p='Fälle drei Bäume im Wald mit dem Werkzeug „Holz“ (Taste 2).',percent=Math.min(state.cut/3,1)*100;if(state.mission===1){t='Baue deine erste Basis';p='Aktiviere Bauen (Taste 4) und platziere drei miteinander ausgerichtete Module.';percent=Math.min((state.builds[state.planet]||[]).length/3,1)*100;if(percent>=100){state.mission=2;state.money+=250;toast('✓ Baumeister-Auftrag · +250 €')}}if(state.mission>=2){t='Vom Wald in den Weltraum';p='Erkunde Industrie, Frontabschnitt, Fahrzeuge und Raketenlabor. Forsche die vier Raketenmodule.';percent=Object.values(state.rocket).filter(x=>x>=1).length/4*100;}$('missionTitle').textContent=t;$('missionText').textContent=p;$('progressBar').style.width=percent+'%';}
+function currentEra(){return state.era.toUpperCase()}
+function drawHUD(){const now=performance.now();if(toastUntil&&now>toastUntil){$('toast').style.display='none';toastUntil=0}$('money').textContent=state.money.toLocaleString('de-DE')+' €';$('resources').textContent=state.wood+' / '+state.metal;$('eraStat').textContent=currentEra();$('compass').textContent='N · '+(Math.round((heading*180/Math.PI%360+360)%360)).toString().padStart(3,'0')+'°';let loc=`Position ${Math.round(player.x)} / ${Math.round(player.z)}<br>${getPlanet().name} · ${state.era}<br>`;if(vehicle)loc+='Fahrzeug '+(VEHICLE_MAP[vehicle.type]?.name||vehicle.type)+' · Tank '+Math.round(vehicle.gas)+' %';else if(mode==='drone')loc+='Drohne · Akku '+Math.round(drone.battery)+' %';else if(tool===3)loc+='Bauen: '+pieces[selectedPiece].name;else loc+='Werkzeug: '+['Hand','Motorsäge','Bergbau','Bauen','Action','FPV','Fahrzeuge'][tool];$('location').innerHTML=loc; $('healthTag').textContent='❤ '+Math.ceil(state.health);$('armorTag').textContent='▣ '+Math.ceil(state.armor);$('stanceTag').textContent=state.stance.toUpperCase();$('ammoTag').textContent=state.ammo+' / '+state.reserve;$('healthBar').style.width=clamp(state.health,0,100)+'%';$('driveHUD').style.display=vehicle?'block':'none';if(vehicle){$('speedValue').textContent=Math.round(Math.abs(vehicle.speed||0)*3.6);$('driveStats').textContent='Tank '+Math.round(vehicle.gas)+' % · Zustand '+Math.round(vehicle.condition??100)+' %'+(towLogId?' · SEILWINDE':'');}$('combatInfo').textContent=state.infusion>0?'💉 Infusion: '+Math.ceil(state.infusion)+' s · langsam bewegen':'Front X 60–140 / Z −145 · Forschung X −113 / Z −151 · Trupp '+state.squadOrder+' · G Befehl';}
+let mouseLastX=0,mouseLastY=0,rotOffset=0;
+function onKeyDown(e){if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.repeat||modalOpen||flight||downed)return;
+if(e.code==='Escape'){if(mode==='drone')toggleDrone();document.exitPointerLock?.();return}
+if(e.code==='KeyI'){openPanel('garage');return}if(e.code==='KeyP'){openPanel('industries');return}if(e.code==='KeyO'){openPanel('armory');return}if(e.code==='KeyK'){openPanel('market');return}if(e.code==='KeyT'){openPanel('civilization');return}if(e.code==='KeyH'){openPanel('help');return}if(e.code==='KeyM'){startSolarVoyage();return}if(e.code==='KeyJ'){openPanel('atlas');return}if(e.code==='KeyL'){openPanel('lab');return}if(e.code==='KeyB'){setTool(3);return}if(tool===3&&e.code==='KeyN'){cycleGrid();return}if(tool===3&&e.code==='KeyX'){toggleMagnet();return}if(tool===3&&e.code==='PageUp'){raiseBuild(.5);return}if(tool===3&&e.code==='PageDown'){raiseBuild(-.5);return}if(e.code==='KeyG'){toggleSquad();return}if(e.code==='KeyQ'){toggleWinch();return}if(e.code==='KeyC'){cycleStance('ducken');return}if(e.code==='KeyZ'){cycleStance('liegen');return}if(e.code==='KeyR'&&tool===4){let take=Math.min(30-state.ammo,state.reserve);if(take>0){state.ammo+=take;state.reserve-=take;toast('Magazin gewechselt · '+state.ammo+' / '+state.reserve);}else toast('Keine Munition zum Nachladen');return}if(e.code==='KeyV'){viewMode=(viewMode+1)%2;toast(viewMode===0?'Cockpit / Ego-Perspektive':'Außenkamera');return}if(e.code==='KeyF'&&mode==='drone'){toggleDrone();return}if(e.code==='KeyF'&&mode==='walk'){setTool(5);return}if(e.code==='KeyE'){interact();return}if(e.code==='KeyR'&&tool===3){rotateBuild(e.shiftKey?Math.PI/2:Math.PI/12);return}if(/^Digit[1-7]$/.test(e.code)){setTool(Number(e.code.slice(5))-1);return}}
+window.addEventListener('keydown',onKeyDown);window.addEventListener('keyup',e=>{keys[e.code]=false});canvas.addEventListener('mousedown',e=>{if(!modalOpen)actionClick(e.button)});canvas.addEventListener('contextmenu',e=>e.preventDefault());canvas.addEventListener('wheel',e=>{if(tool===3&&!modalOpen){selectedPiece=(selectedPiece+(e.deltaY>0?1:pieces.length-1))%pieces.length;hint('BAU: '+pieces[selectedPiece].name+' · Holz '+pieces[selectedPiece].wood+' / Metall '+pieces[selectedPiece].metal);dynamicDirty=true;e.preventDefault()}},{passive:false});document.addEventListener('mousemove',e=>{if(document.pointerLockElement===canvas&&running&&!modalOpen&&!flight){heading+=e.movementX*.0024;pitch=clamp(pitch-e.movementY*.0024,-1.42,1.42);dynamicDirty=tool===3||dynamicDirty}});window.addEventListener('blur',()=>{keys={}});
+$('startBtn').onclick=()=>{if(!gl){alert('WebGL2 wurde nicht gefunden. Aktiviere 3D-Beschleunigung in Chrome/Edge.');return;}$('prompt').style.display='none';running=true;canvas.focus();canvas.requestPointerLock?.();toast('Willkommen in PROJECT NEXUS – CONSTRUCTION 0.5');};
+function movement(dt){let moving=keys.KeyW||keys.ArrowUp||keys.KeyS||keys.ArrowDown||keys.KeyA||keys.KeyD,fw=(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0),sd=(keys.KeyD?1:0)-(keys.KeyA?1:0);let m=Math.hypot(fw,sd)||1,dx=(Math.sin(heading)*fw+Math.cos(heading)*sd)/m,dz=(-Math.cos(heading)*fw+Math.sin(heading)*sd)/m;
+if(mode==='walk'){let speed=state.stance==='liegen'?2.1:state.stance==='ducken'?3.5:keys.ShiftLeft?11:6.4;if(aiming&&tool===4)speed*=.54;if(state.infusion>0)speed*=.70;let walkX=clamp(player.x+dx*dt*speed,-291,291),walkZ=clamp(player.z+dz*dt*speed,-291,291);if(!worldCollision(walkX,player.z,.45))player.x=walkX;if(!worldCollision(player.x,walkZ,.45))player.z=walkZ;if(keys.Space&&state.stance==='stehen'&&Math.abs(player.y-(terrain(player.x,player.z)+eyeHeight()))<.13)player.vY=7.5;player.vY-=22*dt;player.y+=player.vY*dt;let g=terrain(player.x,player.z)+eyeHeight();if(player.y<g){player.y=g;player.vY=0}camera.x=player.x;camera.y=player.y+Math.sin(renderTime*10)*.03*(moving?1:0);camera.z=player.z;camera.yaw=heading;camera.pitch=pitch;}
+if(mode==='drive'||mode==='heli'){let v=vehicle;if(!v)return;let throttle=(keys.KeyW?1:0)-(keys.KeyS?1:0),turn=(keys.KeyD?1:0)-(keys.KeyA?1:0);tuneDriving(v,throttle,turn,dt);heading=v.yaw;v.wheelSpin=(v.wheelSpin||0)+(v.speed||0)*dt/.65;if(keys.KeyY&&vehicleClass(v)==='machine')v.arm=(v.arm||0)+dt*1.4;updateTow(dt);if(mode==='heli'){let vy=(keys.Space?1:0)-(keys.ControlLeft?1:0);v.y=Math.max(terrain(v.x,v.z)+.7,v.y+vy*dt*9);v.y=lerp(v.y,Math.max(v.y,terrain(v.x,v.z)+.7),.07)}else v.y=terrain(v.x,v.z);player.x=v.x;player.z=v.z;
+if(viewMode===0){camera.x=v.x;camera.y=v.y+(mode==='heli'?2.65:2.4);camera.z=v.z;camera.yaw=v.yaw;camera.pitch=pitch;}else{camera.x=v.x-Math.sin(v.yaw)*10;camera.y=v.y+6.5;camera.z=v.z+Math.cos(v.yaw)*10;camera.yaw=v.yaw;camera.pitch=clamp(pitch-.19,-.8,.5);}if(frame%4===0)dynamicDirty=true;}
+if(mode==='drone'){let vy=(keys.Space?1:0)-(keys.ControlLeft?1:0);drone.x=clamp(drone.x+dx*dt*19,-291,291);drone.z=clamp(drone.z+dz*dt*19,-291,291);drone.y=clamp(drone.y+vy*dt*14,terrain(drone.x,drone.z)+2,120);drone.battery-=dt*.7;if(drone.battery<=0)toggleDrone();camera.x=drone.x;camera.y=drone.y;camera.z=drone.z;camera.yaw=heading;camera.pitch=pitch;}
+if(mode==='walk'||mode==='drone')dynamicDirty=tool===3||dynamicDirty;}
+function drawMinimap(){let c=$('minimap'),ctx=c.getContext('2d'),w=c.width,h=c.height;let p=getPlanet();ctx.fillStyle=`rgb(${p.ground.map(v=>Math.round(v*140)).join(',')})`;ctx.fillRect(0,0,w,h);let unit=w/600;
+if(['terra','aurelia','ferrum'].includes(p.id)){ctx.strokeStyle='#26383a';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(w/2,0);ctx.lineTo(w/2,h);ctx.moveTo(0,h/2);ctx.lineTo(w,h/2);ctx.moveTo(w/2-60*unit,h/2-54*unit);ctx.lineTo(w/2+75*unit,h/2-54*unit);ctx.stroke()}function point(x,z,r,col){ctx.fillStyle=col;ctx.beginPath();ctx.arc(w/2+x*unit,h/2+z*unit,r,0,TAU);ctx.fill()}for(let t of treeData)point(t.x,t.z,1.4,'#245b3d');for(let v of vehicleDefs)point(v.x,v.z,3.3,'#f4c581');for(let b of state.builds[p.id]||[])point(b.x,b.z,1.9,'#baf4d1');point(-65,27,5,'#ffbb84');point(player.x,player.z,5,'#d7fff0');ctx.strokeStyle='#e2fff4';ctx.beginPath();ctx.moveTo(w/2+player.x*unit,h/2+player.z*unit);ctx.lineTo(w/2+(player.x+Math.sin(heading)*18)*unit,h/2+(player.z-Math.cos(heading)*18)*unit);ctx.stroke();}
+function render(ts){requestAnimationFrame(render);if(!gl)return;let dt=Math.min((ts-lastTime)/1000||0,.06);lastTime=ts;renderTime+=dt;frame++;if(running&&!modalOpen&&!flight){shotCooldown=Math.max(0,shotCooldown-dt);if(downed)updateMedical(dt);else{movement(dt);moveSquad(dt);updateFrontAI(dt);updateMedical(dt);}}if(frame%5===0&&(vehicleDefs.some(v=>v.type==='heli'||VEHICLE_MAP[v.type]?.shape==='helicopter')||state.planet==='terra'))dynamicDirty=true;if(dynamicDirty)buildDynamic();if(frame%15===0){drawHUD();drawMinimap();}
+let bi=$('buildInfo');if(tool===3&&!modalOpen&&running&&!flight){let part=pieces[selectedPiece],pos=buildTarget();bi.style.display='block';bi.innerHTML='<strong>'+part.emoji+' '+part.name+'</strong> · '+buildOptions.grid+' m Raster · '+Math.round(buildOptions.rotation*180/Math.PI)+'° · Höhe '+buildOptions.height.toFixed(2)+' m'+(pos?' · '+(canPlaceHere(part,pos)?'✔ Verbinden':'✖ Blockiert'):'')+'<small>N Raster · R Drehung · Bild ↑/↓ Höhe · X Magnet · Mausrad Material · Links bauen / Rechts entfernen</small>';}else bi.style.display='none';
+let w=window.innerWidth,h=window.innerHeight,dpr=Math.min(devicePixelRatio||1,1.6),rw=Math.floor(w*dpr),rh=Math.floor(h*dpr);if(canvas.width!==rw||canvas.height!==rh){canvas.width=rw;canvas.height=rh;gl.viewport(0,0,rw,rh)}
+let dir=cameraDirection(),vp=matMul(perspective(Math.PI/2.75,rw/rh,.12,720),lookAt([camera.x,camera.y,camera.z],[camera.x+dir[0],camera.y+dir[1],camera.z+dir[2]]));let p=getPlanet();gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);drawSky(p);gl.useProgram(prog);gl.uniformMatrix4fv(loc.uVP,false,vp);gl.uniform3f(loc.uCam,camera.x,camera.y,camera.z);gl.uniform3fv(loc.uFog,new Float32Array(p.sky.map(c=>c*.92)));gl.uniform3f(loc.uSun,.45,.85,.25);gl.uniform1f(loc.uFogStrength,.0000019);draw(staticBuffer);draw(dynamicBuffer);}
+// UI panels
+function escapeHtml(s){return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')}
+function openPanel(which){if(flight)return;modalOpen=true;document.exitPointerLock?.();$('modalShade').style.display='flex';let el=$('modalContent');if(which==='help'){el.innerHTML=`<h2>Steuerung & Funktionen</h2><p>PROJECT NEXUS ALPINE WORLD V0.6 ist eine eigenständige Technikdemo mit begrenzter 3D-Sektorwelt. Das Spiel benötigt weder Unreal noch externe Bibliotheken.</p><div class="grid">${[['WASD','Bewegen, fahren, FPV steuern'],['Maus','Blickrichtung in Ego-/Cockpitsicht'],['Shift','Schnell laufen'],['Space','Springen (stehend), Helikopter/Drohne steigen'],['Strg','Helikopter/Drohne sinken'],['1–7','Hand, Holz, Mine, Bauen, Action, FPV, Fahren'],['E','Fahrzeug betreten, Werkstatt bedienen, Stämme im Sägewerk abliefern'],['Q','Am Traktor/Lkw Seilwinde zum nächsten gefällten Stamm befestigen / lösen'],['V','Cockpit / Außenkamera'],['F','FPV-Drohne starten oder landen'],['B','Baumodus'],['C / Z','Ducken / Hinlegen (taktischer Modus)'],['G','KI-Trupp: folgen / Position halten'],['Rechtsklick mit Action','Visier ein- / ausschalten'],['Wundversorgung','KI-Rettung bei schwerer Verletzung, Infusion nach Wiederbelebung'],['Öl','Ölpumpe bei X −122 / Z 52 · Raffinerie X −155 / Z 52'],['Landwirtschaft','Felder bei X 121 / Z 96 · E ernten'],['Zombies','Forschungslabor bei X −113 / Z −151'],['Alpendorf','Zentrum X −179 / Z 113 · Burg X −221 / Z 215'],['Rettungsbasis','Rettungsstation X −36 / Z −77'],['Linksklick','Abbauen / bauen / Ziel treffen'],['Rechtsklick','Bauteil abbauen'],['Mausrad','Bauteil auswählen'],['R','Im Baumodus drehen / mit Action-Mittel nachladen'],['I / P / O / K','Garage / Industrie / 1945-Ausrüstung / Handel'],['T','Planetare Zivilisation weiterentwickeln'],['H / M / L / J','Hilfe / Raketenstart / Raketenlabor / Weltübersicht'],['Esc','Maus freigeben'],['Speichern','Lokal im Browser speichern']].map(a=>`<div class="tile"><h4>${a[0]}</h4><p>${a[1]}</p></div>`).join('')}</div><p class="warn">Bauteile besitzen ein gemeinsames 3-Meter-Raster. Das sichert ihre Ausrichtung, ist aber noch keine vollständig geprüfte Struktur-, Rohr- oder Kabelsimulation.</p>`;}
+if(which==='eras'){el.innerHTML=`<h2>⌛ Wähle dein Zeitalter</h2><p>Deine Spielfigur, dein Vermögen und deine Gebäude bleiben bestehen. Das Zeitalter verändert derzeit Gebäudeoptik und die thematische Ausrichtung; vollständige historische Technologiebäume folgen erst später.</p><div class="grid">${eras.map((era,i)=>`<div class="tile ${state.era===era?'selected':''}" onclick="chooseEra(${i})"><div class="symbol">${['🦕','🏛️','🏰','⚙️','🏙️','🤖','🚀'][i]}</div><h4>${era}</h4><p>${i<3?'Frühe Gesellschaften und Bautechnik':i<5?'Maschinen, Fahrzeuge und Industrie':'Forschung, Robotik und Raumfahrt'}</p></div>`).join('')}</div>`;}
+if(which==='planets'){el.innerHTML=`<h2>🪐 Flug ohne Planetenmenü</h2><p>Fliege selbst mit W/A/D zwischen den Planeten. Du musst an der Startanlage bei X −65, Z 27 stehen und vier Raketenkomponenten entwickelt haben.</p><button class="launchBtn" onclick="startSolarVoyage()">Rakete starten</button>`;}
+if(which==='lab'){let rocket=state.rocket,items=[['engine','Triebwerk','Schub- und Wärmetest'],['guidance','Navigation','Kurskorrektur & Sensorik'],['hull','Struktur','Vibration und Tragfähigkeit'],['fuel','Treibstoff','Druck & Reserven']];el.innerHTML=`<h2>🚀 Raketenlabor</h2><p>Baue deine Rakete durch Forschung und Tests. Zu Beginn scheitert ein unvollständiger Startversuch nachvollziehbar. Erst wenn alle vier Systeme getestet sind, kannst du zu einem anderen Planeten starten.</p><div class="grid">${items.map(([id,name,descr])=>`<div class="tile"><div class="symbol">${rocket[id]?'✅':'⚠️'}</div><h4>${name}</h4><p>${descr}</p><div class="meter"><span style="width:${rocket[id]?100:12}%"></span></div><p class="${rocket[id]?'good':'warn'}">${rocket[id]?'Erfolgreich getestet':'Noch nicht entwickelt'}</p><button class="miniBtn" ${rocket[id]?'disabled':''} onclick="upgradeRocket('${id}')">${rocket[id]?'✓ Fertig':'Entwickeln · 120 € · 2 Metall'}</button></div>`).join('')}</div><div class="row"><button class="launchBtn" onclick="rocketDiagnostic()">🧪 Systemtest durchführen</button><button class="miniBtn" onclick="startSolarVoyage()">🚀 Zur Startkabine (an der Rakete)</button><span class="tag">Fehlversuche: ${state.rocketFails}</span></div><p class="warn">Forschung und Fehlstarts sind hier vereinfacht simuliert, nicht als realitätsgetreue Ingenieurssoftware.</p>`;}
+if(which==='atlas'){let sys=[['🌊','Wasserphysik','Reservoir und Damm-Prototyp; dynamisches Fluten noch offen'],['🚂','Eisenbahn','Schienenbauteil im Raster; Zugbetrieb geplant'],['🤖','Roboter','Produktionsautomation und Arbeiter-KI geplant'],['🗿','Unterwelt','Höhlensysteme, Ruinen und Forschung als spätere Weltgeneration'],['🚀','Forschung','Raketenlabor und Test-Fehlversuche bereits spielbar'],['✈️','Flughäfen','Helikopter und Landeplattform; Flughafenwirtschaft geplant'],['🦖','Lebewesen','Biome auf Urzeit-Planeten; KI-Ökosystem geplant'],['💥','Zerstörung','Rückbau eigener Module; strukturelle Zerstörung geplant'],['🪐','Planeten','Neun Landschaftssektoren, eigene Gebäude, steuerbare 2D-Flugnavigation'],['🏛️','Regierung','Fraktionen, Verwaltung und Steuersystem geplant'],['🛢️','Energieindustrie','Tankstelle, Treibstoff und Solarmodul-Prototyp'],['🌊','Tiefsee','Ozeanplanet; Tauchen und U-Boote geplant']];el.innerHTML=`<h2>🌍 NEXUS – Alle 12 Ausbauideen</h2><p>Arma-3-orientierte Grundfunktionen: Frontabschnitt mit beweglichen KI-Patrouillen, Ducken, Hinlegen, Zielmodus, Nachladen, Gesundheit und KI-Sanitätern. Der Atlas trennt aktuelle Prototyp-Funktionen von großen zukünftigen Systemen. Du kannst Bauen, Industrie, Forst, Fahrzeugsteuerung, FPV und Planetenwechsel testen – Multiplayer, komplexe Robotik, echte Ozeanphysik und vollständige Industrieautomatisierung sind noch nicht enthalten.</p><div class="grid">${sys.map((x,i)=>`<div class="tile"><div class="symbol">${x[0]}</div><h4>${i+1}. ${x[1]}</h4><p>${x[2]}</p></div>`).join('')}</div><hr class="sep"><h3>Weitere geplante Modi</h3><p>1945-inspirierte Frontabschnitte mit fiktiven Fraktionen · Panzer und Helikopter · Zombie-Survival · Stadtbau · Landwirtschaft · Pferde · Shooter-Kampagne · Renn- und Fahrzeugtuning · Multiplayer mit eigenen Bereichen.</p><p class="warn">Aktuell ist dies ein Einzelspieler-Prototyp. Große Online-Schlachten sind kein funktionierender Bestandteil dieser Version.</p><button class="miniBtn" onclick="openPanel('help')">⌨ Steuerung anzeigen</button>`;}
+if(which==='workshop'){renderWorkshop();}if(which==='garage'){renderGarage();}
+if(which==='industries'){renderIndustries();}
+if(which==='armory'){renderArmory();}
+if(which==='market'){renderMarket();}
+if(which==='civilization'){renderCivilization();}
+if(which==='build'){el.innerHTML=`<h2>🧱 Baukatalog</h2><p>Wähle ein Bauteil aus. Alle Teile nutzen dasselbe 3-Meter-Raster, werden an Rasterpunkte ausgerichtet und auf dem Boden oder vorhandenen Modulen gesetzt. 20 Teile sind in der Alpha verwendbar.</p><div class="grid">${pieces.map((p,i)=>`<div class="tile ${selectedPiece===i?'selected':''}" onclick="choosePiece(${i})"><div class="symbol">${p.emoji}</div><h4>${p.name}</h4><p>Holz ${p.wood} · Metall ${p.metal}</p></div>`).join('')}</div>`;}
+}
+function closePanel(){if(state.health<=0&&deathLoss.length!==3)return;modalOpen=false;$('modalShade').style.display='none';if(running)canvas.focus();}
+function chooseEra(i){state.era=eras[i];dynamicDirty=true;closePanel();toast('Zeitalter gewählt: '+state.era+' (stilistischer Prototyp)')}
+function choosePiece(i){selectedPiece=i;closePanel();setTool(3);hint('BAU: '+pieces[i].name+' – Linksklick platzieren, Rechtsklick entfernen')}
+function upgradeRocket(part){if(state.rocket[part])return;if(state.money<120||state.metal<2){toast('Benötigt 120 € und 2 Metall');return;}state.money-=120;state.metal-=2;state.rocket[part]=1;openPanel('lab');toast(part.toUpperCase()+' entwickelt und getestet');}
+function rocketDiagnostic(){let missing=Object.keys(state.rocket).filter(k=>!state.rocket[k]);if(missing.length){state.rocketFails++;toast('✗ Testlauf abgebrochen: fehlende Systeme – '+missing.join(', '));openPanel('lab');return false;}toast('✓ Systemtest bestanden – Rakete ist startbereit');return true;}
+// Solar-system prototype navigation: no destination menu or instant teleport.
+const SOLAR_COORDS={terra:[0,0],aurelia:[-560,-280],boreas:[-900,220],ferrum:[-500,500],vargos:[660,-180],ares:[1100,-400],noctis:[900,420],elysium:[-1000,-400],thalassa:[250,820]};
+function startSolarVoyage(){
+ if(flight)return false;
+ normalizeState();
+ if(mode!=='walk'){toast('Für den Raketenstart zuerst aus dem Fahrzeug aussteigen');return false;}
+ if(distance(-65,27)>18){toast('Zum Starten zur Raketenrampe bei X −65 / Z 27 gehen.');return false;}
+ if(Object.values(state.rocket).some(x=>x<1)){openPanel('lab');toast('Die vier Raketenkomponenten müssen zuerst entwickelt werden.');return false;}
+ closePanel();const here=SOLAR_COORDS[state.planet]||[0,0];flight={x:here[0],z:here[1],yaw:0,speed:0,fast:false,travelled:0,elapsed:0,last:performance.now(),origin:state.planet};
+ $('flightScreen').style.display='flex';document.exitPointerLock?.();toast('Raumflug gestartet · W Schub · A/D Kurs · Space landen');requestAnimationFrame(flightTick);return true;
+}
+function nearestDestination(){if(!flight)return null;return planets.filter(p=>p.id!==flight.origin).map(p=>({planet:p,pos:SOLAR_COORDS[p.id],distance:Math.hypot(flight.x-SOLAR_COORDS[p.id][0],flight.z-SOLAR_COORDS[p.id][1])})).sort((a,b)=>a.distance-b.distance)[0]||null;}
+function drawSolarNavigation(){let canvas=$('solarNav'),ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;if(!flight)return;
+ const a=ctx.createLinearGradient(0,0,w,h);a.addColorStop(0,'#030916');a.addColorStop(.5,'#12213a');a.addColorStop(1,'#060b1a');ctx.fillStyle=a;ctx.fillRect(0,0,w,h);
+ for(let i=0;i<155;i++){let x=(i*527.53%w),y=(i*241.73%h),r=(i%7===0?1.8:.8);ctx.globalAlpha=.3+(i%5)*.13;ctx.fillStyle='#e0eaff';ctx.fillRect(x,y,r,r);}ctx.globalAlpha=1;
+ const scale=.37, ox=w/2,oz=h/2;ctx.strokeStyle='#74b0b222';ctx.lineWidth=1;
+ for(let off=-4000;off<4000;off+=160){let xx=ox+(off-flight.x)*scale,zz=oz+(off-flight.z)*scale;ctx.beginPath();ctx.moveTo(xx,0);ctx.lineTo(xx,h);ctx.stroke();ctx.beginPath();ctx.moveTo(0,zz);ctx.lineTo(w,zz);ctx.stroke();}
+ for(let p of planets){let xy=SOLAR_COORDS[p.id],x=ox+(xy[0]-flight.x)*scale,y=oz+(xy[1]-flight.z)*scale;if(x<-80||x>w+80||y<-80||y>h+80)continue;let radius=p.id===flight.origin?14:20;let grad=ctx.createRadialGradient(x-radius*.2,y-radius*.4,1,x,y,radius);grad.addColorStop(0,'#efffff');grad.addColorStop(.35,p.color);grad.addColorStop(1,'#091929');ctx.fillStyle=grad;ctx.shadowColor=p.color;ctx.shadowBlur=19;ctx.beginPath();ctx.arc(x,y,radius,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='#e2f8ff';ctx.font='600 13px Segoe UI';ctx.textAlign='center';ctx.fillText(p.name,x,y+radius+19);ctx.font='11px Segoe UI';ctx.fillStyle='#a2bfcc';ctx.fillText(state.planetEras[p.id]||p.era,x,y+radius+33);}
+ ctx.save();ctx.translate(ox,oz);ctx.rotate(flight.yaw+Math.PI/2);ctx.shadowBlur=22;ctx.shadowColor='#7fffd7';ctx.fillStyle='#a9ffe0';ctx.beginPath();ctx.moveTo(0,-18);ctx.lineTo(11,14);ctx.lineTo(0,9);ctx.lineTo(-11,14);ctx.closePath();ctx.fill();ctx.restore();
+ let n=nearestDestination();if(n&&n.distance<60){ctx.fillStyle='#9effd2';ctx.font='700 18px Segoe UI';ctx.textAlign='center';ctx.fillText('LANDUNG BEREIT: LEERTASTE',ox,45);}
+ ctx.font='12px Segoe UI';ctx.textAlign='left';ctx.fillStyle='#a2e6d0';ctx.fillText('SCHUB '+flight.speed.toFixed(1)+' U/s · Kurs '+Math.round((flight.yaw%(2*Math.PI))*180/Math.PI)+'°',23,h-20);
+}
+function tryLand(){if(!flight)return false;let nearest=nearestDestination();if(!nearest||nearest.distance>60||flight.travelled<120){toast('Landung nicht möglich · Ziel auf 60 Einheiten annähern');return false;}
+ let pid=nearest.planet.id;flight=null;$('flightScreen').style.display='none';state.planet=pid;state.era=state.planetEras[pid]||getPlanet().era;state.planetEras[pid]=state.era;mode='walk';vehicle=null;player={x:0,y:5,z:19,vY:0};heading=0;pitch=-.10;resetCamera();makeVehicles();populateWorld();updateMission();toast('✓ Orbit verlassen · Auf '+getPlanet().name+' gelandet');saveGame();return true;}
+function flightTick(ts){if(!flight)return;const now=ts||performance.now(),dt=Math.min(Math.max((now-(flight.last||now))/1000,0),.06);flight.last=now;
+ flight.yaw+=((keys.KeyD?1:0)-(keys.KeyA?1:0))*dt*.9;
+ const maxSpeed=flight.fast?43:3.7;
+ if(keys.KeyW)flight.speed=Math.min(maxSpeed,flight.speed+(flight.fast?30:2.1)*dt);
+ if(keys.KeyS)flight.speed=Math.max(0,flight.speed-5*dt);
+ if(!keys.KeyW&&!keys.KeyS)flight.speed=Math.max(0,flight.speed-.18*dt);
+ let step=flight.speed*dt;flight.x+=Math.cos(flight.yaw)*step;flight.z+=Math.sin(flight.yaw)*step;flight.travelled+=step;flight.elapsed+=dt;
+ let nearest=nearestDestination(),secs=Math.floor(flight.elapsed);$('flightClock').textContent=String(Math.floor(secs/60)).padStart(2,'0')+':'+String(secs%60).padStart(2,'0');
+ $('flightDistance').textContent=nearest?'Nächster Planet: '+nearest.planet.name+' · '+Math.round(nearest.distance)+' Einheiten':'Weltraum';
+ $('flightPilot').textContent='W Schub · A/D Kurs · S Bremsen · Space Landen · Flugtempo '+flight.speed.toFixed(1);
+ $('flightSubtitle').textContent=flight.fast?'TEST-BESCHLEUNIGUNG AKTIV':'Freier Testflug ohne Zielauswahl';
+ drawSolarNavigation();if(keys.Space)tryLand();if(flight)requestAnimationFrame(flightTick);
+}
+function flightBoost(){if(!flight)return;flight.fast=!flight.fast;flight.speed=Math.min(flight.speed,flight.fast?43:3.7);toast(flight.fast?'Test-Beschleunigung aktiviert':'Standardgeschwindigkeit aktiviert');}
+function preparePlanet(pid){toast('Kein Planetenmenü: Zur Startrampe gehen und mit W/A/D selbst zum Planeten fliegen.');return false;}
+window.startSolarVoyage=startSolarVoyage;window.tryLand=tryLand;
+window.cycleGrid=cycleGrid;window.rotateBuild=rotateBuild;window.raiseBuild=raiseBuild;window.toggleMagnet=toggleMagnet;window.openBuildPanel=openBuildPanel;window.openPanel=openPanel;window.closePanel=closePanel;window.chooseEra=chooseEra;window.choosePiece=choosePiece;window.upgradeRocket=upgradeRocket;window.rocketDiagnostic=rocketDiagnostic;window.preparePlanet=preparePlanet;window.flightBoost=flightBoost;window.saveGame=saveGame;window.setTool=setTool;
+try{let restored=loadGame();normalizeState();resetCamera();makeVehicles();if(gl){populateWorld();dynamicDirty=true;updateMission();drawHUD();drawMinimap();requestAnimationFrame(render);}if(restored){$('missionText').textContent=$('missionText').textContent+' · Gespeicherte Welt wiederhergestellt.';}}catch(e){console.error('NEXUS Startfehler:',e);$('prompt').innerHTML=`<div class="intro glass"><h2>Startfehler</h2><p>${escapeHtml(e.stack||e.message)}</p></div>`;}
+// Small diagnostics API for automated regression tests; no network access
+window.NexusTest={get state(){return state},planets,pieces,VEHICLES,HISTORIC_GEAR,buyVehicle,upgradeVehicle,refuelOwned,transaction,buyWeapon,equipWeapon,marketBuy,advanceCivilization,normalizeState,getCamera:()=>camera,summary:()=>({planet:state.planet,builds:Object.values(state.builds).reduce((a,b)=>a+b.length,0),trees:treeData.length,rocks:rockData.length,vehicles:vehicleDefs.length,meteor:state.meteor,alloy:state.alloy,planetEras:state.planetEras,targets:targets.length,renderer:!!gl,triangles:staticBuffer?.count/3||0}),placeBuild,buildTarget,chooseEra,upgradeRocket,preparePlanet,saveGame,loadGame,resetCamera,cutTree,mineRock,enterVehicle,exitVehicle,takeDamage,finishRescue,updateFrontAI,cycleStance,toggleSquad,getTactical:()=>({downed,stance:state.stance,health:state.health,armor:state.armor,ammo:state.ammo,zombies:zombies.length,infusion:state.infusion,squadOrder:state.squadOrder})};
+
+window.NexusTest06={scenicLocations:{village:[-179,113],castle:[-221,215],rescue:[-36,-77],research:[-113,-151]},hasSky:()=>!!skyProgram,graphics:'procedural material details, alpine terrain, gable village, rescue station, research perimeter',rendering:'WebGL2'};
+window.NexusTest05={get buildOptions(){return buildOptions},cycleGrid,rotateBuild,raiseBuild,toggleMagnet,buildTarget,footprintOverlap,canPlaceHere,addDetailedVehicle,openBuildPanel,placeBuild};
+window.NexusTest04={felledLogs,toggleWinch,updateTow,deliverTimber,worldCollision,tuneDriving,repairOwned,renderWorkshop,get towLogId(){return towLogId},setTow(id){towLogId=id},get vehicleDefs(){return vehicleDefs},get player(){return player},get treeData(){return treeData},setPlayer(x,z){player.x=x;player.z=z;resetCamera()},get mode(){return mode},setMode(m){mode=m},setVehicle(v){vehicle=v},get vehicle(){return vehicle},interact};
+</script></body></html>

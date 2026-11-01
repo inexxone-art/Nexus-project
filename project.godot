@@ -1,0 +1,36 @@
+; PROJECT NEXUS Godot Native – v1.1
+config_version=5
+
+[application]
+config/name="PROJECT NEXUS – Cinematic Fleet & Solar Campaign Alpha V1.3"
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.3", "Forward Plus")
+
+[display]
+window/size/viewport_width=1600
+window/size/viewport_height=900
+window/size/window_width_override=1280
+window/size/window_height_override=720
+window/stretch/mode="canvas_items"
+
+[rendering]
+renderer/rendering_method.mobile="gl_compatibility"
+textures/default_filters/use_nearest_mipmap_filter=false
+
+[physics]
+3d/default_gravity=18.0
+
+[input]
+move_forward={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":87)]}
+move_backward={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":83)]}
+move_left={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":65)]}
+move_right={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":68)]}
+jump={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":32)]}
+sprint={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":4194325)]}
+interact={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":70)]}
+build_mode={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":66)]}
+build_rotate={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":82)]}
+build_next={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":81)]}
+view_switch={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":67)]}
+save_game={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":4194336)]}
+load_game={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":4194340)]}

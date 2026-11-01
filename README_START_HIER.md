@@ -1,0 +1,1 @@
+Bitte zuerst README.md lesen. PROJECT NEXUS V1.3: 123 Fahrzeugprofile, 6 Planeten, Kampagnenprototyp, Quests, neue Grafikmaterialien, LAN-Koop-Vorschau. Die Grafik ist noch nicht AAA-fotorealistisch. Start mit Godot 4.4.1, Projektdatei project.godot.
