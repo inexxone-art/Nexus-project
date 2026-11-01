@@ -54,6 +54,7 @@ func _run() -> void:
         CAMPAIGN.save_data(original)
         _fail("Core extraction unsuccessful",7)
         return
+    planet._choose(1)
     planet.player.global_position = Vector3(0,3,40)
     planet._interact()
     if planet.mission_stage != 3 or not CAMPAIGN.load_data()["completed"].has("nivora"):
