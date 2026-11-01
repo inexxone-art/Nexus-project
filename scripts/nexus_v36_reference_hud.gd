@@ -4,6 +4,7 @@ class_name NexusV36ReferenceHUD
 ## Every statistic comes from the Godot world; never display fake 12 survivors
 ## or fictional ammunition counts unsupported by gameplay.
 const RADAR_SCRIPT = preload("res://scripts/nexus_v36_radar.gd")
+const VIEWMODEL_SCRIPT = preload("res://scripts/nexus_v36_viewmodel.gd")
 const BASE_SIZE := Vector2(1600,900)
 const TEXT := Color("f1f4f3")
 const MUTED := Color("acb8b8")
@@ -23,12 +24,15 @@ var ammo_label: Label
 var health_label: Label
 var notice_label: Label
 var radar: NexusV36Radar
+var weapon_view: NexusV36Viewmodel
 var refresh_timer := 0.0
 
 func setup(owner_world: Node3D) -> void:
     world = owner_world
     layer = 6
     _build()
+    weapon_view = VIEWMODEL_SCRIPT.new()
+    owner_world.player.camera.add_child(weapon_view)
     get_viewport().size_changed.connect(_layout)
     _layout()
     _refresh()
@@ -203,6 +207,8 @@ func _refresh() -> void:
         rebuild_steps[i].add_theme_color_override("font_color",GOLD if i==done else (Color("92d6a5") if i<done else MUTED))
     for button in role_buttons:
         button.disabled = rescue.phase!="choice"
+    if weapon_view != null and weapon_view.equipped != world.nexus_v35.equipped:
+        weapon_view.equip(world.nexus_v35.equipped)
     for i in range(loadout_buttons.size()):
         loadout_buttons[i].modulate = GOLD if i==world.nexus_v35.equipped else Color.WHITE
     ammo_label.text = "AUSRUESTUNG\n"+world.nexus_v35.SLOTS[world.nexus_v35.equipped]
