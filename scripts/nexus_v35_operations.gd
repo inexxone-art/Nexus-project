@@ -93,12 +93,16 @@ func _process(_delta: float) -> void:
             triggered = true
             if bridge.start_disaster():
                 rescue.trigger()
-                role_dialog.show()
+                if world.reference_hud == null or not world.reference_hud.visible:
+                    role_dialog.show()
                 Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
                 world._say("HINTER DIR! Die Bruecke bricht! Ein Bus stuerzt in den Canyon!")
                 world.save_state()
     if rescue.phase == "choice" and radio_pending:
-        role_dialog.show()
+        if world.reference_hud == null or not world.reference_hud.visible:
+            role_dialog.show()
+        else:
+            role_dialog.hide()
         radio_pending = false
     if mission_label != null:
         mission_label.text = rescue.remaining_objective()
