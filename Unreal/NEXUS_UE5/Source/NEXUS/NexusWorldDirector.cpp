@@ -10,6 +10,9 @@
 #include "Engine/World.h"
 #include "Engine/StaticMesh.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SceneComponent.h"
+#include "Components/SkyLightComponent.h"
+#include "Materials/MaterialInterface.h"
 #include "Engine/DirectionalLight.h"
 #include "Engine/SkyLight.h"
 #include "Engine/ExponentialHeightFog.h"
@@ -44,12 +47,21 @@ void ANexusWorldDirector::BeginPlay()
 }
 void ANexusWorldDirector::CreateSceneryBox(FVector Pos,FVector Scale,FRotator Rotation,const TCHAR* Name)
 {
-    auto* Mesh=NewObject<UStaticMeshComponent>(this,Name);
+    auto* Mesh=NewObject<UStaticMeshComponent>(this,FName(Name));
     Mesh->SetupAttachment(RootComponent);
     Mesh->SetMobility(EComponentMobility::Static);
     Mesh->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube")));
     Mesh->SetWorldTransform(FTransform(Rotation,Pos,Scale));
     Mesh->SetCollisionProfileName(TEXT("BlockAll"));
+    FString AssetPath;
+    const FString Label(Name);
+    if(Label.Contains(TEXT("Cliff"))) AssetPath=TEXT("/Game/AAA/Materials/M_AlpineRock.M_AlpineRock");
+    else if(Label.Contains(TEXT("Road"))) AssetPath=TEXT("/Game/AAA/Materials/M_WetAsphalt.M_WetAsphalt");
+    else if(Label.Contains(TEXT("River"))) AssetPath=TEXT("/Game/AAA/Materials/M_RiverMud.M_RiverMud");
+    else if(Label.Contains(TEXT("Plateau"))) AssetPath=TEXT("/Game/AAA/Materials/M_ForestSoil.M_ForestSoil");
+    if(!AssetPath.IsEmpty())
+        if(auto* Material=LoadObject<UMaterialInterface>(nullptr,*AssetPath))
+            Mesh->SetMaterial(0,Material);
     AddInstanceComponent(Mesh);
     Mesh->RegisterComponent();
 }

@@ -13,8 +13,7 @@ ANexusBridge::ANexusBridge()
 UStaticMesh* ANexusBridge::GetSegmentMesh() const
 {
     if(!NaniteBridgeSegment.IsNull()) if(auto* Mesh=NaniteBridgeSegment.LoadSynchronous()) return Mesh;
-    static ConstructorHelpers::FObjectFinder<UStaticMesh> Fallback(TEXT("/Engine/BasicShapes/Cube.Cube"));
-    return Fallback.Succeeded()?Fallback.Object:nullptr;
+    return LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"));
 }
 void ANexusBridge::BeginPlay()
 {
