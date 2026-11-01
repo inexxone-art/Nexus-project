@@ -20,6 +20,8 @@ const LIVING_PANEL_SCRIPT = preload("res://scripts/nexus_living_panel.gd")
 const POLISH_SCRIPT = preload("res://scripts/nexus_cinematic_polish.gd")
 const WEATHER_FX_SCRIPT = preload("res://scripts/nexus_weather_fx.gd")
 const PHOTO_SCRIPT = preload("res://scripts/nexus_photo_mode.gd")
+const MOBILE_SCRIPT = preload("res://scripts/nexus_mobile_controls.gd")
+var mobile_controls: NexusMobileControls
 var photo_mode: NexusPhotoMode
 var weather_fx: NexusWeatherFX
 var living: NexusLivingUniverse
@@ -129,6 +131,9 @@ func _ready() -> void:
     add_child(coop)
     coop.set_actor(player)
     _make_hud()
+    mobile_controls = MOBILE_SCRIPT.new()
+    add_child(mobile_controls)
+    mobile_controls.bind_world(self)
     photo_mode = PHOTO_SCRIPT.new()
     add_child(photo_mode)
     photo_mode.photo_saved.connect(_on_photo_saved)
@@ -494,6 +499,7 @@ func _on_photo_saved(path: String, success: bool) -> void:
 func _toggle_photo_mode() -> void:
     if photo_mode.active:
         photo_mode.exit()
+        mobile_controls.visible = DisplayServer.is_touchscreen_available()
         _say("Fotomodus beendet")
         return
     if vehicle_in_use != null or drone_active:
@@ -505,6 +511,7 @@ func _toggle_photo_mode() -> void:
         living_panel.toggle()
     var source := get_viewport().get_camera_3d()
     if photo_mode.enter(source, player, [hud,help,minimap,marker]):
+        mobile_controls.visible = false
         _say("Fotomodus: WASD fliegen, Q/E hoch/runter, Shift schnell, F11 PNG, F10 beenden")
 
 func _on_field_operation_finished(contract: Dictionary) -> void:
