@@ -85,3 +85,8 @@ jobs:
         run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/world_structure_v25_smoke.gd
       - name: Static V2.5 district streaming and route contract
         run: python3 tests/validate_world_structure_v25.py
+
+      - name: Validate V2.7 original megamap source contracts
+        run: python3 tests/validate_megaworld_v27.py
+      - name: Five regions and six planet settlement Godot smoke test
+        run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/megaworld_v27_smoke.gd
