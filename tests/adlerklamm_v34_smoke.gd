@@ -13,6 +13,13 @@ func _run() -> void:
     var map: NexusMegaMapV27 = MAP.new()
     root.add_child(map)
     await process_frame
+    var skyline: NexusIndustrySkylineV34 = null
+    for child in map.city_chunks["canyon"].get_children():
+        if child is NexusIndustrySkylineV34:
+            skyline = child
+    if skyline == null or skyline.tower_count != 6 or skyline.window_count < 400:
+        _fail("Industrial skyline with instanced facade windows missing",9)
+        return
     var incident: NexusAdlerklammDisaster = map.canyon_disaster
     if incident == null or incident.bus == null or map.bridge_deck == null:
         _fail("Bridge scenario not attached to existing megamap",1)
