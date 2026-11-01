@@ -17,6 +17,7 @@ var rescue_helicopter: Node3D
 var sky_preset_applied: bool = false
 var clock_timer: float = 0.0
 var models: Dictionary = {}
+var flashing_lights: Array[OmniLight3D] = []
 
 func _ready() -> void:
     name = "Adlerklamm V3.7 | cinematic geology, forest, river, response services"
@@ -65,6 +66,8 @@ func _terrain_surface() -> void:
     var asphalt := PRODUCTION.surface_texture("asphalt","albedo")
     var rock_rough := PRODUCTION.surface_texture("rock","roughness")
     var grass_rough := PRODUCTION.surface_texture("grass","roughness")
+    var rock_normal := PRODUCTION.surface_texture("rock","normal")
+    var grass_normal := PRODUCTION.surface_texture("grass","normal")
     if rock == null or grass == null or asphalt == null or rock_rough == null or grass_rough == null:
         push_warning("V3.7 PBR terrain texture missing; keep original ground fallback.")
         return
@@ -72,6 +75,10 @@ func _terrain_surface() -> void:
     ground_material.shader = GROUND_SHADER
     ground_material.set_shader_parameter("rock_albedo",rock)
     ground_material.set_shader_parameter("rock_roughness",rock_rough)
+    if rock_normal != null:
+        ground_material.set_shader_parameter("rock_normal_map",rock_normal)
+    if grass_normal != null:
+        ground_material.set_shader_parameter("grass_normal_map",grass_normal)
     ground_material.set_shader_parameter("grass_albedo",grass)
     ground_material.set_shader_parameter("grass_roughness",grass_rough)
     ground_material.set_shader_parameter("asphalt_albedo",asphalt)
@@ -237,6 +244,16 @@ func _stage_emergency_vehicles() -> void:
         _box(car,"Lightbar",Vector3(0,2.88,-1.55),Vector3(1.6,0.18,0.28),Color("30444f"))
         _box(car,"Blue emergency LED",Vector3(-0.51,2.98,-1.55),Vector3(0.43,0.18,0.3),Color("2e78ff"))
         _box(car,"Red emergency LED",Vector3(0.51,2.98,-1.55),Vector3(0.43,0.18,0.3),Color("ee3f3a"))
+        for led in range(2):
+            var strobe := OmniLight3D.new()
+            strobe.name = "Animated blue-red rescue flash"
+            strobe.position = Vector3(-0.53 if led==0 else 0.53,3.04,-1.55)
+            strobe.light_color = Color("3779ff") if led==0 else Color("e83f37")
+            strobe.light_energy = 1.0
+            strobe.omni_range = 12.0
+            strobe.shadow_enabled = false
+            car.add_child(strobe)
+            flashing_lights.append(strobe)
         for side in [-1.0,1.0]:
             for z in [-1.65,1.72]:
                 var wheel := MeshInstance3D.new()
@@ -297,6 +314,9 @@ func _stage_water_spray() -> void:
 
 func _process(delta: float) -> void:
     clock_timer += delta
+    var flash_phase: int = int(Time.get_ticks_msec()/160)%2
+    for index in range(flashing_lights.size()):
+        flashing_lights[index].visible = index%2 == flash_phase
     if rescue_helicopter != null:
         rescue_helicopter.position.y = 27.5+sin(float(Time.get_ticks_msec())*0.00045)*0.45
     if clock_timer < 0.45 or owner_world == null:
