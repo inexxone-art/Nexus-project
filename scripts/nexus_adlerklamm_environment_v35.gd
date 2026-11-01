@@ -34,13 +34,49 @@ func _rock_material() -> StandardMaterial3D:
         material.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
     return material
 
+func _make_irregular_rock() -> ArrayMesh:
+    # Irregular angular rock mesh, replacing the smooth repeated spheres from alpha.
+    # Angular strata and asymmetric ridges are tessellated, normals generated for PBR.
+    var surface := SurfaceTool.new()
+    surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+    const SIDES: int = 23
+    const BANDS: int = 12
+    for row in range(BANDS):
+        for col in range(SIDES):
+            var t0 := PI*float(row)/float(BANDS)
+            var t1 := PI*float(row+1)/float(BANDS)
+            var p0 := TAU*float(col)/float(SIDES)
+            var p1 := TAU*float(col+1)/float(SIDES)
+            var a := _rock_vertex(t0,p0)
+            var b := _rock_vertex(t1,p0)
+            var c := _rock_vertex(t0,p1)
+            var d := _rock_vertex(t1,p1)
+            surface.set_uv(Vector2(float(col)/float(SIDES),float(row)/float(BANDS)))
+            surface.add_vertex(a)
+            surface.set_uv(Vector2(float(col)/float(SIDES),float(row+1)/float(BANDS)))
+            surface.add_vertex(b)
+            surface.set_uv(Vector2(float(col+1)/float(SIDES),float(row)/float(BANDS)))
+            surface.add_vertex(c)
+            surface.set_uv(Vector2(float(col+1)/float(SIDES),float(row)/float(BANDS)))
+            surface.add_vertex(c)
+            surface.set_uv(Vector2(float(col)/float(SIDES),float(row+1)/float(BANDS)))
+            surface.add_vertex(b)
+            surface.set_uv(Vector2(float(col+1)/float(SIDES),float(row+1)/float(BANDS)))
+            surface.add_vertex(d)
+    surface.generate_normals()
+    return surface.commit()
+
+func _rock_vertex(latitude: float,longitude: float) -> Vector3:
+    var stratum := 1.0+0.17*sin(longitude*7.0+latitude*2.3)+0.095*cos(longitude*11.0-latitude*9.0)
+    var ridge := 1.0+0.13*sin(latitude*14.0+longitude*4.0)
+    var r := stratum*ridge
+    return Vector3(sin(latitude)*cos(longitude)*r,cos(latitude)*r*0.85,sin(latitude)*sin(longitude)*r)
+
 func _build_rock_banks() -> void:
     var rng := RandomNumberGenerator.new()
     rng.seed = 202611011635
-    var rock_mesh := SphereMesh.new()
-    rock_mesh.radial_segments = 14
-    rock_mesh.rings = 8
-    rock_mesh.material = _rock_material()
+    var rock_mesh: ArrayMesh = _make_irregular_rock()
+    rock_mesh.surface_set_material(0,_rock_material())
     var multimesh := MultiMesh.new()
     multimesh.transform_format = MultiMesh.TRANSFORM_3D
     multimesh.use_colors = true
