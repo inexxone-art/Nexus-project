@@ -36,8 +36,10 @@ void ANexusBus::DropBehindPlayer()
     bReleased=true;
     PhysicsBody->SetSimulatePhysics(true);
     PhysicsBody->WakeAllRigidBodies();
-    PhysicsBody->AddImpulse(FVector(130000.f,-50000.f,-130000.f),NAME_None,true);
-    PhysicsBody->AddAngularImpulseInRadians(FVector(15000.f,6000.f,29000.f),NAME_None,true);
+    // A few m/s of traffic momentum, then real gravity accelerates the fall.
+    // Avoid the old 1300m/s velocity-change and thousands of radians/sec.
+    PhysicsBody->SetPhysicsLinearVelocity(FVector(560.f,-140.f,-110.f));
+    PhysicsBody->SetPhysicsAngularVelocityInDegrees(FVector(65.f,15.f,110.f));
 }
 void ANexusBus::ResetBus()
 {
