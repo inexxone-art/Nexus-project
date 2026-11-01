@@ -1,0 +1,59 @@
+name: PROJECT NEXUS - 13s Genuine Gameplay Capture
+on:
+  push:
+    branches: ['capture/nexus-v22-original-13s']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  record-godot-gameplay:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install open-source capture tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb ffmpeg libgl1-mesa-dri libglu1-mesa
+      - name: Get pinned Godot 4.4.1
+        run: |
+          curl --fail --location --retry 3 -o godot.zip 'https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_linux.x86_64.zip'
+          unzip -q godot.zip
+          chmod +x Godot_v4.4.1-stable_linux.x86_64
+      - name: Import V2.2 project and check scripts
+        run: |
+          ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --editor --import --quit > import.log 2>&1 || (cat import.log && exit 1)
+          if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' import.log; then cat import.log; exit 1; fi
+      - name: Film actual PROJECT NEXUS game directly in Godot
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          mkdir -p output
+          set -o pipefail
+          timeout 900s xvfb-run -a -s '-screen 0 1280x720x24'             ./Godot_v4.4.1-stable_linux.x86_64             --path . --rendering-method gl_compatibility             --resolution 960x540             --write-movie output/original.avi             --fixed-fps 30 --quit-after 390             res://scenes/capture_13s.tscn 2>&1 | tee output/capture.log
+          test -s output/original.avi
+          grep -q NEXUS_CAPTURE_READY output/capture.log
+      - name: Produce original 13-second MP4 and verify exact duration
+        run: |
+          ffmpeg -hide_banner -loglevel error -y -i output/original.avi             -an -vf 'fps=30,scale=960:540:flags=lanczos' -frames:v 390             -c:v libx264 -preset veryfast -crf 20 -pix_fmt yuv420p             -movflags +faststart output/PROJECT_NEXUS_ORIGINAL_GAMEPLAY_13S.mp4
+          test -s output/PROJECT_NEXUS_ORIGINAL_GAMEPLAY_13S.mp4
+          python3 - <<'PY'
+          import subprocess
+          f='output/PROJECT_NEXUS_ORIGINAL_GAMEPLAY_13S.mp4'
+          d=float(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration','-of','default=noprint_wrappers=1:nokey=1',f],text=True))
+          assert 12.9 <= d <= 13.1, d
+          print('Verified duration:',d)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PROJECT-NEXUS-13S-ORIGINAL-GAMEPLAY
+          path: |
+            output/PROJECT_NEXUS_ORIGINAL_GAMEPLAY_13S.mp4
+            output/capture.log
+          retention-days: 30
+      - name: Publish direct video download as GitHub release
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create nexus-v22-original-gameplay-13s             output/PROJECT_NEXUS_ORIGINAL_GAMEPLAY_13S.mp4             --title 'PROJECT NEXUS | 13s Original Godot Gameplay - V2.2 Alpha'             --notes '13 seconds, captured in actual Godot 4.4.1 from the playable PROJECT NEXUS V2.2 world. Scripted cinematic camera, original procedural assets; not AAA photorealism.'             --target "${GITHUB_SHA}"
