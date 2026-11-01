@@ -6,8 +6,10 @@ render_mode cull_back;
 // Uses actual licensed PBR surfaces already in assets/production/materials.
 uniform sampler2D rock_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D rock_roughness : filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D rock_normal_map : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D grass_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D grass_roughness : filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D grass_normal_map : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D asphalt_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform float detail_tiling : hint_range(0.03,1.0) = 0.19;
 uniform float rainfall : hint_range(0.0,1.0) = 0.0;
@@ -57,6 +59,10 @@ void fragment() {
     float stone_roughness = tri_channel(rock_roughness,coord,weights);
     float grass_rough_sample = tri_channel(grass_roughness,coord,weights);
     ROUGHNESS = clamp(mix(grass_rough_sample,stone_roughness,rock_amount)*(1.0-0.30*wet),0.17,1.0);
+    vec3 stone_bump = tri_color(rock_normal_map,coord,weights);
+    vec3 soil_bump = tri_color(grass_normal_map,coord,weights);
+    NORMAL_MAP = mix(soil_bump,stone_bump,rock_amount);
+    NORMAL_MAP_DEPTH = 0.48;
     METALLIC = 0.0;
     SPECULAR = 0.5;
 }
