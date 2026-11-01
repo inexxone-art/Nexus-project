@@ -144,7 +144,6 @@ func surface_material(color: Color, texture_name: String = "", uv: float = 1.0, 
     m.metallic = metallic
     if texture_name != "":
         m.albedo_texture = load("res://assets/" + texture_name + ".png")
-        m.texture_repeat = BaseMaterial3D.TEXTURE_REPEAT_ENABLED
         m.uv1_scale = Vector3(uv, uv, 1.0)
         if texture_name.begins_with("nexus_pbr_"):
             m.normal_enabled = true

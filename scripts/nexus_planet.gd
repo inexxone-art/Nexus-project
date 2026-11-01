@@ -76,7 +76,6 @@ func _mat(color: Color, texture_name: String = "", metal: float = 0.0, glowing: 
     m.metallic = metal
     if texture_name != "":
         m.albedo_texture = load("res://assets/%s.png" % texture_name)
-        m.texture_repeat = BaseMaterial3D.TEXTURE_REPEAT_ENABLED
         m.uv1_scale = Vector3(18,18,1)
         if texture_name.begins_with("nexus_pbr_"):
             m.normal_enabled = true

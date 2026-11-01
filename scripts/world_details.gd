@@ -42,7 +42,6 @@ func _mat(color: Color, texture: String = "", rough: float = 0.82, metallic: flo
     m.metallic = metallic
     if texture != "":
         m.albedo_texture = load("res://assets/" + texture + ".png")
-        m.texture_repeat = BaseMaterial3D.TEXTURE_REPEAT_ENABLED
     if glowing:
         m.emission_enabled = true
         m.emission = color
