@@ -159,7 +159,7 @@ func _build_canyon_bridge() -> void:
     # The V2.6 canyon sinks nearly 38 m below y=0. Bridge crosses its north-south banks.
     bridge_deck = _box(always_on,"Adlerklamm bridge | drivable collidable deck",Vector3(175,0.0,168),Vector3(10,0.65,82),asphalt,true) as StaticBody3D
     for side in [-1.0,1.0]:
-        var sx := 175.0 + side*4.75
+        var sx: float = 175.0 + float(side)*4.75
         _box(always_on,"Bridge crash barrier",Vector3(sx,1.25,168),Vector3(0.37,1.2,82),concrete,true)
         _box(always_on,"Bridge steel railing",Vector3(sx,2.50,168),Vector3(0.16,0.16,82),iron)
         for index in range(17):
@@ -212,7 +212,7 @@ func _luxury_city(parent: Node3D) -> void:
                     for col in range(3):
                         var px := x+(float(col)-1.0)*(width*0.28)
                         var py := float(level)*3.9+1.5
-                        var pz := z+side*(width*0.42+0.06)
+                        var pz: float = z+float(side)*(width*0.42+0.06)
                         windows.append(Transform3D(Basis.from_scale(Vector3(width*0.16,2.4,0.07)),Vector3(px,py,pz)))
                         window_colors.append(Color("bcd6eb") if rng.randf() < 0.67 else Color("ffe2a4"))
             building_count += 1
@@ -305,7 +305,7 @@ func _gorge_lookouts(parent: Node3D) -> void:
     var rock := _pbr("rock",Color("8d8982"))
     var timber := _pbr("wood",Color("806b55"))
     for side in [-1.0,1.0]:
-        var z := 57.0*side
+        var z: float = 57.0*float(side)
         _box(parent,"Rock scenic overlook",Vector3(21*side,0.3,z),Vector3(17,0.6,15),rock)
         _box(parent,"Overlook observation rail",Vector3(21*side,1.45,z+5),Vector3(17,1.3,0.25),timber)
     landmark_count += 1
