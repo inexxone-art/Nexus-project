@@ -28,4 +28,7 @@ mobile = (root / "scripts/nexus_mobile_controls.gd").read_text()
 assert "Input.action_press" in mobile and "Input.action_release" in mobile
 assert "MOBILE_SCRIPT.new()" in world and "mobile_controls.bind_world(self)" in world
 assert 'platform="Web"' in (root / "export_presets.cfg").read_text()
+web = (root / ".github/workflows/web-build.yml").read_text()
+assert "upload-artifact@v4" in web and "upload-pages-artifact@v4" in web
+assert "steps.pages_state.outputs.enabled == 'true'" in web
 print("V1.6 STATIC PASS: 3-stage missions, photo mode, 12 touch controls and Web export configuration")
