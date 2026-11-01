@@ -92,3 +92,7 @@ jobs:
         run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/megaworld_v27_smoke.gd
       - name: V3.4 Adlerklamm bridge physics, bus fall and reconstruction
         run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/adlerklamm_v34_smoke.gd
+      - name: V3.5 responsive rescues, resource production and save persistence
+        run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/adlerklamm_industry_v35_smoke.gd
+      - name: V3.6 live picture-reference HUD, dynamic resources and switchable FPS equipment
+        run: timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/adlerklamm_v36_hud_smoke.gd

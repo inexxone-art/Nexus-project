@@ -31,6 +31,10 @@ const PRODUCTION_ASSETS = preload("res://scripts/nexus_production_assets.gd")
 const WORLD_STRUCTURE_SCRIPT = preload("res://scripts/nexus_world_structure.gd")
 const MEGAMAP_SCRIPT = preload("res://scripts/nexus_megamap_v27.gd")
 const HEIGHTFIELD_SCRIPT = preload("res://scripts/nexus_terrain_v26.gd")
+const V35_OPERATIONS_SCRIPT = preload("res://scripts/nexus_v35_operations.gd")
+const V36_HUD_SCRIPT = preload("res://scripts/nexus_v36_reference_hud.gd")
+var nexus_v35: NexusV35Operations
+var reference_hud: NexusV36ReferenceHUD
 var mega_map: NexusMegaMapV27
 var world_structure: NexusWorldStructure
 var legacy: NexusLegacy
@@ -94,6 +98,8 @@ var oil: int = 0
 var gold: int = 0
 var sold_logs: int = 0
 var resource_cooldown: float = 0.0
+var next_shot_msec: int = 0
+var next_medkit_msec: int = 0
 var notice: String = "Willkommen in PROJECT NEXUS."
 var notice_time: float = 5.0
 var hud: Label
@@ -185,6 +191,19 @@ func _ready() -> void:
     add_child(coop)
     coop.set_actor(player)
     _make_hud()
+    nexus_v35 = V35_OPERATIONS_SCRIPT.new()
+    add_child(nexus_v35)
+    nexus_v35.setup(self)
+    if not DisplayServer.is_touchscreen_available():
+        reference_hud = V36_HUD_SCRIPT.new()
+        add_child(reference_hud)
+        reference_hud.setup(self)
+        if not player.first_person:
+            player.switch_view()
+        # The cinematic HUD replaces the legacy walls of debugging text.
+        get_node("HUD").hide()
+        nexus_v35.mission_label.hide()
+        nexus_v35.loadout_label.hide()
     mobile_controls = MOBILE_SCRIPT.new()
     add_child(mobile_controls)
     mobile_controls.bind_world(self)
@@ -645,6 +664,8 @@ func _process(delta: float) -> void:
     notice_time = max(0.0, notice_time - delta)
     if tow_log != null and is_instance_valid(tow_log) and vehicle_in_use != null:
         tow_log.global_position = vehicle_in_use.global_position + vehicle_in_use.global_transform.basis.z * 5 + Vector3(0, 0.7, 0)
+    if nexus_v35 != null and nexus_v35.equipped == 0 and not drone_active and vehicle_in_use == null and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+        shoot_training()
     _update_hud()
 
 func _on_episode_objective(message: String) -> void:
@@ -751,9 +772,41 @@ func _on_graphics_profile(mode: int) -> void:
         env.volumetric_fog_enabled = mode == 2
     Engine.max_fps = 30 if mode == 0 else (60 if mode == 1 else 0)
 
+func _use_equipment() -> void:
+    if nexus_v35 == null:
+        shoot_training()
+        return
+    match nexus_v35.equipped:
+        0,1:
+            shoot_training()
+        2:
+            var now := Time.get_ticks_msec()
+            if now < next_medkit_msec:
+                _say("Sanitaetstasche: kurz warten.")
+            elif player.health >= 100.0:
+                _say("Keine Behandlung erforderlich.")
+            else:
+                next_medkit_msec = now + 18000
+                player.receive_medical_help(25.0)
+                _say("Erste Hilfe geleistet: +25 Gesundheit.")
+        3:
+            if vehicle_in_use != null:
+                _say("Bauwerkzeug nur zu Fuss nutzbar.")
+            else:
+                mode_build = not mode_build
+                marker.visible = mode_build
+                _say("Bauwerkzeug: "+("Baumodus an" if mode_build else "Baumodus aus"))
+
 func shoot_training() -> void:
     if vehicle_in_use != null or drone_active or player == null or not player.active:
         return
+    if nexus_v35 != null:
+        if nexus_v35.equipped > 1:
+            return
+        var fire_time := Time.get_ticks_msec()
+        if fire_time < next_shot_msec:
+            return
+        next_shot_msec = fire_time + (155 if nexus_v35.equipped == 0 else 380)
     var view_camera: Camera3D = player.camera
     if view_camera == null:
         return
@@ -813,12 +866,29 @@ func _update_hud() -> void:
         var gorge_gap := Vector2(player.global_position.x-175.0,player.global_position.z-168.0).length()
         if gorge_gap < 100.0:
             tip += "\n" + mega_map.canyon_disaster.status_text()
+    if nexus_v35 != null:
+        if nexus_v35.rescue.phase != "dormant":
+            tip += "\n" + nexus_v35.rescue.remaining_objective()
+        tip += "\nF12 INDUSTRIE | Ausruestung 3-6: " + nexus_v35.SLOTS[nexus_v35.equipped]
+        tip += "\nZement %d Asphalt %d | E nahe Bruecke: Bergungs-/Bauphase" % [nexus_v35.industry.inventory["cement"],nexus_v35.industry.inventory["asphalt"]]
     help.text = tip
 
 func _unhandled_input(event: InputEvent) -> void:
     if event is InputEventKey and event.pressed and not event.echo:
-        if event.keycode == KEY_F7:
-            _handle_adlerklamm_event()
+        if event.keycode == KEY_F1 and reference_hud != null:
+            reference_hud.visible = not reference_hud.visible
+            get_node("HUD").visible = not reference_hud.visible
+            if nexus_v35 != null and nexus_v35.rescue.phase == "choice":
+                nexus_v35.role_dialog.visible = not reference_hud.visible
+            return
+        if event.keycode == KEY_F11 and (photo_mode == null or not photo_mode.active):
+            _start_adlerklamm_approach()
+            return
+        if event.keycode == KEY_F12 and nexus_v35 != null:
+            nexus_v35.toggle_industry()
+            return
+        if event.keycode in [KEY_3,KEY_4,KEY_5,KEY_6] and nexus_v35 != null:
+            nexus_v35.switch_slot(event.keycode - KEY_3)
             return
         if event.keycode == KEY_F10:
             _toggle_photo_mode()
@@ -902,7 +972,7 @@ func _unhandled_input(event: InputEvent) -> void:
         if mode_build:
             _build()
         elif Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-            shoot_training()
+            _use_equipment()
 
 func _toggle_drone() -> void:
     if drone_active:
@@ -949,6 +1019,14 @@ func _toggle_vehicle() -> void:
         _say("Kein Fahrzeug in Reichweite")
 
 func _interact() -> void:
+    if nexus_v35 != null and nexus_v35.interact():
+        return
+    if mega_map != null and mega_map.canyon_disaster != null and player != null:
+        var bridge: NexusAdlerklammDisaster = mega_map.canyon_disaster
+        var point: Vector3 = player.global_position if vehicle_in_use == null else vehicle_in_use.global_position
+        if Vector2(point.x-175.0,point.z-168.0).length() < 43.0 and bridge.stage == "aftermath":
+            _handle_adlerklamm_event()
+            return
     if vehicle_in_use != null:
         if _nearest_station_kind("garage", vehicle_in_use.global_position, 12.0) != null:
             if refined_fuel >= 1:
@@ -1234,6 +1312,30 @@ func _spawn_build(kind: int, pos: Vector3, rotation_y: float) -> void:
     body.rotation.y = rotation_y
     constructions.append({"node": body, "kind": kind, "p": pos, "r": rotation_y})
 
+func _start_adlerklamm_approach() -> void:
+    if player == null or mega_map == null or mega_map.canyon_disaster == null:
+        return
+    var incident: NexusAdlerklammDisaster = mega_map.canyon_disaster
+    var start_point := Vector3(175,1.0,113.0) if incident.stage == "ready" else Vector3(175,1.0,220.0)
+    if vehicle_in_use != null:
+        vehicle_in_use.global_position = start_point
+        vehicle_in_use.rotation.y = PI
+        vehicle_in_use.speed = 0.0
+    else:
+        player.global_position = start_point+Vector3(-3.0,0,0)
+        var rescue_car: NexusVehicle = null
+        for candidate in vehicles:
+            if candidate.category == "Rettung":
+                rescue_car = candidate
+                break
+        if rescue_car != null:
+            rescue_car.global_position = start_point
+            rescue_car.rotation.y = PI
+            rescue_car.speed = 0.0
+    if nexus_v35 != null and incident.stage == "ready":
+        nexus_v35.bridge_entered = false
+    _say("ADLERKLAMM: F ins Rettungsfahrzeug, ueber die Bruecke fahren. Der Unfall erfolgt hinter dir.")
+
 func _handle_adlerklamm_event() -> void:
     if mega_map == null or mega_map.canyon_disaster == null:
         return
@@ -1241,22 +1343,38 @@ func _handle_adlerklamm_event() -> void:
         _say("Adlerklamm-Einsatz: Zur Schluchtenbruecke fahren.")
         return
     var incident: NexusAdlerklammDisaster = mega_map.canyon_disaster
-    if incident.stage == "ready":
-        if incident.start_disaster():
-            _say("WARNUNG: Brueckenversagen! Strasse gesperrt - Bus in Gefahr!")
-            save_state()
-    elif incident.stage == "aftermath":
-        if wood < incident.REBUILD_WOOD or iron < incident.REBUILD_IRON:
-            _say("Wiederaufbau braucht %d Holz und %d Eisen." % [incident.REBUILD_WOOD,incident.REBUILD_IRON])
+    if incident.stage != "aftermath":
+        _say("Die Bruecke bricht nur beim automatischen Weltereignis ein.")
+        return
+    if nexus_v35 != null and nexus_v35.rescue.phase != "completed":
+        _say("Zuerst alle vermissten Personen bergen. Danach kann der Wiederaufbau beginnen.")
+        return
+    if incident.rebuild_progress == 0:
+        incident.rebuild_progress = 1
+        _say("Bauphase 1/4: Schutt geraeumt. Material fuer Stahltraeger bereitstellen.")
+    elif incident.rebuild_progress == 1:
+        if wood < 4 or iron < incident.REBUILD_IRON:
+            _say("Tragwerk braucht 4 Holz und %d Eisen." % incident.REBUILD_IRON)
             return
-        wood -= incident.REBUILD_WOOD
+        wood -= 4
         iron -= incident.REBUILD_IRON
+        incident.rebuild_progress = 2
+        _say("Bauphase 2/4: Stahltraeger installiert. Beton und Zement noch offen.")
+    elif incident.rebuild_progress == 2:
+        if wood < 2 or nexus_v35 == null or not nexus_v35.industry.take_materials(incident.REBUILD_CEMENT,0):
+            _say("Betonierphase braucht 2 Holz und %d Zement aus dem Zementwerk." % incident.REBUILD_CEMENT)
+            return
+        wood -= 2
+        incident.rebuild_progress = 3
+        _say("Bauphase 3/4: Betonfahrbahn gegossen. Noch Asphalt aufbringen.")
+    else:
+        if nexus_v35 == null or not nexus_v35.industry.take_materials(0,incident.REBUILD_ASPHALT):
+            _say("Asphaltphase braucht %d Asphalt aus dem Asphaltwerk." % incident.REBUILD_ASPHALT)
+            return
         if incident.rebuild_bridge():
             coins += 420
-            _say("Adlerklamm-Bruecke wiedereroeffnet. Bauauftrag +420 Credits.")
-            save_state()
-    else:
-        _say("Bergung laeuft. Bruecke kann erst nach dem Einsturz saniert werden.")
+            _say("Adlerklamm: Bruecke freigegeben! Wiederaufbau +420 Credits.")
+    save_state()
 
 func save_state() -> void:
     var v_data = []
@@ -1272,7 +1390,7 @@ func save_state() -> void:
             var p = info["node"].global_position
             l_data.append([p.x, p.y, p.z])
     var p = player.global_position if vehicle_in_use == null else vehicle_in_use.global_position
-    var data = {"money": coins, "wood": wood, "iron": iron, "adlerklamm": mega_map.canyon_disaster.get_data() if mega_map != null and mega_map.canyon_disaster != null else {}, "oil": oil, "gold": gold, "sold": sold_logs, "position": [p.x, p.y, p.z], "vehicles": v_data, "world_ops": world_operations.get_data(), "living_universe": living.get_data(), "buildings": b_data, "chopped": chopped_ids, "logs": l_data, "mission": missions.get_data() if missions != null else {}, "build_grid": build_grid, "build_height": build_height, "crops": crops, "paper": paper, "refined_fuel": refined_fuel, "meteor": meteor, "tech_level": tech_level, "completed_jobs": completed_jobs, "world_clock": world_clock.get_data(), "director": nexus_director.get_data(), "story": story.get_data(), "quality_suite": quality_suite.get_data(), "legacy": legacy.get_data(), "episode_one": episode_one.get_data(), "player_hp": player.health, "ship_walkthrough": ship_walkthrough.get_data(), "profile": performance_panel.mode, "muted": audio_director.muted}
+    var data = {"money": coins, "wood": wood, "iron": iron, "adlerklamm": mega_map.canyon_disaster.get_data() if mega_map != null and mega_map.canyon_disaster != null else {}, "v35": nexus_v35.get_data() if nexus_v35 != null else {}, "oil": oil, "gold": gold, "sold": sold_logs, "position": [p.x, p.y, p.z], "vehicles": v_data, "world_ops": world_operations.get_data(), "living_universe": living.get_data(), "buildings": b_data, "chopped": chopped_ids, "logs": l_data, "mission": missions.get_data() if missions != null else {}, "build_grid": build_grid, "build_height": build_height, "crops": crops, "paper": paper, "refined_fuel": refined_fuel, "meteor": meteor, "tech_level": tech_level, "completed_jobs": completed_jobs, "world_clock": world_clock.get_data(), "director": nexus_director.get_data(), "story": story.get_data(), "quality_suite": quality_suite.get_data(), "legacy": legacy.get_data(), "episode_one": episode_one.get_data(), "player_hp": player.health, "ship_walkthrough": ship_walkthrough.get_data(), "profile": performance_panel.mode, "muted": audio_director.muted}
     var f = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
     if f == null:
         _say("Fehler beim Speichern")
@@ -1296,6 +1414,8 @@ func load_state() -> void:
     iron = int(parsed.get("iron", 10))
     if mega_map != null and mega_map.canyon_disaster != null:
         mega_map.canyon_disaster.restore_data(parsed.get("adlerklamm",{}))
+    if nexus_v35 != null:
+        nexus_v35.restore_data(parsed.get("v35",{}))
     oil = int(parsed.get("oil", 0))
     gold = int(parsed.get("gold", 0))
     sold_logs = int(parsed.get("sold", 0))

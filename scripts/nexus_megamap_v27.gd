@@ -8,6 +8,7 @@ class_name NexusMegaMapV27
 const PRODUCTION = preload("res://scripts/nexus_production_assets.gd")
 const ADLERKLAMM_EVENT_SCRIPT = preload("res://scripts/nexus_adlerklamm_disaster_v34.gd")
 const INDUSTRY_SKYLINE_SCRIPT = preload("res://scripts/nexus_industry_skyline_v34.gd")
+const ADLERKLAMM_ENVIRONMENT = preload("res://scripts/nexus_adlerklamm_environment_v35.gd")
 const SEED: int = 273010
 const DISTRICTS: Dictionary = {
     "aurelia": {"title":"Aurelia | Luxushochhaus-City", "style":"luxury", "center":Vector3(-135.0,0.0,86.0), "radius":65.0},
@@ -195,6 +196,9 @@ func _build_region(id: String, parent: Node3D) -> void:
         _gorge_lookouts(parent)
         var skyline := INDUSTRY_SKYLINE_SCRIPT.new()
         parent.add_child(skyline)
+        var canyon_art := ADLERKLAMM_ENVIRONMENT.new()
+        # Art pass uses absolute world-space rock/river coordinates.
+        add_child(canyon_art)
 
 func _luxury_city(parent: Node3D) -> void:
     var glass := _pbr("",Color("506e80"),0.28,0.14)
