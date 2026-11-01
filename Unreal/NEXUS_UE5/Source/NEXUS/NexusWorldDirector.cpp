@@ -69,13 +69,23 @@ void ANexusWorldDirector::CreateStageWorld()
 {
     // Minimal safe geometry for an immediately playable test scene.
     // Replace with a streamed, art-authored World Partition Landscape in production.
-    CreateSceneryBox(FVector(-6700,0,1850),FVector(56.f,26.f,1.f),FRotator::ZeroRotator,TEXT("WestApproachRoad"));
-    CreateSceneryBox(FVector(6700,0,1850),FVector(56.f,26.f,1.f),FRotator::ZeroRotator,TEXT("EastApproachRoad"));
-    CreateSceneryBox(FVector(-6900,0,1270),FVector(88.f,65.f,11.f),FRotator::ZeroRotator,TEXT("WestCliffPlateau"));
-    CreateSceneryBox(FVector(6900,0,1270),FVector(88.f,65.f,11.f),FRotator::ZeroRotator,TEXT("EastCliffPlateau"));
+    CreateSceneryBox(FVector(-8400,0,1945),FVector(43.f,26.f,1.f),FRotator::ZeroRotator,TEXT("WestApproachRoad"));
+    CreateSceneryBox(FVector(8400,0,1945),FVector(43.f,26.f,1.f),FRotator::ZeroRotator,TEXT("EastApproachRoad"));
+    CreateSceneryBox(FVector(-8400,0,1270),FVector(44.f,65.f,11.f),FRotator::ZeroRotator,TEXT("WestCliffPlateau"));
+    CreateSceneryBox(FVector(8400,0,1270),FVector(44.f,65.f,11.f),FRotator::ZeroRotator,TEXT("EastCliffPlateau"));
     CreateSceneryBox(FVector(0,-4700,700),FVector(168.f,35.f,18.f),FRotator(FMath::DegreesToRadians(0),0,0),TEXT("NorthCliffFace"));
     CreateSceneryBox(FVector(0,4700,700),FVector(168.f,35.f,18.f),FRotator::ZeroRotator,TEXT("SouthCliffFace"));
     CreateSceneryBox(FVector(0,0,-600),FVector(170.f,50.f,7.f),FRotator::ZeroRotator,TEXT("RiverBase"));
+    // Actual approach roads now meet the 82m bridge at X = +/-4100cm.
+    // These geometry pillars are nonproduction visual/physics placeholders.
+    for(int32 I=-3;I<=3;I+=2)
+    {
+        const float X=I*1000.f;
+        const FString North=FString::Printf(TEXT("ViaductNorth_%d"),I);
+        const FString South=FString::Printf(TEXT("ViaductSouth_%d"),I);
+        CreateSceneryBox(FVector(X,-430.f,950.f),FVector(1.3f,2.5f,19.f),FRotator::ZeroRotator,*North);
+        CreateSceneryBox(FVector(X,430.f,950.f),FVector(1.3f,2.5f,19.f),FRotator::ZeroRotator,*South);
+    }
     // UE5 world Partition/PCG/Nanite import anchor: place high-poly meshes in the
     // editor; fallback blocks are development-only, not the quality target.
 }
