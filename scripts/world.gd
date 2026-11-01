@@ -733,6 +733,16 @@ func _on_graphics_profile(mode: int) -> void:
         weather_fx.set_graphics_quality(high)
     if quality_suite != null:
         quality_suite.set_scenery_quality(mode > 0)
+    # Expensive screen-space lighting is reserved for desktop cinematic mode.
+    # Web/iPhone low mode stays intentionally lean to avoid memory/GPU stalls.
+    var environment_node: WorldEnvironment = get_node_or_null("WorldEnvironment") as WorldEnvironment
+    if environment_node != null and environment_node.environment != null:
+        var env: Environment = environment_node.environment
+        env.ssao_enabled = mode > 0
+        env.ssil_enabled = mode == 2
+        env.ssr_enabled = mode == 2
+        env.glow_enabled = mode > 0
+        env.volumetric_fog_enabled = mode == 2
     Engine.max_fps = 30 if mode == 0 else (60 if mode == 1 else 0)
 
 func shoot_training() -> void:

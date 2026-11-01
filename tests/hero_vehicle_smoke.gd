@@ -18,6 +18,16 @@ func _run() -> void:
         vehicle.set_vehicle(record, str(record.get("group", "")))
         root.add_child(vehicle)
         await process_frame
+        # A source GLB deliberately replaces the procedural HERO details.
+        if vehicle.imported_model != null:
+            if vehicle.imported_model.find_children("*", "MeshInstance3D", true, false).is_empty():
+                push_error("Imported vehicle contains no meshes: " + str(id))
+                quit(7)
+                return
+            vehicle.animate_vehicle(0.016, 4.0, 0.2, true, 99.0)
+            vehicle.queue_free()
+            await process_frame
+            continue
         var hero := vehicle.get_node_or_null("HERO DETAIL | original procedural craft")
         if hero == null or hero.get_child_count() < 20:
             push_error("Hero model assembly failed for " + str(id))

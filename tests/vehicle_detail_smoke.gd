@@ -20,6 +20,19 @@ func _run() -> void:
         v.configure(sample[kind])
         root.add_child(v)
         await process_frame
+        # Imported GLB visuals may be one packed root; older procedural meshes contain multiple nodes.
+        if v.visuals != null and v.visuals.imported_model != null:
+            if v.visuals.imported_model.find_children("*", "MeshInstance3D", true, false).is_empty():
+                push_error("Imported vehicle GLB has no visible meshes: " + kind)
+                quit(8)
+                return
+            if v.get_node_or_null("Fahrzeugkollision") == null or v.camera == null:
+                push_error("Imported vehicle missing physics or camera")
+                quit(9)
+                return
+            v.queue_free()
+            await process_frame
+            continue
         if v.visuals == null or v.visuals.get_child_count() < 8:
             push_error("Incomplete visual assembly: " + kind)
             quit(2)

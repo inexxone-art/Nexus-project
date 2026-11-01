@@ -1,0 +1,62 @@
+name: NEXUS V2.4 - Fetch CC0 meshes and PBR materials
+on:
+  push:
+    branches: [main]
+    paths:
+      - tools/import_real_assets.py
+      - .github/workflows/production-asset-import.yml
+      - scripts/nexus_production_assets.gd
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  verify-and-stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify importer without network
+        run: python3 -m unittest discover -s tests -p 'test_real_asset_importer.py' -v
+      - name: Fetch CC0 meshes and photographed PBR surfaces from original publishers
+        run: |
+          python3 tools/import_real_assets.py
+          test -s assets/production/vehicles/vortex_sport.glb
+          test -s assets/production/vehicles/alpin_h1.glb
+          test -s assets/production/ASSET_PROVENANCE.json
+      - name: Download pinned Godot 4.4.1
+        run: |
+          curl --fail --location --retry 3 -o godot.zip \
+            https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_linux.x86_64.zip
+          unzip -q godot.zip
+          chmod +x Godot_v4.4.1-stable_linux.x86_64
+      - name: Validate all new resources load in Godot
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --editor --import --quit 2>&1 | tee /tmp/nexus-godot-asset-import.log
+          if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script|ERROR.*\.glb|Failed importing' /tmp/nexus-godot-asset-import.log; then
+            echo '::error::Godot imported assets with errors'
+            exit 1
+          fi
+          timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/real_assets_smoke.gd
+          timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/hero_vehicle_smoke.gd
+          timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/vehicle_detail_smoke.gd
+          timeout 120s ./Godot_v4.4.1-stable_linux.x86_64 --headless --path . --script res://tests/graphics_v23_smoke.gd
+      - name: Commit validated binaries to separate review branch
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git switch -c "assets/real-pbr-${GITHUB_RUN_ID}"
+          git add assets/production
+          git commit -m "Import verified CC0 vehicle GLBs and photographed PBR texture sets"
+          git push -u origin HEAD
+          echo "Review branch: assets/real-pbr-${GITHUB_RUN_ID}"
+      - name: Save source and validation metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-asset-provenance
+          path: |
+            assets/production/ASSET_PROVENANCE.json
+            /tmp/nexus-godot-asset-import.log
+          if-no-files-found: ignore
