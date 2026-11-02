@@ -30,5 +30,6 @@ public:
     void InspectEvidence();
     void ProtectCivilians();
     void SecureEvidence();
+    UFUNCTION(Server,Reliable) void ServerCommand(uint8 Code);
     UPROPERTY(BlueprintReadOnly) int32 EquipmentSlot = 0;
 };

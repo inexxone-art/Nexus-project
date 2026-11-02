@@ -55,14 +55,41 @@ void ANexusVehicle::SetupPlayerInputComponent(UInputComponent* Input)
     Input->BindAction(TEXT("ProtectCivilians"),IE_Pressed,this,&ANexusVehicle::ProtectCivilians);
     Input->BindAction(TEXT("SecureEvidence"),IE_Pressed,this,&ANexusVehicle::SecureEvidence);
 }
-void ANexusVehicle::Drive(float V) { Throttle=FMath::Clamp(V,-1.f,1.f); }
-void ANexusVehicle::Turn(float V) { Steering=FMath::Clamp(V,-1.f,1.f); }
-void ANexusVehicle::FlyUp(float V) { Vertical=FMath::Clamp(V,-1.f,1.f); }
-void ANexusVehicle::FlyDown(float V) { Vertical=FMath::Clamp(Vertical-V,-1.f,1.f); }
+void ANexusVehicle::Drive(float V)
+{
+    V=FMath::Clamp(V,-1.f,1.f);
+    if(FMath::Abs(V-Throttle)>0.08f)
+    {
+        Throttle=V;
+        if(!HasAuthority()) ServerSetMotion(Throttle,Steering,Vertical);
+    }
+}
+void ANexusVehicle::Turn(float V)
+{
+    V=FMath::Clamp(V,-1.f,1.f);
+    if(FMath::Abs(V-Steering)>0.08f)
+    {
+        Steering=V;
+        if(!HasAuthority()) ServerSetMotion(Throttle,Steering,Vertical);
+    }
+}
+void ANexusVehicle::FlyUp(float V)
+{
+    V=FMath::Clamp(V,-1.f,1.f);
+    if(FMath::Abs(V-Vertical)>0.08f)
+    {
+        Vertical=V;
+        if(!HasAuthority()) ServerSetMotion(Throttle,Steering,Vertical);
+    }
+}
+void ANexusVehicle::FlyDown(float V)
+{
+    FlyUp(-V);
+}
 void ANexusVehicle::Tick(float Dt)
 {
     Super::Tick(Dt);
-    if(!Driver || Dt<=0) return;
+    if(!HasAuthority() || !Driver || Dt<=0) return;
     const float TargetSpeed=Throttle*(bHelicopter?2400.f:1650.f);
     LinearSpeed=FMath::FInterpTo(LinearSpeed,TargetSpeed,Dt,bHelicopter?1.3f:1.8f);
     AddActorWorldRotation(FRotator(0,Steering*(bHelicopter?38.f:60.f)*Dt,0));
@@ -95,28 +122,52 @@ void ANexusVehicle::Tick(float Dt)
         if(GM->Director) GM->Director->VehicleAdvanced(this);
 }
 void ANexusVehicle::RescueOrExit()
-{
+{ if(!HasAuthority()){ServerCommand(0);return;}
     if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
         if(!GM->InteractVehicle(this)) GM->ExitVehicle(this);
 }
-void ANexusVehicle::ExitToFoot() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ExitVehicle(this); }
+void ANexusVehicle::ExitToFoot() { if(!HasAuthority()){ServerCommand(1);return;} if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ExitVehicle(this); }
 
-void ANexusVehicle::ChooseMedic() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(0); }
-void ANexusVehicle::ChoosePilot() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(1); }
-void ANexusVehicle::ChooseGround() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(2); }
+void ANexusVehicle::ChooseMedic() { if(!HasAuthority()){ServerCommand(2);return;} if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(0); }
+void ANexusVehicle::ChoosePilot() { if(!HasAuthority()){ServerCommand(3);return;} if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(1); }
+void ANexusVehicle::ChooseGround() { if(!HasAuthority()){ServerCommand(4);return;} if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(2); }
 
 void ANexusVehicle::InspectEvidence()
-{
+{ if(!HasAuthority()){ServerCommand(5);return;}
     if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
         if(GM->Director)GM->Director->InvestigateEvidence(GetActorLocation());
 }
 void ANexusVehicle::ProtectCivilians()
-{
+{ if(!HasAuthority()){ServerCommand(6);return;}
     if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
         if(GM->Director)GM->Director->ChooseCampaignOutcome(true);
 }
 void ANexusVehicle::SecureEvidence()
-{
+{ if(!HasAuthority()){ServerCommand(7);return;}
     if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
         if(GM->Director)GM->Director->ChooseCampaignOutcome(false);
+}
+
+void ANexusVehicle::ServerCommand_Implementation(uint8 Code)
+{
+    if(!Driver || Driver!=GetController())return;
+    switch(Code)
+    {
+        case 0: RescueOrExit();break;
+        case 1: ExitToFoot();break;
+        case 2: ChooseMedic();break;
+        case 3: ChoosePilot();break;
+        case 4: ChooseGround();break;
+        case 5: InspectEvidence();break;
+        case 6: ProtectCivilians();break;
+        case 7: SecureEvidence();break;
+        default:break;
+    }
+}
+void ANexusVehicle::ServerSetMotion_Implementation(float InThrottle,float InSteering,float InVertical)
+{
+    if(!Driver || Driver!=GetController())return;
+    Throttle=FMath::Clamp(InThrottle,-1.f,1.f);
+    Steering=FMath::Clamp(InSteering,-1.f,1.f);
+    Vertical=FMath::Clamp(InVertical,-1.f,1.f);
 }

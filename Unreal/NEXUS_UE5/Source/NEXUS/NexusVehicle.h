@@ -36,6 +36,8 @@ public:
     void SecureEvidence();
     void ExitToFoot();
     void SetDriver(APlayerController* Controller);
+    UFUNCTION(Server,Reliable) void ServerCommand(uint8 Code);
+    UFUNCTION(Server,Unreliable) void ServerSetMotion(float InThrottle,float InSteering,float InVertical);
 private:
     float Throttle=0.f;
     float Steering=0.f;

@@ -44,30 +44,52 @@ void ANexusExplorer::MoveForward(float V) { if (Controller && V!=0) AddMovementI
 void ANexusExplorer::MoveRight(float V) { if (Controller && V!=0) AddMovementInput(GetActorRightVector(),V); }
 void ANexusExplorer::LookYaw(float V) { AddControllerYawInput(V); }
 void ANexusExplorer::LookPitch(float V) { AddControllerPitchInput(V); }
-void ANexusExplorer::Interact() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->Interact(this); }
-void ANexusExplorer::MedicRole() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(0); }
-void ANexusExplorer::PilotRole() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(1); }
-void ANexusExplorer::GroundRole() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(2); }
+void ANexusExplorer::Interact() { if(!HasAuthority()) { ServerCommand(0); return; } if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->Interact(this); }
+void ANexusExplorer::MedicRole() { if(!HasAuthority()) { ServerCommand(1); return; } if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(0); }
+void ANexusExplorer::PilotRole() { if(!HasAuthority()) { ServerCommand(2); return; } if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(1); }
+void ANexusExplorer::GroundRole() { if(!HasAuthority()) { ServerCommand(3); return; } if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(2); }
 void ANexusExplorer::Slot1() { EquipmentSlot=0; }
 void ANexusExplorer::Slot2() { EquipmentSlot=1; }
 void ANexusExplorer::Slot3() { EquipmentSlot=2; }
 void ANexusExplorer::Slot4() { EquipmentSlot=3; }
-void ANexusExplorer::SaveProgress() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->SaveProgress(); }
-void ANexusExplorer::LoadProgress() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->LoadProgress(); }
-void ANexusExplorer::MissionApproach() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->GoToApproach(); }
+void ANexusExplorer::SaveProgress() { if(!HasAuthority()) { ServerCommand(4); return; } if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->SaveProgress(); }
+void ANexusExplorer::LoadProgress() { if(!HasAuthority()) { ServerCommand(5); return; } if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->LoadProgress(); }
+void ANexusExplorer::MissionApproach() { if(!HasAuthority()) { ServerCommand(6); return; } if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) if(GM->Director)GM->Director->TeleportToApproach(this); }
 
 void ANexusExplorer::InspectEvidence()
 {
+    if(!HasAuthority()){ServerCommand(7);return;}
     if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
         if(GM->Director)GM->Director->InvestigateEvidence(GetActorLocation());
 }
 void ANexusExplorer::ProtectCivilians()
 {
+    if(!HasAuthority()){ServerCommand(8);return;}
     if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
         if(GM->Director)GM->Director->ChooseCampaignOutcome(true);
 }
 void ANexusExplorer::SecureEvidence()
 {
+    if(!HasAuthority()){ServerCommand(9);return;}
     if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
         if(GM->Director)GM->Director->ChooseCampaignOutcome(false);
+}
+
+void ANexusExplorer::ServerCommand_Implementation(uint8 Code)
+{
+    // Unreal only accepts this Server RPC from the owning player's pawn.
+    switch(Code)
+    {
+        case 0: Interact();break;
+        case 1: MedicRole();break;
+        case 2: PilotRole();break;
+        case 3: GroundRole();break;
+        case 4: SaveProgress();break;
+        case 5: LoadProgress();break;
+        case 6: MissionApproach();break;
+        case 7: InspectEvidence();break;
+        case 8: ProtectCivilians();break;
+        case 9: SecureEvidence();break;
+        default:break;
+    }
 }
