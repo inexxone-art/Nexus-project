@@ -31,3 +31,11 @@ struct FNexusResourceStock
         return true;
     }
 };
+
+USTRUCT(BlueprintType)
+struct FNexusNetworkResource
+{
+    GENERATED_BODY()
+    UPROPERTY(BlueprintReadOnly) FName Key;
+    UPROPERTY(BlueprintReadOnly) int32 Amount=0;
+};

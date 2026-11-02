@@ -33,6 +33,9 @@ public:
     UPROPERTY(BlueprintReadOnly) TArray<TObjectPtr<ANexusRescueTarget>> Survivors;
     UPROPERTY(BlueprintReadOnly) TArray<TObjectPtr<ANexusIndustrySite>> Industry;
     UPROPERTY(BlueprintReadOnly) FNexusResourceStock Stock;
+    UPROPERTY(BlueprintReadOnly,Replicated) TArray<FNexusNetworkResource> ReplicatedInventory;
+    UFUNCTION(BlueprintPure) int32 GetResourceCount(FName Key) const;
+    void PublishInventory();
     UPROPERTY(BlueprintReadOnly,Replicated) int32 Credits=3000;
     UPROPERTY(BlueprintReadOnly,Replicated) ENexusIncidentPhase Phase=ENexusIncidentPhase::Approach;
     UPROPERTY(BlueprintReadOnly,Replicated) ENexusRescueRole Role=ENexusRescueRole::None;

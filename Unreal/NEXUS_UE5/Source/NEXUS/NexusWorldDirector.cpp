@@ -38,9 +38,10 @@ ANexusWorldDirector::ANexusWorldDirector()
 void ANexusWorldDirector::BeginPlay()
 {
     Super::BeginPlay();
+    Story->LoadCampaignData(); // local read on all clients; replicated phase comes from the server
     if(!HasAuthority())return;
     WorldMemory->InitializeWorld();
-    Story->LoadCampaignData();
+    PublishInventory();
     CreateStageWorld();
     GetWorld()->SpawnActor<ANexusCinematicScenery>();
     CreateLighting();
@@ -299,6 +300,7 @@ bool ANexusWorldDirector::TryBuildOrOperate(ANexusIndustrySite* Site)
             return true;
         }
         Credits-=MoneyCost;
+        PublishInventory();
         Site->SetConstructed(true);
         Inform(TEXT("ANLAGE GEBAUT. Nochmals E: Rohstoffe produzieren."));
         return true;
@@ -330,6 +332,7 @@ bool ANexusWorldDirector::TryBuildOrOperate(ANexusIndustrySite* Site)
         return true;
     }
     for(const auto& Pair:Output) Stock.Add(Pair.Key,Pair.Value);
+    PublishInventory();
     Site->Cooldown(GetWorld()->GetTimeSeconds());
     Inform(TEXT("PRODUKTION ERFOLGREICH: Rohstoffe wurden verarbeitet und eingelagert."));
     return true;
@@ -346,16 +349,18 @@ bool ANexusWorldDirector::TryReconstruct()
         Need.Add(TEXT("Wood"),4);Need.Add(TEXT("Iron"),6);
         if(!Stock.Spend(Need)) { Inform(TEXT("STAHLTRAeGER: 4 Holz und 6 Eisen fehlen."));return true; }
         RebuildStage=2;
+        PublishInventory();
         if(Story) Story->CompleteObjective(TEXT("stabilize_route"));
         Inform(TEXT("BAUPHASE 2/4: Neue Stahltraeger installiert."));return true;
     case 2:
         Need.Add(TEXT("Cement"),4);Need.Add(TEXT("Wood"),2);
         if(!Stock.Spend(Need)) { Inform(TEXT("BETONIEREN: 4 Zement und 2 Holz fehlen."));return true; }
-        RebuildStage=3;Inform(TEXT("BAUPHASE 3/4: Betonfahrbahn neu gegossen."));return true;
+        RebuildStage=3;PublishInventory();Inform(TEXT("BAUPHASE 3/4: Betonfahrbahn neu gegossen."));return true;
     default:
         Need.Add(TEXT("Asphalt"),3);
         if(!Stock.Spend(Need)) { Inform(TEXT("FAHRBAHN: 3 Asphalt aus der Asphaltmischanlage fehlen."));return true; }
         RebuildStage=4;
+        PublishInventory();
         if(Bridge)Bridge->Reconstruct();
         if(WorldMemory) WorldMemory->SetBridgeRepaired(TEXT("adlerklamm"));
         if(Story) Story->CompleteObjective(TEXT("reach_rescue_rally"));
@@ -417,7 +422,7 @@ void ANexusWorldDirector::LoadProgress()
 {
     auto* Save=Cast<UNexusSaveGame>(UGameplayStatics::LoadGameFromSlot(TEXT("NEXUS_UNREAL_V1"),0));
     if(!Save){Inform(TEXT("Kein Unreal-Spielstand vorhanden."));return;}
-    Stock=Save->Stock;Credits=Save->Credits;Phase=Save->Phase;
+    Stock=Save->Stock;PublishInventory();Credits=Save->Credits;Phase=Save->Phase;
     Role=Save->Role;RebuildStage=Save->RebuildStage;bPaidRescue=Save->bRewardPaid;
     if(Story)Story->Restore(Save->ActiveChapter,Save->ActiveStoryPhase,Save->CompletedChapters,Save->Decisions);
     if(WorldMemory)WorldMemory->Restore(Save->Sectors,Save->Citizens,Save->EventHistory,Save->GameDay);
@@ -482,6 +487,7 @@ void ANexusWorldDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 {
     Super::GetLifetimeReplicatedProps(Out);
     DOREPLIFETIME(ANexusWorldDirector,Credits);
+    DOREPLIFETIME(ANexusWorldDirector,ReplicatedInventory);
     DOREPLIFETIME(ANexusWorldDirector,Phase);
     DOREPLIFETIME(ANexusWorldDirector,Role);
     DOREPLIFETIME(ANexusWorldDirector,RebuildStage);
@@ -495,4 +501,24 @@ void ANexusWorldDirector::CommandRescueHelpers(int32 OrderCode)
     for(TObjectPtr<ANexusCompanion> Ally:RescueHelpers)
         if(Ally)Ally->AssignOrder(Order);
     Inform(FString::Printf(TEXT("NEXUS KI-TEAM: Befehl %d gegeben."),OrderCode));
+}
+
+void ANexusWorldDirector::PublishInventory()
+{
+    if(!HasAuthority())return;
+    ReplicatedInventory.Reset();
+    for(const auto& Pair:Stock.Values)
+    {
+        FNexusNetworkResource One;
+        One.Key=Pair.Key;
+        One.Amount=Pair.Value;
+        ReplicatedInventory.Add(One);
+    }
+}
+int32 ANexusWorldDirector::GetResourceCount(FName Key) const
+{
+    if(HasAuthority())return Stock.Get(Key);
+    for(const auto& Entry:ReplicatedInventory)
+        if(Entry.Key==Key)return Entry.Amount;
+    return 0;
 }

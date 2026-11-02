@@ -40,7 +40,7 @@ void ANexusHUD::DrawHUD()
     Panel(1110*X,50*Y,470*X,254*Y);
     Text(TEXT("ROHSTOFFE & WIRTSCHAFT"),1125*X,68*Y,1.2f,FLinearColor(1.f,0.75f,0.16f,1.f));
     Text(FString::Printf(TEXT("Holz: %d       Eisen: %d      Eisenerz: %d"),
-        D->Stock.Get(TEXT("Wood")),D->Stock.Get(TEXT("Iron")),D->Stock.Get(TEXT("IronOre"))),
+        D->GetResourceCount(TEXT("Wood")),D->Stock.Get(TEXT("Iron")),D->Stock.Get(TEXT("IronOre"))),
         1125*X,118*Y,0.91f);
     Text(FString::Printf(TEXT("Zement: %d   Asphalt: %d"),
         D->Stock.Get(TEXT("Cement")),D->Stock.Get(TEXT("Asphalt"))),
