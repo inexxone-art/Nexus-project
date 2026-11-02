@@ -31,5 +31,8 @@ public:
     void ProtectCivilians();
     void SecureEvidence();
     UFUNCTION(Server,Reliable) void ServerCommand(uint8 Code);
+    void TeamFollow();
+    void TeamScout();
+    void TeamMedic();
     UPROPERTY(BlueprintReadOnly) int32 EquipmentSlot = 0;
 };

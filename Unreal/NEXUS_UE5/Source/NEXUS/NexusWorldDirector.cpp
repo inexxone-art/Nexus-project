@@ -9,6 +9,7 @@
 #include "NexusCampaignComponent.h"
 #include "NexusSimulationComponent.h"
 #include "NexusCinematicScenery.h"
+#include "NexusCompanion.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
@@ -61,6 +62,17 @@ void ANexusWorldDirector::BeginPlay()
     }
     CreateRescueTargets();
     CreateFactories();
+    for(int32 I=0;I<2;++I)
+    {
+        auto* Ally=GetWorld()->SpawnActor<ANexusCompanion>(ANexusCompanion::StaticClass(),
+            FVector(5350.f+I*170.f,1300.f,2130.f),FRotator::ZeroRotator);
+        if(Ally)
+        {
+            Ally->Callsign=I==0?TEXT("NEXUS_MEDIC_1"):TEXT("NEXUS_SCOUT_2");
+            Ally->AssignOrder(I==0?ENexusSupportOrder::Medic:ENexusSupportOrder::Scout);
+            RescueHelpers.Add(Ally);
+        }
+    }
     Inform(TEXT("ADLERKLAMM: Steige mit E ein und fahre ueber die Bruecke."));
 }
 void ANexusWorldDirector::CreateSceneryBox(FVector Pos,FVector Scale,FRotator Rotation,const TCHAR* Name)
@@ -474,4 +486,13 @@ void ANexusWorldDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
     DOREPLIFETIME(ANexusWorldDirector,Role);
     DOREPLIFETIME(ANexusWorldDirector,RebuildStage);
     DOREPLIFETIME(ANexusWorldDirector,RadioMessage);
+}
+
+void ANexusWorldDirector::CommandRescueHelpers(int32 OrderCode)
+{
+    if(!HasAuthority())return;
+    const auto Order=static_cast<ENexusSupportOrder>(FMath::Clamp(OrderCode,0,4));
+    for(TObjectPtr<ANexusCompanion> Ally:RescueHelpers)
+        if(Ally)Ally->AssignOrder(Order);
+    Inform(FString::Printf(TEXT("NEXUS KI-TEAM: Befehl %d gegeben."),OrderCode));
 }

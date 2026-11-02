@@ -39,6 +39,9 @@ void ANexusExplorer::SetupPlayerInputComponent(UInputComponent* Input)
     Input->BindAction(TEXT("InspectEvidence"),IE_Pressed,this,&ANexusExplorer::InspectEvidence);
     Input->BindAction(TEXT("ProtectCivilians"),IE_Pressed,this,&ANexusExplorer::ProtectCivilians);
     Input->BindAction(TEXT("SecureEvidence"),IE_Pressed,this,&ANexusExplorer::SecureEvidence);
+    Input->BindAction(TEXT("AI_Follow"),IE_Pressed,this,&ANexusExplorer::TeamFollow);
+    Input->BindAction(TEXT("AI_Scout"),IE_Pressed,this,&ANexusExplorer::TeamScout);
+    Input->BindAction(TEXT("AI_Medic"),IE_Pressed,this,&ANexusExplorer::TeamMedic);
 }
 void ANexusExplorer::MoveForward(float V) { if (Controller && V!=0) AddMovementInput(GetActorForwardVector(),V); }
 void ANexusExplorer::MoveRight(float V) { if (Controller && V!=0) AddMovementInput(GetActorRightVector(),V); }
@@ -90,6 +93,28 @@ void ANexusExplorer::ServerCommand_Implementation(uint8 Code)
         case 7: InspectEvidence();break;
         case 8: ProtectCivilians();break;
         case 9: SecureEvidence();break;
+        case 10: TeamFollow();break;
+        case 11: TeamScout();break;
+        case 12: TeamMedic();break;
         default:break;
     }
+}
+
+void ANexusExplorer::TeamFollow()
+{
+    if(!HasAuthority()){ServerCommand(10);return;}
+    if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
+        if(GM->Director)GM->Director->CommandRescueHelpers(0);
+}
+void ANexusExplorer::TeamScout()
+{
+    if(!HasAuthority()){ServerCommand(11);return;}
+    if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
+        if(GM->Director)GM->Director->CommandRescueHelpers(2);
+}
+void ANexusExplorer::TeamMedic()
+{
+    if(!HasAuthority()){ServerCommand(12);return;}
+    if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
+        if(GM->Director)GM->Director->CommandRescueHelpers(3);
 }

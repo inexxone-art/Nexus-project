@@ -13,6 +13,7 @@ class ANexusIndustrySite;
 class UStaticMeshComponent;
 class UNexusSimulationComponent;
 class UNexusCampaignComponent;
+class ANexusCompanion;
 
 UCLASS(Blueprintable)
 class NEXUS_API ANexusWorldDirector : public AActor
@@ -24,6 +25,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UNexusSimulationComponent> WorldMemory;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UNexusCampaignComponent> Story;
+    UPROPERTY(BlueprintReadOnly) TArray<TObjectPtr<ANexusCompanion>> RescueHelpers;
     UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusBridge> Bridge;
     UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusBus> Bus;
     UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusVehicle> RescueTruck;
@@ -40,6 +42,7 @@ public:
     UPROPERTY(BlueprintReadOnly,Replicated) FString RadioMessage;
     void VehicleAdvanced(ANexusVehicle* Vehicle);
     void ChooseRescueRole(ENexusRescueRole NewRole);
+    UFUNCTION(BlueprintCallable) void CommandRescueHelpers(int32 OrderCode);
     UFUNCTION(BlueprintCallable) bool InvestigateEvidence(const FVector& Position);
     UFUNCTION(BlueprintCallable) bool ChooseCampaignOutcome(bool bProtectCivilians);
     bool TryInteract(ANexusExplorer* Explorer);
