@@ -11,6 +11,7 @@
 #include "NexusCinematicScenery.h"
 #include "NexusCompanion.h"
 #include "NexusAlpineWeather.h"
+#include "NexusAlpineRiver.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
@@ -45,6 +46,7 @@ void ANexusWorldDirector::BeginPlay()
     PublishInventory();
     CreateStageWorld();
     GetWorld()->SpawnActor<ANexusCinematicScenery>();
+    River=GetWorld()->SpawnActor<ANexusAlpineRiver>();
     Weather=GetWorld()->SpawnActor<ANexusAlpineWeather>();
     if(Weather)
     {
@@ -179,6 +181,7 @@ void ANexusWorldDirector::VehicleAdvanced(ANexusVehicle* Vehicle)
     {
         Phase=ENexusIncidentPhase::Collapse;
         if(Weather)Weather->SetClimate(ENexusClimate::Storm,87);
+        if(River)River->SetFloodSeverity(87);
         if(WorldMemory)
         {
             WorldMemory->SetRoadDamage(TEXT("adlerklamm"),100);
@@ -363,6 +366,7 @@ bool ANexusWorldDirector::TryReconstruct()
                 S->WeatherSeverity=30;
         }
         if(Weather)Weather->SetClimate(ENexusClimate::Rain,30);
+        if(River)River->SetFloodSeverity(30);
         if(Story) Story->CompleteObjective(TEXT("reach_rescue_rally"));
         Phase=ENexusIncidentPhase::Complete;
         Credits+=420;
@@ -435,6 +439,7 @@ void ANexusWorldDirector::LoadProgress()
         Weather->SetClockMinutes(Save->ClockMinutes);
         Weather->SetClimate(static_cast<ENexusClimate>(FMath::Clamp(Save->WeatherMode,0,4)),
                             Save->WeatherSeverity);
+        if(River)River->SetFloodSeverity(Save->WeatherSeverity);
     }
     if(Story)Story->Restore(Save->ActiveChapter,Save->ActiveStoryPhase,Save->CompletedChapters,Save->Decisions);
     if(WorldMemory)WorldMemory->Restore(Save->Sectors,Save->Citizens,Save->EventHistory,Save->GameDay);
@@ -504,6 +509,7 @@ void ANexusWorldDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 {
     Super::GetLifetimeReplicatedProps(Out);
     DOREPLIFETIME(ANexusWorldDirector,Weather);
+    DOREPLIFETIME(ANexusWorldDirector,River);
     DOREPLIFETIME(ANexusWorldDirector,Credits);
     DOREPLIFETIME(ANexusWorldDirector,ReplicatedInventory);
     DOREPLIFETIME(ANexusWorldDirector,Phase);

@@ -24,7 +24,9 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="NEXUS|River") float BaseWaterHeight=-195.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="NEXUS|River") int32 SegmentCount=80;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="NEXUS|River") float FlowMetersPerSecond=3.2f;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="NEXUS|River") float RainFloodLevel=0.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,ReplicatedUsing=OnRep_Flood) float RainFloodLevel=0.f;
+    UFUNCTION() void OnRep_Flood();
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     UFUNCTION(BlueprintCallable) void GenerateRiver();
     UFUNCTION(BlueprintPure) FVector WaterFlowAt(const FVector& WorldLocation) const;
     UFUNCTION(BlueprintCallable) void SetFloodSeverity(int32 Severity);

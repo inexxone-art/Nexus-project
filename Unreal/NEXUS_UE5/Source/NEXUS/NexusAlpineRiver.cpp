@@ -3,6 +3,7 @@
 #include "ProceduralMeshComponent.h"
 #include "Materials/MaterialInterface.h"
 #include "Engine/World.h"
+#include "Net/UnrealNetwork.h"
 
 ANexusAlpineRiver::ANexusAlpineRiver()
 {
@@ -68,8 +69,8 @@ void ANexusAlpineRiver::GenerateStrip(
         {
             const int32 Start=I*2;
             // double-sided face indices for predictable rendering along valley.
-            Triangles.Add(Start);Triangles.Add(Start+2);Triangles.Add(Start+1);
-            Triangles.Add(Start+1);Triangles.Add(Start+2);Triangles.Add(Start+3);
+            Triangles.Add(Start);Triangles.Add(Start+1);Triangles.Add(Start+2);
+            Triangles.Add(Start+1);Triangles.Add(Start+3);Triangles.Add(Start+2);
         }
     }
     Target->ClearAllMeshSections();
@@ -92,7 +93,7 @@ void ANexusAlpineRiver::GenerateStrip(
 }
 void ANexusAlpineRiver::GenerateRiver()
 {
-    // +/-1.6km cross-section: central meandering flow and two bank transitions.
+    // Water ribbon around 23 m wide plus near-bank geological transitions.
     const float Width=FMath::Clamp(HalfWidth,400.f,2200.f);
     GenerateStrip(RiverSurface,-Width,Width,5.f,true);
     GenerateStrip(LeftShore,-Width-900.f,-Width,-28.f,false);
@@ -103,6 +104,13 @@ void ANexusAlpineRiver::SetFloodSeverity(int32 Severity)
     if(!HasAuthority())return;
     RainFloodLevel=FMath::Lerp(0.f,220.f,FMath::Clamp(Severity,0,100)/100.f);
     GenerateRiver();
+    ForceNetUpdate();
+}
+void ANexusAlpineRiver::OnRep_Flood(){GenerateRiver();}
+void ANexusAlpineRiver::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const
+{
+    Super::GetLifetimeReplicatedProps(Out);
+    DOREPLIFETIME(ANexusAlpineRiver,RainFloodLevel);
 }
 FVector ANexusAlpineRiver::WaterFlowAt(const FVector& WorldLocation) const
 {
