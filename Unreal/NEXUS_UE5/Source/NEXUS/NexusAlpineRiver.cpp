@@ -143,8 +143,12 @@ void ANexusAlpineRiver::CreateGrid(UProceduralMeshComponent* Target,int32 Mode)
                 const float Away=Mode==2?-W-900.f:W+900.f;
                 const float BankF=FMath::Clamp((Offset-Near)/(Away-Near),0.f,1.f);
                 const bool bOuter=(Near*OuterSign>0.f);
-                const float BankLift=(bOuter?FMath::Pow(BankF,.24f):FMath::Pow(BankF,1.85f))*420.f;
-                Z=TerrainWater-BedDepthAt(Alpha,Near)+BankLift;
+                const float EdgeDepth=BedDepthAt(Alpha,Near);
+                const float BankRise=EdgeDepth+320.f;
+                const float BankLift=(bOuter?FMath::Pow(BankF,.24f):FMath::Pow(BankF,1.85f))*BankRise;
+                // Cut banks are steep; point bars rise gently to dry sand.
+                // Bank tops stay above the highest planned +220 cm flood.
+                Z=TerrainWater-EdgeDepth+BankLift;
             }
             Vertices.Add(RiverPoint(Alpha,Offset,Z));
             Normals.Add(FVector::UpVector);
@@ -159,7 +163,12 @@ void ANexusAlpineRiver::CreateGrid(UProceduralMeshComponent* Target,int32 Mode)
         {
             const int32 A=X*RowSize+Y;
             const int32 B=A+RowSize;
-            Triangles.Append({A,A+1,B,A+1,B+1,B});
+            Triangles.Add(A);
+            Triangles.Add(A+1);
+            Triangles.Add(B);
+            Triangles.Add(A+1);
+            Triangles.Add(B+1);
+            Triangles.Add(B);
         }
     }
     Target->ClearAllMeshSections();

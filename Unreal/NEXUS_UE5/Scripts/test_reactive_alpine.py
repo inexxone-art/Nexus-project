@@ -105,7 +105,7 @@ class ReactiveAlpineTests(unittest.TestCase):
         speed_outer=3.2*1.5
         self.assertGreater(speed_outer,speed_inner*2)
         river=src("NexusAlpineRiver.cpp")
-        self.assertIn("Riverbed->Set",river)
+        self.assertIn('Riverbed=CreateDefaultSubobject<UProceduralMeshComponent>',river)
         self.assertIn("Ground->bUseComplexAsSimpleCollision=true",river)
         self.assertIn("GenerateRiver();",river)
         self.assertIn("RainFloodLevel=FMath::Lerp(0.f,220.f",river)
