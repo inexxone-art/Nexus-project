@@ -43,13 +43,13 @@ void ANexusHUD::DrawHUD()
     Panel(1110*X,50*Y,470*X,254*Y);
     Text(TEXT("ROHSTOFFE & WIRTSCHAFT"),1125*X,68*Y,1.2f,FLinearColor(1.f,0.75f,0.16f,1.f));
     Text(FString::Printf(TEXT("Holz: %d       Eisen: %d      Eisenerz: %d"),
-        D->GetResourceCount(TEXT("Wood")),D->GetResourceCount(TEXT("Iron")),D->Stock.Get(TEXT("IronOre"))),
+        D->GetResourceCount(TEXT("Wood")),D->GetResourceCount(TEXT("Iron")),D->GetResourceCount(TEXT("IronOre"))),
         1125*X,118*Y,0.91f);
     Text(FString::Printf(TEXT("Zement: %d   Asphalt: %d"),
-        D->Stock.Get(TEXT("Cement")),D->Stock.Get(TEXT("Asphalt"))),
+        D->GetResourceCount(TEXT("Cement")),D->GetResourceCount(TEXT("Asphalt"))),
         1125*X,159*Y,0.91f);
     Text(FString::Printf(TEXT("Rohoel: %d     Bitumen: %d     Diesel: %d"),
-        D->Stock.Get(TEXT("CrudeOil")),D->Stock.Get(TEXT("Bitumen")),D->Stock.Get(TEXT("Diesel"))),
+        D->GetResourceCount(TEXT("CrudeOil")),D->GetResourceCount(TEXT("Bitumen")),D->GetResourceCount(TEXT("Diesel"))),
         1125*X,199*Y,0.91f);
     Text(FString::Printf(TEXT("CREDITS: %d"),D->Credits),1125*X,245*Y,1.0f,FLinearColor(0.94f,0.9f,0.53f));
 
