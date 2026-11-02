@@ -1,0 +1,1039 @@
+{
+  "schema_version": 1,
+  "project": "PROJECT NEXUS",
+  "title": "2026-11-02 user requirements and safe asset import specification",
+  "intended_engine": "Unreal Engine 5.8",
+  "meaning_of_status": {
+    "mixed_partial": "Only first map blockout and partial rescue systems exist; other listed regions missing",
+    "partial": "Some C++ gameplay code exists; it does not imply completed graphics or fully playable feature",
+    "design_only": "Documented design/production requirement only; no working runtime claim",
+    "design_catalogue_only": "Planet/profile definitions exist, but no complete playable levels"
+  },
+  "artistic_goal": "Photorealistic 3D in-engine Adlerklamm screenshot target; image is NOT real gameplay; existing fallbacks are cubes.",
+  "map_rule": "First FIVE user image scenarios + oil coastline, mine and home belong to ONE continuous first map on Earth. SIXTH war-armored image is EXCLUDED; historical war is only in separate fictional 1945 world.",
+  "perspective": "Switch Ego/Third person everywhere, plus free build camera. Foot defaults first; vehicles third. Story driven, optional sandbox.",
+  "ethics": "Fictional game crime, fictional sci-fi medical discovery and political branches. No claim of real therapies. Historical WWII represented without glorifying war crimes.",
+  "feature_count": 44,
+  "features": [
+    {
+      "id": "earth_map",
+      "domain": "world",
+      "world": "earth",
+      "requirement": "One continuous first map: Adlerklamm bridge rescue, alpine helicopter rescue, castle/medieval mountain town, modern city with emergency services, damaged city with construction, military forest Sector 31 as sealed zombie region, forests, coast and airport.",
+      "implementation_status": "mixed_partial",
+      "asset_dependencies": [
+        "scene_alpine",
+        "scene_medieval",
+        "scene_city",
+        "scene_reconstruction",
+        "scene_sector31",
+        "scene_coast"
+      ]
+    },
+    {
+      "id": "starter_house",
+      "domain": "housing",
+      "world": "earth",
+      "requirement": "Start owning a fully enterable house with garage, office, bedroom, kitchen, bathroom, storage and office pinboard; begin the story there.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "starter_house"
+      ]
+    },
+    {
+      "id": "pinboard",
+      "domain": "missions",
+      "world": "earth",
+      "requirement": "Office pinboard reveals short campaign onboarding at start; every later quest only after personally discovered; quest to map and smartphone.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "pinboard"
+      ]
+    },
+    {
+      "id": "fast_military_training",
+      "domain": "story",
+      "world": "earth",
+      "requirement": "Short soldier training chapter before the first Sector 31 zombie encounter; controls for combat, vehicles and teamwork; then unrestricted open world.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "training_range"
+      ]
+    },
+    {
+      "id": "cameras",
+      "domain": "controls",
+      "world": "all",
+      "requirement": "Switch first person and third person everywhere, on foot, building, combat, driving, aircraft, spacecraft; optional free-orbit construction camera.",
+      "implementation_status": "partial",
+      "asset_dependencies": []
+    },
+    {
+      "id": "rescue_bridge",
+      "domain": "story",
+      "world": "earth",
+      "requirement": "Driving introduction; bus and 82m bridge collapse, helicopter/ground rescue choices; rebuild bridge via concrete/steel/asphalt from industries.",
+      "implementation_status": "partial",
+      "asset_dependencies": [
+        "bridge_hero",
+        "bus_hero",
+        "rescue_heli",
+        "rescue_crews"
+      ]
+    },
+    {
+      "id": "city_regions",
+      "domain": "world",
+      "world": "earth",
+      "requirement": "Historical castle river mountain town, modern urban emergency city, visible persistent urban reconstruction, Alpine terrain and offshore coast are areas of ONE map.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "scene_medieval",
+        "scene_city",
+        "scene_reconstruction"
+      ]
+    },
+    {
+      "id": "sector31",
+      "domain": "story",
+      "world": "earth",
+      "requirement": "Military research base in quarantined forest released alien organism during meteor rock research; scientists and soldiers become zombies; base caves/tunnels sealed from city; aliens lead to space coordinates.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "scene_sector31",
+        "sector31_lab",
+        "zombie_creatures"
+      ]
+    },
+    {
+      "id": "zombie_research",
+      "domain": "missions",
+      "world": "earth",
+      "requirement": "Rescue survivors, investigate abandoned underground laboratories, trace meteor contamination and learn its other-planet origin; no mandatory map-wide zombie outbreak.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "sector31_lab"
+      ]
+    },
+    {
+      "id": "vehicles",
+      "domain": "vehicle",
+      "world": "earth",
+      "requirement": "Sports cars, motorcycles, buses, lorries, construction vehicles, boats, helicopters, commercial aircraft at airport, pilots; interiors and camera switching.",
+      "implementation_status": "partial",
+      "asset_dependencies": [
+        "rescue_heli",
+        "sports_car",
+        "fire_truck",
+        "plane_airport",
+        "boat_fleet"
+      ]
+    },
+    {
+      "id": "weather_disasters",
+      "domain": "world",
+      "world": "earth",
+      "requirement": "Dynamic rain that floods rivers/streets; earthquakes damaging buildings; storms, lightning, landslides and evac missions; disaster response changes public trust if player governs.",
+      "implementation_status": "partial",
+      "asset_dependencies": [
+        "storm_vfx",
+        "flood_vfx",
+        "earthquake_vfx"
+      ]
+    },
+    {
+      "id": "building",
+      "domain": "construction",
+      "world": "all",
+      "requirement": "Minecraft-like creative construction with realistic modular 3D structures, free rotation and snapping; can choose to hire NPC builders through phone.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "modular_building"
+      ]
+    },
+    {
+      "id": "quarry",
+      "domain": "industry",
+      "world": "earth",
+      "requirement": "Find and operate quarry for limestone sand gravel stone, processing to cement/concrete; rebuild initial Adlerklamm bridge as a material chain.",
+      "implementation_status": "partial",
+      "asset_dependencies": [
+        "quarry_mine"
+      ]
+    },
+    {
+      "id": "goldmine",
+      "domain": "industry",
+      "world": "earth",
+      "requirement": "Discover enterable underground gold mines, caverns, rail carts, drills, ore veins; earn credits from gold; sidequests rescue trapped miners and uncover cave history.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "goldmine_tunnel"
+      ]
+    },
+    {
+      "id": "other_mining",
+      "domain": "industry",
+      "world": "earth",
+      "requirement": "Silver, copper, iron, coal and rare ores; factories smelt into building steel or craft materials.",
+      "implementation_status": "partial",
+      "asset_dependencies": [
+        "mine_ore"
+      ]
+    },
+    {
+      "id": "sawmill",
+      "domain": "industry",
+      "world": "earth",
+      "requirement": "Harvest trees, build sawmill, process logs into planks, hire NPCs and trade building supplies.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "sawmill"
+      ]
+    },
+    {
+      "id": "oil_platform",
+      "domain": "industry",
+      "world": "earth",
+      "requirement": "Offshore ENTERABLE oil platform with helipad, rig, cranes, pumps, crew cabins, control rooms, walkways and decks; boats/heli access, accidents, production and repairs.",
+      "implementation_status": "partial",
+      "asset_dependencies": [
+        "offshore_platform"
+      ]
+    },
+    {
+      "id": "oil_refinery",
+      "domain": "industry",
+      "world": "earth",
+      "requirement": "Build and operate oil refinery with earned money and iron; convert crude oil to fuel and asphalt binder; NPCs can operate it.",
+      "implementation_status": "partial",
+      "asset_dependencies": [
+        "refinery"
+      ]
+    },
+    {
+      "id": "factories",
+      "domain": "industry",
+      "world": "earth",
+      "requirement": "Cement plant, steelworks, sawmill, asphalt plant, hydro plant, power grid and construction logistics; economic production/reconstruction loops.",
+      "implementation_status": "partial",
+      "asset_dependencies": [
+        "modular_factory"
+      ]
+    },
+    {
+      "id": "property_economy",
+      "domain": "economy",
+      "world": "all",
+      "requirement": "Buy/build/renovate/own and rent houses or apartment blocks; recurring rents and operation/wage/power/maintenance expenses continue on other planets.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "rental_apartments"
+      ]
+    },
+    {
+      "id": "smartphone",
+      "domain": "ui",
+      "world": "all",
+      "requirement": "Smartphone for missions, map, workforce contracts, trade prices, bank accounts, property management, research order status and notification; player chooses action.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "smartphone_ui"
+      ]
+    },
+    {
+      "id": "shops",
+      "domain": "economy",
+      "world": "earth",
+      "requirement": "Fully enterable supermarkets and shops for groceries, tools and separate weapons/equipment; dynamic prices, purchases, item sales, actual credits.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "grocery_shop",
+        "equipment_shop"
+      ]
+    },
+    {
+      "id": "sidequests",
+      "domain": "missions",
+      "world": "all",
+      "requirement": "Material collection, discoveries and contracts for money; rewards, unlocks and research materials; newly found quests added to board not all shown.",
+      "implementation_status": "design_only",
+      "asset_dependencies": []
+    },
+    {
+      "id": "craft_armor",
+      "domain": "craft",
+      "world": "all",
+      "requirement": "Trade meteorite ore and pay NPC researchers to forge new space armor/masks/anomaly suits; items must be discovered/unlocked, not available from start.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "space_suit",
+        "meteor_ore"
+      ]
+    },
+    {
+      "id": "guns",
+      "domain": "combat",
+      "world": "all",
+      "requirement": "Swap pistol, sniper rifle varieties, assault rifle varieties, historical weapons and vehicle mounted defensive systems; game-context inventory.",
+      "implementation_status": "partial",
+      "asset_dependencies": [
+        "fictional_weapons"
+      ]
+    },
+    {
+      "id": "war_planet",
+      "domain": "world",
+      "world": "ww2_1945",
+      "requirement": "Separate historical-1945 war-world/story region (NEVER as first-map scene); period vehicles, artillery such as Schwerer Gustav, period figures including Hitler portrayed as historical dictatorship, warfare and choices.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "war_planet_city",
+        "period_artillery"
+      ]
+    },
+    {
+      "id": "black_market",
+      "domain": "economy",
+      "world": "earth",
+      "requirement": "Fictional drug trafficking/contraband, organized crime, police, wanted status, consequences and corruption – branching narrative gameplay rather than real-world mechanics.",
+      "implementation_status": "design_only",
+      "asset_dependencies": []
+    },
+    {
+      "id": "politics_corruption",
+      "domain": "politics",
+      "world": "earth",
+      "requirement": "Corporate-government corruption around fictional anti-aging breakthrough; choose to profit, expose it, pursue office to head of state or ruthless rival eliminations, with consequential endings.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "political_office"
+      ]
+    },
+    {
+      "id": "rocket_modules",
+      "domain": "craft",
+      "world": "earth",
+      "requirement": "Build spaceship with 3-5 big modules: propulsion, navigation, life support, shielding, fuel; incorrect modules/bad maintenance can cause launch failure, with recoverable gameplay.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "rocket_modules",
+        "rocket_launchpad"
+      ]
+    },
+    {
+      "id": "spaceflight",
+      "domain": "travel",
+      "world": "all",
+      "requirement": "First-person in-cabin cinematic for about 3-4 minutes with dialogue, windows and crew; optional third-person camera; transitions to distinct planets.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "rocket_interior"
+      ]
+    },
+    {
+      "id": "all_planets",
+      "domain": "world",
+      "world": "all",
+      "requirement": "8 real solar system planets and 6 fictional worlds in catalog; every reachable region has distinct landscapes, cities/caves/research and conditions; gas giants orbit/station only.",
+      "implementation_status": "design_catalogue_only",
+      "asset_dependencies": [
+        "planet_biomes"
+      ]
+    },
+    {
+      "id": "lava_world",
+      "domain": "world",
+      "world": "ignis_prime",
+      "requirement": "Entire lava planet is an original dark alien shadow-horror biome reminiscent of overall dark otherworldly atmosphere (not copying another franchise): red sky, ash, organic formations, abandoned human research, monsters, caves.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "ignis_biome",
+        "ignis_lab"
+      ]
+    },
+    {
+      "id": "ice_ocean_world",
+      "domain": "world",
+      "world": "nivora",
+      "requirement": "Glacial surface above liquid subglacial oceans; pressure and cold suit crafting required for underwater cities and submerged caves.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "nivora_underwater",
+        "pressure_suit"
+      ]
+    },
+    {
+      "id": "world_specificity",
+      "domain": "world",
+      "world": "all",
+      "requirement": "Unique cities, settlements, vast underground or flooded cave systems, creatures, climates and crafting requirements for EACH planet.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "planet_biomes"
+      ]
+    },
+    {
+      "id": "abandoned_research",
+      "domain": "story",
+      "world": "all",
+      "requirement": "Abandoned human scientific outposts on multiple worlds; research ceased suddenly and player follows data chain to reveal why.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "abandoned_labs"
+      ]
+    },
+    {
+      "id": "hidden_survivors",
+      "domain": "story",
+      "world": "secret_planet",
+      "requirement": "Some long-missing researchers survive on a secret planet, now very old; reunite them with aged families on Earth.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "secret_colony"
+      ]
+    },
+    {
+      "id": "anti_aging",
+      "domain": "story",
+      "world": "earth",
+      "requirement": "Researchers share FICTIONAL science that halts aging; closing news/TV announcement credits player and changes entire world, opening corporation/politics plot.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "tv_newsroom"
+      ]
+    },
+    {
+      "id": "time_travel",
+      "domain": "story",
+      "world": "ww2_1945",
+      "requirement": "1945 gameplay is explicitly fictional alien time-travel effect; observing old light from space is not literal historical time travel.",
+      "implementation_status": "design_only",
+      "asset_dependencies": []
+    },
+    {
+      "id": "npc_memory",
+      "domain": "ai",
+      "world": "all",
+      "requirement": "NPCs and factions remember player choices, past actions and new spaceship visitors; relationships and reputation confer cross-planet advantages.",
+      "implementation_status": "partial",
+      "asset_dependencies": []
+    },
+    {
+      "id": "ship_crew",
+      "domain": "ai",
+      "world": "all",
+      "requirement": "Recruit persistent allies who can board ship, help in rescues and research, travel between planets and influence outcomes.",
+      "implementation_status": "partial",
+      "asset_dependencies": [
+        "ship_crew"
+      ]
+    },
+    {
+      "id": "coop",
+      "domain": "multiplayer",
+      "world": "all",
+      "requirement": "Up to four friends in one story/shared world with synchronized missions, vehicles, choices and property/rent state.",
+      "implementation_status": "partial",
+      "asset_dependencies": []
+    },
+    {
+      "id": "replayability",
+      "domain": "missions",
+      "world": "all",
+      "requirement": "48h target main campaign with dynamic incidents + sidequests and persistent evolving world aimed at 500+ hours of meaningful play, not already measured.",
+      "implementation_status": "design_only",
+      "asset_dependencies": []
+    },
+    {
+      "id": "hunting",
+      "domain": "world",
+      "world": "earth",
+      "requirement": "Wildlife encounters and optional hunting/countryside exploration as normal open-world activities.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "alpine_wildlife"
+      ]
+    },
+    {
+      "id": "airport",
+      "domain": "world",
+      "world": "earth",
+      "requirement": "Functional enterable airport, flyable aircraft, hangars and pilots.",
+      "implementation_status": "design_only",
+      "asset_dependencies": [
+        "plane_airport"
+      ]
+    }
+  ],
+  "asset_status": "SOURCE_FILES_NOT_PRESENT_IN_GITHUB_FOR_THESE_PROPOSED_PACKAGES",
+  "asset_slots": [
+    {
+      "id": "bridge_hero",
+      "category": "hero",
+      "source_file": "SM_NEXUS_BridgeSpan_6p83m.glb",
+      "destination": "/Game/AAA/Geometry/Hero",
+      "priority": "critical",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "bus_hero",
+      "category": "hero",
+      "source_file": "SM_NEXUS_RescueBus_12m.glb",
+      "destination": "/Game/AAA/Geometry/Hero",
+      "priority": "critical",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "rescue_heli",
+      "category": "hero",
+      "source_file": "SM_NEXUS_RescueHelicopter.glb",
+      "destination": "/Game/AAA/Geometry/Hero",
+      "priority": "critical",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "rescue_crews",
+      "category": "characters",
+      "source_file": "SK_NEXUS_RescueMedic.fbx",
+      "destination": "/Game/AAA/Characters",
+      "priority": "critical",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "scene_alpine",
+      "category": "terrain",
+      "source_file": "SM_NEXUS_AlpineCliff.glb",
+      "destination": "/Game/AAA/Geometry/TerrainPreview",
+      "priority": "critical",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "scene_medieval",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_CastleTown.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "scene_city",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_ModernCityBlock.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "scene_reconstruction",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_RebuildCity.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "scene_sector31",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_Sector31Exterior.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "scene_coast",
+      "category": "terrain",
+      "source_file": "SM_NEXUS_CoastBlock.glb",
+      "destination": "/Game/AAA/Geometry/TerrainPreview",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "starter_house",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_StarterHome.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "pinboard",
+      "category": "props",
+      "source_file": "SM_NEXUS_OfficePinboard.glb",
+      "destination": "/Game/AAA/Geometry/Props",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "training_range",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_TrainingBarracks.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "sector31_lab",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_Sector31Lab.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "zombie_creatures",
+      "category": "characters",
+      "source_file": "SK_NEXUS_AlienInfected.fbx",
+      "destination": "/Game/AAA/Characters",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "sports_car",
+      "category": "vehicles",
+      "source_file": "SM_NEXUS_SportsCar.glb",
+      "destination": "/Game/AAA/Geometry/Vehicles",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "fire_truck",
+      "category": "vehicles",
+      "source_file": "SM_NEXUS_FireTruck.glb",
+      "destination": "/Game/AAA/Geometry/Vehicles",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "plane_airport",
+      "category": "vehicles",
+      "source_file": "SM_NEXUS_CivilPlane.glb",
+      "destination": "/Game/AAA/Geometry/Vehicles",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "boat_fleet",
+      "category": "vehicles",
+      "source_file": "SM_NEXUS_RescueBoat.glb",
+      "destination": "/Game/AAA/Geometry/Vehicles",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "storm_vfx",
+      "category": "vfx",
+      "source_file": "NS_NexusAlpinePrecipitation.uasset",
+      "destination": "/Game/AAA/VFX",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "manual_native_unreal_asset"
+    },
+    {
+      "id": "flood_vfx",
+      "category": "vfx",
+      "source_file": "NS_NexusFloodFoam.uasset",
+      "destination": "/Game/AAA/VFX",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "manual_native_unreal_asset"
+    },
+    {
+      "id": "earthquake_vfx",
+      "category": "vfx",
+      "source_file": "NS_NexusQuakeDebris.uasset",
+      "destination": "/Game/AAA/VFX",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "manual_native_unreal_asset"
+    },
+    {
+      "id": "modular_building",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_ModularWall.glb",
+      "destination": "/Game/AAA/Geometry/Buildings",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "quarry_mine",
+      "category": "industry",
+      "source_file": "SM_NEXUS_Quarry.glb",
+      "destination": "/Game/AAA/Geometry/Industry",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "goldmine_tunnel",
+      "category": "industry",
+      "source_file": "SM_NEXUS_GoldMineGallery.glb",
+      "destination": "/Game/AAA/Geometry/Industry",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "mine_ore",
+      "category": "industry",
+      "source_file": "SM_NEXUS_OreMine.glb",
+      "destination": "/Game/AAA/Geometry/Industry",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "sawmill",
+      "category": "industry",
+      "source_file": "SM_NEXUS_Sawmill.glb",
+      "destination": "/Game/AAA/Geometry/Industry",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "offshore_platform",
+      "category": "industry",
+      "source_file": "SM_NEXUS_OffshoreOilRig.glb",
+      "destination": "/Game/AAA/Geometry/Industry",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "refinery",
+      "category": "industry",
+      "source_file": "SM_NEXUS_Refinery.glb",
+      "destination": "/Game/AAA/Geometry/Industry",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "modular_factory",
+      "category": "industry",
+      "source_file": "SM_NEXUS_FactoryModules.glb",
+      "destination": "/Game/AAA/Geometry/Industry",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "rental_apartments",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_RentalApartment.glb",
+      "destination": "/Game/AAA/Geometry/Buildings",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "smartphone_ui",
+      "category": "ui",
+      "source_file": "WBP_NexusPhone.uasset",
+      "destination": "/Game/AAA/UI",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "manual_native_unreal_asset"
+    },
+    {
+      "id": "grocery_shop",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_Supermarket.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "equipment_shop",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_EquipmentShop.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "space_suit",
+      "category": "characters",
+      "source_file": "SK_NEXUS_ExplorerPressureSuit.fbx",
+      "destination": "/Game/AAA/Characters",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "meteor_ore",
+      "category": "props",
+      "source_file": "SM_NEXUS_MeteoriteOre.glb",
+      "destination": "/Game/AAA/Geometry/Props",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "fictional_weapons",
+      "category": "props",
+      "source_file": "SM_NEXUS_WeaponCollection.glb",
+      "destination": "/Game/AAA/Geometry/Props",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "war_planet_city",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_HistoricWarDistrict.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "period_artillery",
+      "category": "props",
+      "source_file": "SM_NEXUS_1945RailwayArtillery.glb",
+      "destination": "/Game/AAA/Geometry/Props",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "political_office",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_GovernmentOffice.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "rocket_modules",
+      "category": "vehicles",
+      "source_file": "SM_NEXUS_RocketAssembly.glb",
+      "destination": "/Game/AAA/Geometry/Spacecraft",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "rocket_launchpad",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_LaunchBase.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "rocket_interior",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_RocketCabin.glb",
+      "destination": "/Game/AAA/Geometry/Spacecraft",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "planet_biomes",
+      "category": "terrain",
+      "source_file": "SM_NEXUS_AlienTerrainKit.glb",
+      "destination": "/Game/AAA/Geometry/Planets",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "ignis_biome",
+      "category": "terrain",
+      "source_file": "SM_NEXUS_IgnisOrganicBasalt.glb",
+      "destination": "/Game/AAA/Geometry/Planets",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "ignis_lab",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_IgnisAbandonedLab.glb",
+      "destination": "/Game/AAA/Geometry/Planets",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "nivora_underwater",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_NivoraSubglacialCity.glb",
+      "destination": "/Game/AAA/Geometry/Planets",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "pressure_suit",
+      "category": "characters",
+      "source_file": "SK_NEXUS_PressureSuit.fbx",
+      "destination": "/Game/AAA/Characters",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "abandoned_labs",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_AbandonedResearchBase.glb",
+      "destination": "/Game/AAA/Geometry/Planets",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "secret_colony",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_HiddenColony.glb",
+      "destination": "/Game/AAA/Geometry/Planets",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "tv_newsroom",
+      "category": "architecture",
+      "source_file": "SM_NEXUS_Newsroom.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "ship_crew",
+      "category": "characters",
+      "source_file": "SK_NEXUS_CrewMember.fbx",
+      "destination": "/Game/AAA/Characters",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    },
+    {
+      "id": "alpine_wildlife",
+      "category": "characters",
+      "source_file": "SK_NEXUS_AlpineDeer.fbx",
+      "destination": "/Game/AAA/Characters",
+      "priority": "planned",
+      "state": "NOT_VERIFIED_IN_PROJECT",
+      "rights": "VERIFY_ORIGINAL_OR_PROPERLY_LICENSED",
+      "import_mode": "unreal_python_asset_import_task"
+    }
+  ],
+  "delivery_stages": [
+    {
+      "id": "D0",
+      "goal": "Document all choices + exact asset slots + validation",
+      "status": "being_implemented"
+    },
+    {
+      "id": "D1",
+      "goal": "Local UE5 editor compiles, starter home/board, gold mine and sawmill loop",
+      "status": "partially_implemented"
+    },
+    {
+      "id": "D2",
+      "goal": "Adlerklamm visual hero assets, terrain/forest/heli/bus in-game comparison",
+      "status": "requires_assets_gpu"
+    },
+    {
+      "id": "D3",
+      "goal": "First complete Earth map: towns, city, industry, Sector 31 and coast",
+      "status": "design_only"
+    },
+    {
+      "id": "D4",
+      "goal": "Real economy, NPC crew/AI, crime, disasters and co-op testing",
+      "status": "design_only"
+    },
+    {
+      "id": "D5",
+      "goal": "Craft rockets, planet scenes, unique suits, WW2 fictional world, final campaign",
+      "status": "design_only"
+    },
+    {
+      "id": "D6",
+      "goal": "Measured 48-hour campaign plus 500-hour systemic replay QA",
+      "status": "design_only"
+    }
+  ]
+}
