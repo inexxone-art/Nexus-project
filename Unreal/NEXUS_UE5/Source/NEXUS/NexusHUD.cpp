@@ -6,6 +6,7 @@
 #include "NexusSimulationComponent.h"
 #include "NexusAlpineWeather.h"
 #include "NexusAlpineRiver.h"
+#include "NexusUnderwaterEvidence.h"
 #include "Engine/Canvas.h"
 #include "Engine/Engine.h"
 #include "EngineUtils.h"
@@ -59,8 +60,13 @@ void ANexusHUD::DrawHUD()
         DrawRect(LocalExplorer->OxygenSeconds<12.f?FLinearColor(.9f,.24f,.18f):
                  FLinearColor(.22f,.72f,.85f),
                  1100*X,441*Y,380*X*FMath::Clamp(LocalExplorer->OxygenSeconds/45.f,0.f,1.f),12*Y);
-        Text(TEXT("WASD SCHWIMMEN  SPACE AUF  STRG AB"),
-             1100*X,467*Y,.78f);
+        if(D->Evidence && D->Evidence->bAvailable &&
+           FVector::Dist(LocalExplorer->GetActorLocation(),D->Evidence->GetActorLocation())<800.f)
+            Text(TEXT("SIGNAL: VERSUNKENE BLACKBOX  [E]"),1100*X,471*Y,.70f,
+                 FLinearColor(.95f,.79f,.23f));
+        else
+            Text(TEXT("WASD SCHWIMMEN  SPACE AUF  STRG AB"),
+                 1100*X,467*Y,.78f);
     }
     Panel(1110*X,50*Y,470*X,254*Y);
     Text(TEXT("ROHSTOFFE & WIRTSCHAFT"),1125*X,68*Y,1.2f,FLinearColor(1.f,0.75f,0.16f,1.f));

@@ -16,6 +16,7 @@ class UNexusCampaignComponent;
 class ANexusCompanion;
 class ANexusAlpineWeather;
 class ANexusAlpineRiver;
+class ANexusUnderwaterEvidence;
 
 UCLASS(Blueprintable)
 class NEXUS_API ANexusWorldDirector : public AActor
@@ -27,6 +28,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     UPROPERTY(BlueprintReadOnly,Replicated) TObjectPtr<ANexusAlpineWeather> Weather;
     UPROPERTY(BlueprintReadOnly,Replicated) TObjectPtr<ANexusAlpineRiver> River;
+    UPROPERTY(BlueprintReadOnly,Replicated) TObjectPtr<ANexusUnderwaterEvidence> Evidence;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UNexusSimulationComponent> WorldMemory;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UNexusCampaignComponent> Story;
     UPROPERTY(BlueprintReadOnly) TArray<TObjectPtr<ANexusCompanion>> RescueHelpers;

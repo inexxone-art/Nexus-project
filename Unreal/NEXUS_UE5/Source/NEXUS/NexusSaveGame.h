@@ -18,6 +18,7 @@ public:
     UPROPERTY(SaveGame) int32 RebuildStage = 0;
     UPROPERTY(SaveGame) int32 Credits = 3000;
     UPROPERTY(SaveGame) bool bRewardPaid = false;
+    UPROPERTY(SaveGame) bool bEvidenceRecovered = false;
     UPROPERTY(SaveGame) int32 ActiveChapter = 0;
     UPROPERTY(SaveGame) int32 ActiveStoryPhase = 0;
     UPROPERTY(SaveGame) int32 CompletedChapters = 0;

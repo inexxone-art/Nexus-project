@@ -12,6 +12,7 @@
 #include "NexusCompanion.h"
 #include "NexusAlpineWeather.h"
 #include "NexusAlpineRiver.h"
+#include "NexusUnderwaterEvidence.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
@@ -47,6 +48,20 @@ void ANexusWorldDirector::BeginPlay()
     CreateStageWorld();
     GetWorld()->SpawnActor<ANexusCinematicScenery>();
     River=GetWorld()->SpawnActor<ANexusAlpineRiver>();
+    // Underwater recorder is physically on the riverbed, not floating
+    // at an arbitrary world coordinate. Recoverable only after the crash.
+    if(River)
+    {
+        float SurfaceZ=0.f,BedZ=0.f,Lateral=0.f;
+        FVector Current=FVector::ZeroVector;
+        if(River->SampleWater(FVector(0.f,0.f,0.f),SurfaceZ,BedZ,Current,Lateral))
+        {
+            Evidence=GetWorld()->SpawnActor<ANexusUnderwaterEvidence>(
+                ANexusUnderwaterEvidence::StaticClass(),
+                FVector(0.f,0.f,BedZ+130.f),FRotator(0.f,25.f,0.f));
+            if(Evidence)Evidence->SetAvailable(false);
+        }
+    }
     Weather=GetWorld()->SpawnActor<ANexusAlpineWeather>();
     if(Weather)
     {
@@ -195,6 +210,7 @@ void ANexusWorldDirector::VehicleAdvanced(ANexusVehicle* Vehicle)
         }
         if(Bridge) Bridge->Collapse();
         if(Bus) Bus->DropBehindPlayer();
+        if(Evidence) Evidence->SetAvailable(true);
         for(TObjectPtr<ANexusRescueTarget> Person:Survivors) if(Person && !Person->bRescued)
         {
             Person->SetAvailable(true);
@@ -258,6 +274,23 @@ bool ANexusWorldDirector::TryInteract(ANexusExplorer* Explorer)
 {
     if(!Explorer) return false;
     const FVector P=Explorer->GetActorLocation();
+    // Real underwater gameplay: dive through the fast current to the
+    // submerged, flashing black box. A normal surface E press cannot loot it.
+    if(Evidence && Evidence->bAvailable && !Evidence->bRecovered &&
+       Explorer->bIsSwimming && Explorer->bHeadUnderwater &&
+       FVector::Dist(P,Evidence->GetActorLocation())<260.f)
+    {
+        if(Story && Story->CompleteObjective(TEXT("investigate_saboteur")))
+        {
+            Evidence->Recover();
+            if(RebuildStage>=2)Story->CompleteObjective(TEXT("stabilize_route"));
+            Credits+=80;
+            Inform(TEXT("BLACKBOX GEBORGEN! +80 Credits. Die Sabotage-Spur ist gespeichert."));
+        }
+        else
+            Inform(TEXT("BLACKBOX GEFUNDEN: Zuerst die Verletzten versorgen."));
+        return true;
+    }
     if(Phase==ENexusIncidentPhase::Rescue && Role!=ENexusRescueRole::Pilot)
     {
         for(TObjectPtr<ANexusRescueTarget> Person:Survivors)
@@ -406,6 +439,7 @@ void ANexusWorldDirector::SaveProgress()
     Save->Role=Role;
     Save->RebuildStage=RebuildStage;
     Save->bRewardPaid=bPaidRescue;
+    Save->bEvidenceRecovered=(Evidence && Evidence->bRecovered);
     if(Weather)
     {
         Save->WeatherMode=static_cast<int32>(Weather->Climate);
@@ -437,6 +471,11 @@ void ANexusWorldDirector::LoadProgress()
     if(!Save){Inform(TEXT("Kein Unreal-Spielstand vorhanden."));return;}
     Stock=Save->Stock;PublishInventory();Credits=Save->Credits;Phase=Save->Phase;
     Role=Save->Role;RebuildStage=Save->RebuildStage;bPaidRescue=Save->bRewardPaid;
+    if(Evidence)
+    {
+        if(Save->bEvidenceRecovered) Evidence->Recover();
+        else Evidence->SetAvailable(Phase!=ENexusIncidentPhase::Approach);
+    }
     if(Weather)
     {
         Weather->SetClockMinutes(Save->ClockMinutes);
@@ -475,6 +514,7 @@ bool ANexusWorldDirector::InvestigateEvidence(const FVector& Position)
         return false;
     if(Story->CompleteObjective(TEXT("investigate_saboteur")))
     {
+        if(Evidence)Evidence->Recover();
         // A repaired route remains valid even if players investigate late.
         if(RebuildStage>=2)Story->CompleteObjective(TEXT("stabilize_route"));
         Inform(TEXT("FUNDFUNK: Hinweise auf die sabotierte Bruecke gesichert. Auftrag aktualisiert."));
@@ -513,6 +553,7 @@ void ANexusWorldDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
     Super::GetLifetimeReplicatedProps(Out);
     DOREPLIFETIME(ANexusWorldDirector,Weather);
     DOREPLIFETIME(ANexusWorldDirector,River);
+    DOREPLIFETIME(ANexusWorldDirector,Evidence);
     DOREPLIFETIME(ANexusWorldDirector,Credits);
     DOREPLIFETIME(ANexusWorldDirector,ReplicatedInventory);
     DOREPLIFETIME(ANexusWorldDirector,Phase);
