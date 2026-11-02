@@ -171,6 +171,25 @@ void ANexusAlpineRiver::CreateGrid(UProceduralMeshComponent* Target,int32 Mode)
             Triangles.Add(B);
         }
     }
+    // Triangle winding: lateral x flow = surface normal. Recalculate actual
+    // per-vertex normals on steep outer cliffs and gentle sediment beaches.
+    for(int32 X=0;X<=Longitudinal;++X)
+    {
+        for(int32 Y=0;Y<=LateralSteps;++Y)
+        {
+            const int32 Index=X*RowSize+Y;
+            const int32 X0=FMath::Max(X-1,0)*RowSize+Y;
+            const int32 X1=FMath::Min(X+1,Longitudinal)*RowSize+Y;
+            const int32 Y0=X*RowSize+FMath::Max(Y-1,0);
+            const int32 Y1=X*RowSize+FMath::Min(Y+1,LateralSteps);
+            const FVector Along=Vertices[X1]-Vertices[X0];
+            const FVector Across=Vertices[Y1]-Vertices[Y0];
+            const FVector Normal=FVector::CrossProduct(Across,Along).GetSafeNormal();
+            Normals[Index]=Normal.IsNearlyZero()?FVector::UpVector:Normal;
+            const FVector Direction=Along.GetSafeNormal();
+            Tangents[Index]=FProcMeshTangent(Direction.X,Direction.Y,Direction.Z);
+        }
+    }
     Target->ClearAllMeshSections();
     const bool bCollide=(Mode!=0);
     Target->CreateMeshSection(0,Vertices,Triangles,Normals,UVs,Colors,Tangents,bCollide);

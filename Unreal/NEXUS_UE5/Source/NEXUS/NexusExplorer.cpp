@@ -18,6 +18,13 @@ ANexusExplorer::ANexusExplorer()
     ViewCamera->SetupAttachment(GetCapsuleComponent());
     ViewCamera->SetRelativeLocation(FVector(0,0,66));
     ViewCamera->bUsePawnControlRotation = true;
+    // Underwater camera color grading is applied only to the owning player.
+    // Local post-process is disabled until the eyes actually enter water.
+    ViewCamera->PostProcessSettings.bOverride_SceneColorTint=true;
+    ViewCamera->PostProcessSettings.SceneColorTint=FLinearColor(.28f,.62f,.76f,1.f);
+    ViewCamera->PostProcessSettings.bOverride_VignetteIntensity=true;
+    ViewCamera->PostProcessSettings.VignetteIntensity=.35f;
+    ViewCamera->PostProcessBlendWeight=0.f;
     GetCharacterMovement()->MaxWalkSpeed = 630.f;
     GetCharacterMovement()->JumpZVelocity = 570.f;
     bUseControllerRotationYaw = true;
@@ -226,6 +233,8 @@ void ANexusExplorer::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
     DetectWaterAndSwim(DeltaSeconds);
+    if(IsLocallyControlled() && ViewCamera)
+        ViewCamera->PostProcessBlendWeight=bHeadUnderwater?0.85f:0.f;
 }
 void ANexusExplorer::UpdateSwimAxis()
 {
