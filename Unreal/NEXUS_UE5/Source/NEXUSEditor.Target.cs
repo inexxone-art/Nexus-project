@@ -7,7 +7,6 @@ public class NEXUSEditorTarget : TargetRules
         Type = TargetType.Editor;
         DefaultBuildSettings = BuildSettingsVersion.V7;
         IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
-        BuildEnvironment = TargetBuildEnvironment.Unique;
         ExtraModuleNames.Add("NEXUS");
     }
 }
