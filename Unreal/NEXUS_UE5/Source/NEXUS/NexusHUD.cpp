@@ -5,6 +5,7 @@
 #include "NexusCampaignComponent.h"
 #include "NexusSimulationComponent.h"
 #include "NexusAlpineWeather.h"
+#include "NexusAlpineRiver.h"
 #include "Engine/Canvas.h"
 #include "Engine/Engine.h"
 #include "EngineUtils.h"
@@ -40,6 +41,27 @@ void ANexusHUD::DrawHUD()
     Text(TEXT("[ ]  Bruecke sichern / Wiederaufbau planen"),28*X,205*Y,0.82f);
     Text(TEXT("F1 SANITAETER  |  F2 PILOT  |  F3 SUCHTEAM"),28*X,271*Y,0.86f,FLinearColor(1.f,0.75f,0.16f,1.f));
 
+    // Real-time swimming HUD for the owning player; it never shows another
+    // co-op player's oxygen/underwater status.
+    ANexusExplorer* LocalExplorer=PlayerOwner?Cast<ANexusExplorer>(PlayerOwner->GetPawn()):nullptr;
+    if(LocalExplorer && LocalExplorer->bIsSwimming)
+    {
+        Panel(1080*X,330*Y,480*X,165*Y);
+        Text(TEXT("SCHWIMMEN | ADLERKLAMM"),1100*X,349*Y,1.08f,
+             FLinearColor(.55f,.85f,1.f));
+        Text(FString::Printf(TEXT("STROEMUNG: %.1f m/s"),LocalExplorer->WaterSpeedMetersPerSecond),
+             1100*X,379*Y,.92f);
+        Text(FString::Printf(TEXT("ATEMLUFT: %.0f SEK. %s"),
+             LocalExplorer->OxygenSeconds,
+             LocalExplorer->bHeadUnderwater?TEXT("TAUCHEN"):TEXT("AN DER OBERFLAECHE")),
+             1100*X,409*Y,.83f);
+        DrawRect(FLinearColor(.09f,.16f,.23f,1.f),1100*X,441*Y,380*X,12*Y);
+        DrawRect(LocalExplorer->OxygenSeconds<12.f?FLinearColor(.9f,.24f,.18f):
+                 FLinearColor(.22f,.72f,.85f),
+                 1100*X,441*Y,380*X*FMath::Clamp(LocalExplorer->OxygenSeconds/45.f,0.f,1.f),12*Y);
+        Text(TEXT("WASD SCHWIMMEN  SPACE AUF  STRG AB"),
+             1100*X,467*Y,.78f);
+    }
     Panel(1110*X,50*Y,470*X,254*Y);
     Text(TEXT("ROHSTOFFE & WIRTSCHAFT"),1125*X,68*Y,1.2f,FLinearColor(1.f,0.75f,0.16f,1.f));
     Text(FString::Printf(TEXT("Holz: %d       Eisen: %d      Eisenerz: %d"),
