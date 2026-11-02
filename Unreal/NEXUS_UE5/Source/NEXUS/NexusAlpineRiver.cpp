@@ -17,7 +17,8 @@ ANexusAlpineRiver::ANexusAlpineRiver()
     for(auto* Mesh:{RiverSurface.Get(),LeftShore.Get(),RightShore.Get()})
     {
         Mesh->SetupAttachment(RiverRoot);
-        Mesh->SetMobility(EComponentMobility::Static);
+        // Flooding regenerates the surface; meshes must be movable at runtime.
+        Mesh->SetMobility(EComponentMobility::Movable);
         Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
         Mesh->SetCastShadow(false);
     }
