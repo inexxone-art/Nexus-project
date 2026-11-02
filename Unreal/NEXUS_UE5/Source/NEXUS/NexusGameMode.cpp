@@ -40,6 +40,7 @@ void ANexusGameMode::EnterVehicle(ANexusVehicle* Vehicle,ANexusExplorer* Passeng
     Vehicle->SetOwner(PC);
     PC->Possess(Vehicle);
     Vehicle->SetDriver(PC);
+    Vehicle->DriverRescueRole=Passenger->SelectedRescueRole;
     if(Director)Director->RadioMessage=TEXT("FAHRT: W/S Gas | A/D lenken | F aussteigen | E Bergung.");
 }
 void ANexusGameMode::ExitVehicle(ANexusVehicle* Vehicle)
@@ -55,6 +56,7 @@ void ANexusGameMode::ExitVehicle(ANexusVehicle* Vehicle)
     Foot->SetActorEnableCollision(true);
     Foot->SetActorHiddenInGame(false);
     Foot->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+    Vehicle->DriverRescueRole=ENexusRescueRole::None;
     PC->Possess(Foot);
     SeatedFootPawns.Remove(PC);
 }
@@ -84,11 +86,20 @@ bool ANexusGameMode::InteractVehicle(ANexusVehicle* Vehicle)
 {
     return Director && Director->TryVehicleRescue(Vehicle);
 }
-void ANexusGameMode::ChooseRole(int32 Choice)
+void ANexusGameMode::ChooseRole(int32 Choice,APlayerController* Requester)
 {
-    if(!Director)return;
-    Director->ChooseRescueRole(Choice==0?ENexusRescueRole::Medic:
-      Choice==1?ENexusRescueRole::Pilot:ENexusRescueRole::GroundSearch);
+    if(!Director || !Requester || (Choice<0 || Choice>2) ||
+       (Director->Phase!=ENexusIncidentPhase::RoleChoice &&
+        Director->Phase!=ENexusIncidentPhase::Rescue))return;
+    const ENexusRescueRole NewRole=Choice==0?ENexusRescueRole::Medic:
+      Choice==1?ENexusRescueRole::Pilot:ENexusRescueRole::GroundSearch;
+    ANexusExplorer* Foot=Cast<ANexusExplorer>(Requester->GetPawn());
+    if(!Foot)Foot=SeatedFootPawns.FindRef(Requester);
+    if(!Foot)return;
+    Foot->SetRescueRole(NewRole);
+    if(auto* Ride=Cast<ANexusVehicle>(Requester->GetPawn()))
+        Ride->DriverRescueRole=NewRole;
+    Director->ChooseRescueRole(NewRole);
 }
 void ANexusGameMode::SaveProgress(){if(Director)Director->SaveProgress();}
 void ANexusGameMode::LoadProgress(){if(Director)Director->LoadProgress();}

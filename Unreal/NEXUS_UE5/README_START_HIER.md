@@ -2,6 +2,8 @@
 
 **Status:** Eigenständige C++-Migration mit spielbarer Mission als Entwicklungsziel, noch **nicht** auf UE5 kompiliert oder als AAA-Grafik abgenommen. Die ursprüngliche Godot-Version bleibt im selben GitHub-Repository getrennt erhalten.
 
+**V7 / 02.11.2026:** Bus als fahrender Verkehr hinter dem Spieler, dreistufige Suche/Erstversorgung/Bergung, pro Spieler getrennte Koop-Rollen, replizierte Missionsreferenzen und gespeicherte Teilrettungen. Details und Abnahmeliste: [NEXUS V7 Adlerklamm Rettung](Docs/NEXUS_V7_ADLERKLAMM_RETTUNG.md). Diese Features sind als Code implementiert, aber noch nicht in einem UE5-Editorbuild abgenommen.
+
 ## Start auf Windows
 1. **Unreal Engine 5.8** und **Visual Studio 2022** mit den Workloads "Game development with C++" und dem Windows SDK installieren.
 2. Den **kompletten NEXUS-Unreal-Paketordner** entpacken (das kleine GitHub-Quellprojekt enthält keine großen Bildtexturen).

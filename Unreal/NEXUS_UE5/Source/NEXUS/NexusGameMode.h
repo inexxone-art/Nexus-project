@@ -20,7 +20,7 @@ public:
     void Interact(ANexusExplorer* Player);
     bool InteractVehicle(ANexusVehicle* Vehicle);
     void ExitVehicle(ANexusVehicle* Vehicle);
-    void ChooseRole(int32 Choice);
+    void ChooseRole(int32 Choice,APlayerController* Requester);
     void SaveProgress();
     void LoadProgress();
     void GoToApproach();

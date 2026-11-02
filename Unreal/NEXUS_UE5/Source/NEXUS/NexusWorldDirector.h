@@ -48,11 +48,11 @@ public:
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UNexusSimulationComponent> WorldMemory;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UNexusCampaignComponent> Story;
     UPROPERTY(BlueprintReadOnly) TArray<TObjectPtr<ANexusCompanion>> RescueHelpers;
-    UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusBridge> Bridge;
-    UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusBus> Bus;
-    UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusVehicle> RescueTruck;
-    UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusVehicle> RescueHelicopter;
-    UPROPERTY(BlueprintReadOnly) TArray<TObjectPtr<ANexusRescueTarget>> Survivors;
+    UPROPERTY(BlueprintReadOnly,Replicated) TObjectPtr<ANexusBridge> Bridge;
+    UPROPERTY(BlueprintReadOnly,Replicated) TObjectPtr<ANexusBus> Bus;
+    UPROPERTY(BlueprintReadOnly,Replicated) TObjectPtr<ANexusVehicle> RescueTruck;
+    UPROPERTY(BlueprintReadOnly,Replicated) TObjectPtr<ANexusVehicle> RescueHelicopter;
+    UPROPERTY(BlueprintReadOnly,Replicated) TArray<TObjectPtr<ANexusRescueTarget>> Survivors;
     UPROPERTY(BlueprintReadOnly) TArray<TObjectPtr<ANexusIndustrySite>> Industry;
     UPROPERTY(BlueprintReadOnly) FNexusResourceStock Stock;
     UPROPERTY(BlueprintReadOnly,Replicated) TArray<FNexusNetworkResource> ReplicatedInventory;
@@ -80,13 +80,17 @@ public:
     FString PhaseDescription() const;
     FString ResourceDescription() const;
     int32 RescuedCount() const;
+    UFUNCTION(BlueprintPure) int32 LocatedCount() const;
+    UFUNCTION(BlueprintPure) int32 StabilizedCount() const;
 private:
     int32 PreviousClockMinutes=-1;
     void SettleRentAtMidnight();
     bool RescuePerson(ANexusRescueTarget* Person);
+    bool TryTriagePerson(ANexusRescueTarget* Person,bool bAirRescue);
     bool HasCosts(const TMap<FName,int32>& Need) const;
     void Inform(const FString& Message);
     void CreateStageWorld();
+    void CreateRescueHelipad();
     void CreateRescueTargets();
     void CreateFactories();
     void CreateFleet();

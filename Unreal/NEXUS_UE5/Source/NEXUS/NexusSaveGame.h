@@ -15,6 +15,8 @@ public:
     UPROPERTY(SaveGame) TArray<FNexusRentalProperty> RentalProperties;
     UPROPERTY(SaveGame) TArray<ENexusIndustry> ConstructedSites;
     UPROPERTY(SaveGame) TArray<int32> RescuedIds;
+    UPROPERTY(SaveGame) TArray<int32> LocatedIds;
+    UPROPERTY(SaveGame) TArray<int32> StabilizedIds;
     UPROPERTY(SaveGame) ENexusRescueRole Role = ENexusRescueRole::None;
     UPROPERTY(SaveGame) ENexusIncidentPhase Phase = ENexusIncidentPhase::Approach;
     UPROPERTY(SaveGame) int32 RebuildStage = 0;

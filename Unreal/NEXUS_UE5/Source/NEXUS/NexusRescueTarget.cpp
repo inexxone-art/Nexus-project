@@ -31,9 +31,23 @@ void ANexusRescueTarget::SetAvailable(bool Available)
     OnRep_RescueState();
     ForceNetUpdate();
 }
+void ANexusRescueTarget::LocateSurvivor()
+{
+    if(!HasAuthority() || !bAvailable || bRescued)return;
+    bLocated=true;
+    OnRep_RescueState();
+    ForceNetUpdate();
+}
+void ANexusRescueTarget::StabilizeSurvivor()
+{
+    if(!HasAuthority() || !bAvailable || !bLocated || bRescued)return;
+    bStabilized=true;
+    OnRep_RescueState();
+    ForceNetUpdate();
+}
 void ANexusRescueTarget::MarkRescued()
 {
-    if(!HasAuthority() || bRescued)return;
+    if(!HasAuthority() || bRescued || !bLocated || !bStabilized)return;
     bRescued=true;
     bAvailable=false;
     OnRep_RescueState();
@@ -44,6 +58,12 @@ void ANexusRescueTarget::OnRep_RescueState()
     const bool bVisible=bAvailable && !bRescued;
     SetActorHiddenInGame(!bVisible);
     SetActorEnableCollision(bVisible);
+    if(DistressMarker)
+    {
+        const TCHAR* Message=!bLocated?TEXT("HILFE! [E] SUCHEN"):
+            (!bStabilized?TEXT("VERLETZT [E] VERSORGEN"):TEXT("BEREIT [E] BERGEN"));
+        DistressMarker->SetText(FText::FromString(Message));
+    }
 }
 void ANexusRescueTarget::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const
 {
@@ -51,4 +71,6 @@ void ANexusRescueTarget::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
     DOREPLIFETIME(ANexusRescueTarget,SurvivorId);
     DOREPLIFETIME(ANexusRescueTarget,bRescued);
     DOREPLIFETIME(ANexusRescueTarget,bAvailable);
+    DOREPLIFETIME(ANexusRescueTarget,bLocated);
+    DOREPLIFETIME(ANexusRescueTarget,bStabilized);
 }

@@ -207,6 +207,7 @@ void ANexusVehicle::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) c
 {
     Super::GetLifetimeReplicatedProps(Out);
     DOREPLIFETIME(ANexusVehicle,VehicleType);
+    DOREPLIFETIME(ANexusVehicle,DriverRescueRole);
 }
 void ANexusVehicle::SetDriver(APlayerController* Controller) { Driver=Controller; }
 void ANexusVehicle::SetupPlayerInputComponent(UInputComponent* Input)
@@ -335,9 +336,9 @@ void ANexusVehicle::RescueOrExit()
 }
 void ANexusVehicle::ExitToFoot() { if(!HasAuthority()){ServerCommand(1);return;} if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ExitVehicle(this); }
 
-void ANexusVehicle::ChooseMedic() { if(!HasAuthority()){ServerCommand(2);return;} if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(0); }
-void ANexusVehicle::ChoosePilot() { if(!HasAuthority()){ServerCommand(3);return;} if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(1); }
-void ANexusVehicle::ChooseGround() { if(!HasAuthority()){ServerCommand(4);return;} if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(2); }
+void ANexusVehicle::ChooseMedic() { if(!HasAuthority()){ServerCommand(2);return;} if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(0,Driver); }
+void ANexusVehicle::ChoosePilot() { if(!HasAuthority()){ServerCommand(3);return;} if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(1,Driver); }
+void ANexusVehicle::ChooseGround() { if(!HasAuthority()){ServerCommand(4);return;} if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(2,Driver); }
 
 void ANexusVehicle::InspectEvidence()
 { if(!HasAuthority()){ServerCommand(5);return;}

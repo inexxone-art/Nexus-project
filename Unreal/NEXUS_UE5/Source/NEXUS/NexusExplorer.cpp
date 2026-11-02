@@ -1,6 +1,7 @@
 #include "NexusExplorer.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/PlayerController.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "NexusGameMode.h"
@@ -143,6 +144,12 @@ void ANexusExplorer::ToggleCamera()
     ViewCamera->SetActive(!bThirdPersonView);
     ThirdPersonCamera->SetActive(bThirdPersonView);
 }
+void ANexusExplorer::SetRescueRole(ENexusRescueRole NewRole)
+{
+    if(!HasAuthority())return;
+    SelectedRescueRole=NewRole;
+    ForceNetUpdate();
+}
 void ANexusExplorer::TogglePinboard()
 {
     if(!IsLocallyControlled())return;
@@ -185,9 +192,9 @@ void ANexusExplorer::MoveRight(float V) { if (Controller && V!=0) AddMovementInp
 void ANexusExplorer::LookYaw(float V) { AddControllerYawInput(V); }
 void ANexusExplorer::LookPitch(float V) { AddControllerPitchInput(V); }
 void ANexusExplorer::Interact() { if(!HasAuthority()) { ServerCommand(0); return; } if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->Interact(this); }
-void ANexusExplorer::MedicRole() { if(!HasAuthority()) { ServerCommand(1); return; } if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(0); }
-void ANexusExplorer::PilotRole() { if(!HasAuthority()) { ServerCommand(2); return; } if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(1); }
-void ANexusExplorer::GroundRole() { if(!HasAuthority()) { ServerCommand(3); return; } if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(2); }
+void ANexusExplorer::MedicRole() { if(!HasAuthority()) { ServerCommand(1); return; } if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(0,Cast<APlayerController>(GetController())); }
+void ANexusExplorer::PilotRole() { if(!HasAuthority()) { ServerCommand(2); return; } if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(1,Cast<APlayerController>(GetController())); }
+void ANexusExplorer::GroundRole() { if(!HasAuthority()) { ServerCommand(3); return; } if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(2,Cast<APlayerController>(GetController())); }
 void ANexusExplorer::Slot1() { EquipmentSlot=0; }
 void ANexusExplorer::Slot2() { EquipmentSlot=1; }
 void ANexusExplorer::Slot3() { EquipmentSlot=2; }
@@ -407,6 +414,7 @@ void ANexusExplorer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) 
 {
     Super::GetLifetimeReplicatedProps(Out);
     DOREPLIFETIME(ANexusExplorer,bIsSwimming);
+    DOREPLIFETIME(ANexusExplorer,SelectedRescueRole);
     DOREPLIFETIME_CONDITION(ANexusExplorer,OxygenSeconds,COND_OwnerOnly);
     DOREPLIFETIME_CONDITION(ANexusExplorer,Health,COND_OwnerOnly);
 }

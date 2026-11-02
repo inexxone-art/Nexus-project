@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "NexusTypes.h"
 #include "NexusVehicle.generated.h"
 
 UENUM(BlueprintType)
@@ -48,6 +49,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     UPROPERTY(BlueprintReadOnly) float LinearSpeed = 0.f;
     UPROPERTY(BlueprintReadOnly) TObjectPtr<APlayerController> Driver;
+    UPROPERTY(BlueprintReadOnly,Replicated) ENexusRescueRole DriverRescueRole=ENexusRescueRole::None;
     void Drive(float InputValue);
     void Turn(float InputValue);
     void FlyUp(float InputValue);

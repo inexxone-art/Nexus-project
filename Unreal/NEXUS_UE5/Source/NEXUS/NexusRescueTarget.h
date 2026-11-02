@@ -21,7 +21,11 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Replicated) int32 SurvivorId=0;
     UPROPERTY(BlueprintReadOnly,ReplicatedUsing=OnRep_RescueState) bool bRescued=false;
     UPROPERTY(BlueprintReadOnly,ReplicatedUsing=OnRep_RescueState) bool bAvailable=false;
+    UPROPERTY(BlueprintReadOnly,ReplicatedUsing=OnRep_RescueState) bool bLocated=false;
+    UPROPERTY(BlueprintReadOnly,ReplicatedUsing=OnRep_RescueState) bool bStabilized=false;
 
+    UFUNCTION(BlueprintCallable) void LocateSurvivor();
+    UFUNCTION(BlueprintCallable) void StabilizeSurvivor();
     UFUNCTION(BlueprintCallable) void MarkRescued();
     UFUNCTION(BlueprintCallable) void SetAvailable(bool Available);
     UFUNCTION() void OnRep_RescueState();

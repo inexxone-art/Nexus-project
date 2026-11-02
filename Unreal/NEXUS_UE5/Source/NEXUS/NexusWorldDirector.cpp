@@ -57,6 +57,7 @@ void ANexusWorldDirector::BeginPlay()
     UnlockTopic(TEXT("military_training"));
     PublishInventory();
     CreateStageWorld();
+    CreateRescueHelipad();
     StarterHome=GetWorld()->SpawnActor<ANexusStarterHome>(ANexusStarterHome::StaticClass(),
         FVector(-9900.f,4100.f,2380.f),FRotator::ZeroRotator);
     GetWorld()->SpawnActor<ANexusCinematicScenery>();
@@ -84,9 +85,11 @@ void ANexusWorldDirector::BeginPlay()
         Weather->SetClimate(ENexusClimate::Rain,38);
     }
     Bridge=GetWorld()->SpawnActor<ANexusBridge>(ANexusBridge::StaticClass(),FVector(0,0,1950),FRotator::ZeroRotator);
-    Bus=GetWorld()->SpawnActor<ANexusBus>(ANexusBus::StaticClass(),FVector(0,0,2440),FRotator::ZeroRotator);
+    // Visible traffic follows the approaching driver and reaches the span
+    // AFTER them. It is no longer a motionless bus hovering at mid-bridge.
+    Bus=GetWorld()->SpawnActor<ANexusBus>(ANexusBus::StaticClass(),FVector(-11200,-260,2240),FRotator::ZeroRotator);
     RescueTruck=GetWorld()->SpawnActor<ANexusVehicle>(ANexusVehicle::StaticClass(),FVector(-6900,0,2160),FRotator::ZeroRotator);
-    RescueHelicopter=GetWorld()->SpawnActor<ANexusVehicle>(ANexusVehicle::StaticClass(),FVector(6300,1050,2300),FRotator::ZeroRotator);
+    RescueHelicopter=GetWorld()->SpawnActor<ANexusVehicle>(ANexusVehicle::StaticClass(),FVector(6300,2700,2300),FRotator::ZeroRotator);
     if(RescueTruck)RescueTruck->ConfigureVehicle(ENexusVehicleType::RescueTruck);
     if(RescueHelicopter)
     {
@@ -124,6 +127,7 @@ void ANexusWorldDirector::CreateSceneryBox(FVector Pos,FVector Scale,FRotator Ro
     const FString Label(Name);
     if(Label.Contains(TEXT("Cliff"))) AssetPath=TEXT("/Game/AAA/Materials/M_AlpineRock.M_AlpineRock");
     else if(Label.Contains(TEXT("Road"))) AssetPath=TEXT("/Game/AAA/Materials/M_WetAsphalt.M_WetAsphalt");
+    else if(Label.Contains(TEXT("Helipad"))) AssetPath=TEXT("/Game/AAA/Materials/M_WetAsphalt.M_WetAsphalt");
     else if(Label.Contains(TEXT("River"))) AssetPath=TEXT("/Game/AAA/Materials/M_RiverMud.M_RiverMud");
     else if(Label.Contains(TEXT("Plateau"))) AssetPath=TEXT("/Game/AAA/Materials/M_ForestSoil.M_ForestSoil");
     if(!AssetPath.IsEmpty())
@@ -153,11 +157,27 @@ void ANexusWorldDirector::CreateStageWorld()
         const float X=I*1000.f;
         const FString North=FString::Printf(TEXT("ViaductNorth_%d"),I);
         const FString South=FString::Printf(TEXT("ViaductSouth_%d"),I);
-        CreateSceneryBox(FVector(X,-430.f,950.f),FVector(1.3f,2.5f,19.f),FRotator::ZeroRotator,*North);
-        CreateSceneryBox(FVector(X,430.f,950.f),FVector(1.3f,2.5f,19.f),FRotator::ZeroRotator,*South);
+        // Clear the carriageway and both rescue lanes. Earlier support
+        // placeholders intersected vehicle hulls in the middle of the deck.
+        CreateSceneryBox(FVector(X,-940.f,950.f),FVector(1.3f,2.5f,19.f),FRotator::ZeroRotator,*North);
+        CreateSceneryBox(FVector(X,940.f,950.f),FVector(1.3f,2.5f,19.f),FRotator::ZeroRotator,*South);
     }
     // UE5 world Partition/PCG/Nanite import anchor: place high-poly meshes in the
     // editor; fallback blocks are development-only, not the quality target.
+}
+void ANexusWorldDirector::CreateRescueHelipad()
+{
+    // Clearly signposted helipad, not a pretend full-scale airport. The
+    // imported PBR asphalt material is optional; neutral H stripes survive
+    // when the source-art bundle has not yet been installed.
+    CreateSceneryBox(FVector(6300.f,2700.f,2045.f),FVector(16.f,16.f,.18f),
+        FRotator::ZeroRotator,TEXT("HelipadConcrete"));
+    CreateSceneryBox(FVector(6300.f,2290.f,2060.f),FVector(9.f,.75f,.045f),
+        FRotator::ZeroRotator,TEXT("HeliHLeft"));
+    CreateSceneryBox(FVector(6300.f,3110.f,2060.f),FVector(9.f,.75f,.045f),
+        FRotator::ZeroRotator,TEXT("HeliHRight"));
+    CreateSceneryBox(FVector(6300.f,2700.f,2060.f),FVector(.75f,9.f,.045f),
+        FRotator::ZeroRotator,TEXT("HeliHCenter"));
 }
 void ANexusWorldDirector::CreateRescueTargets()
 {
@@ -232,6 +252,8 @@ void ANexusWorldDirector::VehicleAdvanced(ANexusVehicle* Vehicle)
 {
     if(!Vehicle || Vehicle->bHelicopter || Phase!=ENexusIncidentPhase::Approach) return;
     const FVector P=Vehicle->GetActorLocation();
+    if(Bus && Vehicle->Driver && P.X> -7600.f && P.X<4800.f)
+        Bus->AdvanceConvoy(P,GetWorld()->GetDeltaSeconds());
     if(FMath::Abs(P.X)<3800.f && FMath::Abs(P.Y)<1300.f && !bEnteredSpan)
     {
         bEnteredSpan=true;
@@ -251,7 +273,12 @@ void ANexusWorldDirector::VehicleAdvanced(ANexusVehicle* Vehicle)
             if(Incident!=NAME_None)UE_LOG(LogTemp,Display,TEXT("NEXUS EVENT: %s"),*Incident.ToString());
         }
         if(Bridge) Bridge->Collapse();
-        if(Bus) Bus->DropBehindPlayer();
+        if(Bus)
+        {
+            // Emergency fallback if the player teleported across the bridge.
+            if(Bus->GetActorLocation().X< -3800.f)Bus->PositionForBridgeImpact();
+            Bus->DropBehindPlayer();
+        }
         if(Evidence) Evidence->SetAvailable(true);
         for(TObjectPtr<ANexusRescueTarget> Person:Survivors) if(Person && !Person->bRescued)
         {
@@ -263,12 +290,16 @@ void ANexusWorldDirector::VehicleAdvanced(ANexusVehicle* Vehicle)
 }
 void ANexusWorldDirector::ChooseRescueRole(ENexusRescueRole NewRole)
 {
-    if(Phase!=ENexusIncidentPhase::RoleChoice || NewRole==ENexusRescueRole::None)return;
-    Role=NewRole;
-    Phase=ENexusIncidentPhase::Rescue;
-    Inform(Role==ENexusRescueRole::Pilot
-      ? TEXT("PILOT: F zur Ausstiegsposition, E beim Helikopter. Dann zu den Rettungspunkten fliegen und E betaetigen.")
-      : TEXT("BODENEINSATZ: Mit E drei markierte Ueberlebende retten."));
+    if(NewRole==ENexusRescueRole::None)return;
+    if(Phase==ENexusIncidentPhase::RoleChoice)
+    {
+        Role=NewRole; // team's first rescue route, retained for savegame compatibility
+        Phase=ENexusIncidentPhase::Rescue;
+    }
+    else if(Phase!=ENexusIncidentPhase::Rescue)return;
+    Inform(NewRole==ENexusRescueRole::Pilot
+      ? TEXT("PILOT: Zum Heli-Landeplatz fahren, E zum Einsteigen. 4-24m ueber Personen schweben, mit E suchen, versorgen, bergen.")
+      : TEXT("BODENEINSATZ: Zu den Vermissten gehen. Jede Person mit E finden, erstversorgen und bergen."));
 }
 int32 ANexusWorldDirector::RescuedCount() const
 {
@@ -276,9 +307,43 @@ int32 ANexusWorldDirector::RescuedCount() const
     for(TObjectPtr<ANexusRescueTarget> Person:Survivors) if(Person && Person->bRescued) ++Num;
     return Num;
 }
+int32 ANexusWorldDirector::LocatedCount() const
+{
+    int32 Num=0;
+    for(const auto& Person:Survivors)if(Person && Person->bLocated)++Num;
+    return Num;
+}
+int32 ANexusWorldDirector::StabilizedCount() const
+{
+    int32 Num=0;
+    for(const auto& Person:Survivors)if(Person && Person->bStabilized)++Num;
+    return Num;
+}
+bool ANexusWorldDirector::TryTriagePerson(ANexusRescueTarget* Person,bool bAirRescue)
+{
+    if(!HasAuthority() || Phase!=ENexusIncidentPhase::Rescue || !Person ||
+       !Person->bAvailable || Person->bRescued)return false;
+    if(!Person->bLocated)
+    {
+        Person->LocateSurvivor();
+        Inform(FString::Printf(TEXT("%s: Person %d lokalisiert (%d/3). Erneut E fuer Erstversorgung."),
+            bAirRescue?TEXT("SUCHSCHEINWERFER"):TEXT("SUCHE"),
+            Person->SurvivorId+1,LocatedCount()));
+        return true;
+    }
+    if(!Person->bStabilized)
+    {
+        Person->StabilizeSurvivor();
+        Inform(FString::Printf(TEXT("ERSTVERSORGUNG: Person %d stabilisiert (%d/3). Nochmals E zur Bergung."),
+            Person->SurvivorId+1,StabilizedCount()));
+        return true;
+    }
+    return RescuePerson(Person);
+}
 bool ANexusWorldDirector::RescuePerson(ANexusRescueTarget* Person)
 {
-    if(Phase!=ENexusIncidentPhase::Rescue || !Person || Person->bRescued) return false;
+    if(Phase!=ENexusIncidentPhase::Rescue || !Person || Person->bRescued ||
+       !Person->bLocated || !Person->bStabilized)return false;
     Person->MarkRescued();
     if(WorldMemory) WorldMemory->RecordRescue(FName(*FString::Printf(TEXT("survivor_%d"),Person->SurvivorId)),TEXT("adlerklamm"));
     const int32 Count=RescuedCount();
@@ -298,7 +363,8 @@ bool ANexusWorldDirector::RescuePerson(ANexusRescueTarget* Person)
 }
 bool ANexusWorldDirector::TryVehicleRescue(ANexusVehicle* Vehicle)
 {
-    if(!Vehicle || !Vehicle->bHelicopter || Phase!=ENexusIncidentPhase::Rescue || Role!=ENexusRescueRole::Pilot)
+    if(!Vehicle || !Vehicle->bHelicopter || Phase!=ENexusIncidentPhase::Rescue ||
+       Vehicle->DriverRescueRole!=ENexusRescueRole::Pilot)
         return false;
     for(TObjectPtr<ANexusRescueTarget> Person:Survivors)
     {
@@ -307,7 +373,7 @@ bool ANexusWorldDirector::TryVehicleRescue(ANexusVehicle* Vehicle)
         const float Distance2D=FVector2D(Difference.X,Difference.Y).Size();
         const bool bHover=Difference.Z>400.f && Difference.Z<2400.f && Distance2D<=1700.f
                         && FMath::Abs(Vehicle->LinearSpeed)<750.f;
-        if(bHover) return RescuePerson(Person);
+        if(bHover) return TryTriagePerson(Person,true);
     }
     Inform(TEXT("PILOT: 4-24m ueber dem Vermissten schweben; langsam fliegen und E druecken."));
     return true;
@@ -338,11 +404,12 @@ bool ANexusWorldDirector::TryInteract(ANexusExplorer* Explorer)
             Inform(TEXT("BLACKBOX GEFUNDEN: Zuerst die Verletzten versorgen."));
         return true;
     }
-    if(Phase==ENexusIncidentPhase::Rescue && Role!=ENexusRescueRole::Pilot)
+    // On-foot aid is also allowed when a pilot's co-op teammate stays behind.
+    if(Phase==ENexusIncidentPhase::Rescue)
     {
         for(TObjectPtr<ANexusRescueTarget> Person:Survivors)
             if(Person && !Person->bRescued && FVector::Dist(P,Person->GetActorLocation())<560.f)
-                return RescuePerson(Person);
+                return TryTriagePerson(Person,false);
     }
     if(Phase==ENexusIncidentPhase::Reconstruction && P.X>4200.f && P.X<7600.f
        && FMath::Abs(P.Y)<1400.f)
@@ -520,7 +587,12 @@ void ANexusWorldDirector::SaveProgress()
         Save->GameDay=WorldMemory->GameDay;
     }
     for(TObjectPtr<ANexusIndustrySite> Site:Industry)if(Site && Site->bConstructed)Save->ConstructedSites.Add(Site->Facility);
-    for(TObjectPtr<ANexusRescueTarget> Person:Survivors)if(Person && Person->bRescued)Save->RescuedIds.Add(Person->SurvivorId);
+    for(TObjectPtr<ANexusRescueTarget> Person:Survivors)if(Person)
+    {
+        if(Person->bLocated)Save->LocatedIds.Add(Person->SurvivorId);
+        if(Person->bStabilized)Save->StabilizedIds.Add(Person->SurvivorId);
+        if(Person->bRescued)Save->RescuedIds.Add(Person->SurvivorId);
+    }
     if(UGameplayStatics::SaveGameToSlot(Save,TEXT("NEXUS_UNREAL_V1"),0))
         Inform(TEXT("Unreal NEXUS: Missionsfortschritt gespeichert."));
 }
@@ -549,13 +621,19 @@ void ANexusWorldDirector::LoadProgress()
     for(TObjectPtr<ANexusIndustrySite> Site:Industry)if(Site)Site->SetConstructed(Save->ConstructedSites.Contains(Site->Facility));
     for(TObjectPtr<ANexusRescueTarget> Person:Survivors)if(Person)
     {
-        if(Save->RescuedIds.Contains(Person->SurvivorId))Person->MarkRescued();
-        else Person->SetAvailable(Phase!=ENexusIncidentPhase::Approach);
+        const bool bWasRescued=Save->RescuedIds.Contains(Person->SurvivorId);
+        const bool bWasLocated=Save->LocatedIds.Contains(Person->SurvivorId) || bWasRescued;
+        const bool bWasStabilized=Save->StabilizedIds.Contains(Person->SurvivorId) || bWasRescued;
+        // Preserve older savegames that only recorded completed evacuations.
+        Person->SetAvailable(Phase!=ENexusIncidentPhase::Approach);
+        if(bWasLocated)Person->LocateSurvivor();
+        if(bWasStabilized)Person->StabilizeSurvivor();
+        if(bWasRescued)Person->MarkRescued();
     }
-    if(Phase!=ENexusIncidentPhase::Approach && Phase!=ENexusIncidentPhase::Complete)
+    if(Phase!=ENexusIncidentPhase::Approach)
     {
-        if(Bridge)Bridge->Collapse();
-        if(Bus)Bus->DropBehindPlayer();
+        if(Phase!=ENexusIncidentPhase::Complete && Bridge)Bridge->Collapse();
+        if(Bus) {Bus->PositionForBridgeImpact();Bus->DropBehindPlayer();}
     }
     if(Phase==ENexusIncidentPhase::Complete && Bridge)Bridge->Reconstruct();
     Inform(TEXT("NEXUS: Spielstand geladen."));
@@ -629,6 +707,11 @@ void ANexusWorldDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
     DOREPLIFETIME(ANexusWorldDirector,Role);
     DOREPLIFETIME(ANexusWorldDirector,RebuildStage);
     DOREPLIFETIME(ANexusWorldDirector,RadioMessage);
+    DOREPLIFETIME(ANexusWorldDirector,Bridge);
+    DOREPLIFETIME(ANexusWorldDirector,Bus);
+    DOREPLIFETIME(ANexusWorldDirector,RescueTruck);
+    DOREPLIFETIME(ANexusWorldDirector,RescueHelicopter);
+    DOREPLIFETIME(ANexusWorldDirector,Survivors);
 }
 
 void ANexusWorldDirector::UnlockTopic(FName Topic)

@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "NexusTypes.h"
 #include "NexusExplorer.generated.h"
 class UCameraComponent;
 class UNexusWeaponComponent;
@@ -30,6 +31,9 @@ public:
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USpringArmComponent> ThirdPersonArm;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UCameraComponent> ThirdPersonCamera;
     UPROPERTY(BlueprintReadOnly,Category="NEXUS|Camera") bool bThirdPersonView=false;
+    // Every co-op player chooses their own duty after the disaster.
+    UPROPERTY(BlueprintReadOnly,Replicated) ENexusRescueRole SelectedRescueRole=ENexusRescueRole::None;
+    void SetRescueRole(ENexusRescueRole NewRole);
     UFUNCTION(BlueprintCallable,Category="NEXUS|Camera") void ToggleCamera();
 
     // True 3D buoyant movement uses CharacterMovement MOVE_Flying, with a

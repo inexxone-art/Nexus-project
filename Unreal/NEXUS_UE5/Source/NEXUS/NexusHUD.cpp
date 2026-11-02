@@ -5,6 +5,7 @@
 #include "NexusWeaponComponent.h"
 #include "NexusVehicle.h"
 #include "NexusBridge.h"
+#include "NexusRescueTarget.h"
 #include "NexusCampaignComponent.h"
 #include "NexusSimulationComponent.h"
 #include "NexusAlpineWeather.h"
@@ -47,9 +48,11 @@ void ANexusHUD::DrawHUD()
     ANexusExplorer* LocalExplorer=PlayerOwner?Cast<ANexusExplorer>(PlayerOwner->GetPawn()):nullptr;
     ANexusVehicle* LocalVehicle=Cast<ANexusVehicle>(Pawn);
     const ENexusIncidentPhase Phase=D->Phase;
+    const ENexusRescueRole LocalRole=LocalExplorer?LocalExplorer->SelectedRescueRole:
+        (LocalVehicle?LocalVehicle->DriverRescueRole:D->Role);
 
     // Reference top-left: compact mission title with actual dynamic objectives.
-    Panel(14*X,19*Y,372*X,236*Y);
+    Panel(14*X,19*Y,385*X,263*Y);
     Text(TEXT("NEXUS  |  ADLERKLAMM"),27*X,27*Y,1.13f,NexusUI::Amber);
     Text(TEXT("HAUPTMISSION  -  RETTUNG & SICHERUNG"),27*X,57*Y,.81f,NexusUI::Pale);
     Text(D->PhaseDescription(),27*X,82*Y,.75f,NexusUI::Muted);
@@ -57,14 +60,18 @@ void ANexusHUD::DrawHUD()
     const bool bRescued=D->RescuedCount()>=3;
     Text(FString::Printf(TEXT("%s  Brueckeneinsturz / Notruf"),bStarted?TEXT("[X]"):TEXT("[ ]")),
          28*X,112*Y,.80f,bStarted?NexusUI::Green:NexusUI::Pale);
-    Text(FString::Printf(TEXT("%s  Ueberlebende lokalisieren (%d/3)"),
+    Text(FString::Printf(TEXT("%s  Vermisste lokalisieren (%d/3)"),
+         D->LocatedCount()==3?TEXT("[X]"):TEXT("[ ]"),D->LocatedCount()),
+         28*X,139*Y,.80f,D->LocatedCount()==3?NexusUI::Green:NexusUI::Pale);
+    Text(FString::Printf(TEXT("%s  Erste Hilfe leisten (%d/3)"),
+         D->StabilizedCount()==3?TEXT("[X]"):TEXT("[ ]"),D->StabilizedCount()),
+         28*X,166*Y,.80f,D->StabilizedCount()==3?NexusUI::Green:NexusUI::Pale);
+    Text(FString::Printf(TEXT("%s  Bergung abschliessen (%d/3)"),
          bRescued?TEXT("[X]"):TEXT("[ ]"),D->RescuedCount()),
-         28*X,139*Y,.80f,bRescued?NexusUI::Green:NexusUI::Pale);
-    Text(FString::Printf(TEXT("%s  Medizinische Bergung abschliessen"),bRescued?TEXT("[X]"):TEXT("[ ]")),
-         28*X,166*Y,.80f,bRescued?NexusUI::Green:NexusUI::Pale);
+         28*X,193*Y,.80f,bRescued?NexusUI::Green:NexusUI::Pale);
     Text(FString::Printf(TEXT("%s  Wiederaufbau der Bruecke"),D->RebuildStage>=4?TEXT("[X]"):TEXT("[ ]")),
-         28*X,193*Y,.80f,D->RebuildStage>=4?NexusUI::Green:NexusUI::Pale);
-    Text(TEXT("E INTERAKTION   |   V KAMERA WECHSELN"),27*X,226*Y,.68f,NexusUI::Amber);
+         28*X,220*Y,.80f,D->RebuildStage>=4?NexusUI::Green:NexusUI::Pale);
+    Text(TEXT("E INTERAKTION   |   V KAMERA WECHSELN"),27*X,253*Y,.68f,NexusUI::Amber);
 
     // Role selector is a live choice only after the bus crash.
     if(Phase==ENexusIncidentPhase::RoleChoice || Phase==ENexusIncidentPhase::Rescue)
@@ -72,12 +79,57 @@ void ANexusHUD::DrawHUD()
         Panel(17*X,281*Y,321*X,149*Y);
         Text(TEXT("RETTUNGSWEG / ROLLE"),30*X,291*Y,.93f,NexusUI::Amber);
         const TCHAR* RoleNames[3]={TEXT("F1  Sanitaeter"),TEXT("F2  Helikopter-Pilot"),TEXT("F3  Bodensuchteam")};
-        const bool Chosen[3]={D->Role==ENexusRescueRole::Medic,
-            D->Role==ENexusRescueRole::Pilot,D->Role==ENexusRescueRole::GroundSearch};
+        const bool Chosen[3]={LocalRole==ENexusRescueRole::Medic,
+            LocalRole==ENexusRescueRole::Pilot,LocalRole==ENexusRescueRole::GroundSearch};
         for(int32 I=0;I<3;++I)
         {
             if(Chosen[I])DrawRect(FLinearColor(.42f,.33f,.08f,.63f),26*X,(324+I*31)*Y,292*X,26*Y);
             Text(RoleNames[I],34*X,(328+I*31)*Y,.86f,Chosen[I]?NexusUI::Amber:NexusUI::Pale);
+        }
+    }
+
+    // The objective compass uses actual replicated actor positions. For the
+    // pilot route the first waypoint is the helipad, then a survivor; on foot
+    // the closest outstanding survivor becomes the next rescue location.
+    if(Phase==ENexusIncidentPhase::Rescue && Pawn)
+    {
+        FVector Goal=FVector::ZeroVector;
+        FString Label;
+        bool bHasGoal=false;
+        if(LocalRole==ENexusRescueRole::Pilot && !LocalVehicle && D->RescueHelicopter)
+        {
+            Goal=D->RescueHelicopter->GetActorLocation();
+            Label=TEXT("ZUM RETTUNGSHELIKOPTER");
+            bHasGoal=true;
+        }
+        else
+        {
+            float BestDistanceSq=TNumericLimits<float>::Max();
+            for(const auto& Person:D->Survivors)
+            {
+                if(!Person || !Person->bAvailable || Person->bRescued)continue;
+                const float DistanceSq=FVector::DistSquared(Pawn->GetActorLocation(),Person->GetActorLocation());
+                if(DistanceSq<BestDistanceSq)
+                {
+                    BestDistanceSq=DistanceSq;
+                    Goal=Person->GetActorLocation();
+                    Label=FString::Printf(TEXT("VERMISSTE PERSON %d"),Person->SurvivorId+1);
+                    bHasGoal=true;
+                }
+            }
+        }
+        if(bHasGoal)
+        {
+            const FVector Offset=Goal-Pawn->GetActorLocation();
+            const float Meters=Offset.Size()/100.f;
+            const float LocalBearing=FMath::FindDeltaAngleDegrees(
+                PlayerOwner->GetControlRotation().Yaw,Offset.Rotation().Yaw);
+            const TCHAR* Turn=LocalBearing>18.f?TEXT("RECHTS"):
+                (LocalBearing< -18.f?TEXT("LINKS"):TEXT("GERADEAUS"));
+            Panel(579*X,35*Y,444*X,84*Y);
+            Text(Label,591*X,48*Y,.95f,NexusUI::Amber);
+            Text(FString::Printf(TEXT("%.0f m  |  %s  |  E: SUCHEN / HELFEN / BERGEN"),Meters,Turn),
+                591*X,84*Y,.75f,NexusUI::Pale);
         }
     }
 
