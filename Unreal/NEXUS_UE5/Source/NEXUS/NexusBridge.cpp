@@ -8,6 +8,8 @@
 ANexusBridge::ANexusBridge()
 {
     PrimaryActorTick.bCanEverTick=false;
+    bReplicates=true;
+    SetReplicateMovement(true);
     Base=CreateDefaultSubobject<USceneComponent>(TEXT("BridgeRoot"));
     RootComponent=Base;
 }

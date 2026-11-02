@@ -6,6 +6,7 @@
 #include "NexusSimulationComponent.h"
 #include "Engine/Canvas.h"
 #include "Engine/Engine.h"
+#include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
 
 void ANexusHUD::Panel(float X,float Y,float W,float H)
@@ -21,9 +22,10 @@ void ANexusHUD::DrawHUD()
 {
     Super::DrawHUD();
     if(!Canvas)return;
-    auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>();
-    if(!GM || !GM->Director)return;
-    auto* D=GM->Director;
+    ANexusWorldDirector* D=nullptr;
+    for(TActorIterator<ANexusWorldDirector> It(GetWorld());It;++It){D=*It;break;}
+    if(!D)return;
+    ANexusGameMode* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>();
     const float X=Canvas->ClipX/1600.f,Y=Canvas->ClipY/900.f;
     Panel(15*X,55*Y,410*X,270*Y);
     Text(TEXT("NEXUS | ADLERKLAMM HAUPTMISSION"),28*X,67*Y,1.20f,FLinearColor(1.f,0.75f,0.16f,1.f));
@@ -61,7 +63,7 @@ void ANexusHUD::DrawHUD()
     Text(TEXT("F6 SPURENSUCHE  F7 ZIVILISTEN  F8 BEWEISE"),455*X,805*Y,0.69f,FLinearColor(0.86f,0.85f,0.75f));
     Text(TEXT("WASD BEWEGEN/FAHREN  E INTERAKTION  F AUSSTEIGEN"),
         455*X,891*Y,0.73f,FLinearColor(0.86f,0.85f,0.75f));
-    if(GM->Explorer)
+    if(GM && GM->Explorer)
     {
         const int32 Slot=GM->Explorer->EquipmentSlot;
         Text(FString::Printf(TEXT("AKTIV: SLOT %d"),Slot+1),477*X,871*Y,0.75f,FLinearColor(1.f,0.75f,0.16f));

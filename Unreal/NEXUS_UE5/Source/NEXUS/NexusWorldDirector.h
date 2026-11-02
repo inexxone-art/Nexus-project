@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Net/UnrealNetwork.h"
 #include "NexusTypes.h"
 #include "NexusWorldDirector.generated.h"
 class ANexusBridge;
@@ -20,6 +21,7 @@ class NEXUS_API ANexusWorldDirector : public AActor
 public:
     ANexusWorldDirector();
     virtual void BeginPlay() override;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UNexusSimulationComponent> WorldMemory;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UNexusCampaignComponent> Story;
     UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusBridge> Bridge;
@@ -29,13 +31,13 @@ public:
     UPROPERTY(BlueprintReadOnly) TArray<TObjectPtr<ANexusRescueTarget>> Survivors;
     UPROPERTY(BlueprintReadOnly) TArray<TObjectPtr<ANexusIndustrySite>> Industry;
     UPROPERTY(BlueprintReadOnly) FNexusResourceStock Stock;
-    UPROPERTY(BlueprintReadOnly) int32 Credits=3000;
-    UPROPERTY(BlueprintReadOnly) ENexusIncidentPhase Phase=ENexusIncidentPhase::Approach;
-    UPROPERTY(BlueprintReadOnly) ENexusRescueRole Role=ENexusRescueRole::None;
-    UPROPERTY(BlueprintReadOnly) int32 RebuildStage=0;
+    UPROPERTY(BlueprintReadOnly,Replicated) int32 Credits=3000;
+    UPROPERTY(BlueprintReadOnly,Replicated) ENexusIncidentPhase Phase=ENexusIncidentPhase::Approach;
+    UPROPERTY(BlueprintReadOnly,Replicated) ENexusRescueRole Role=ENexusRescueRole::None;
+    UPROPERTY(BlueprintReadOnly,Replicated) int32 RebuildStage=0;
     UPROPERTY(BlueprintReadOnly) bool bPaidRescue=false;
     UPROPERTY(BlueprintReadOnly) bool bEnteredSpan=false;
-    UPROPERTY(BlueprintReadOnly) FString RadioMessage;
+    UPROPERTY(BlueprintReadOnly,Replicated) FString RadioMessage;
     void VehicleAdvanced(ANexusVehicle* Vehicle);
     void ChooseRescueRole(ENexusRescueRole NewRole);
     UFUNCTION(BlueprintCallable) bool InvestigateEvidence(const FVector& Position);

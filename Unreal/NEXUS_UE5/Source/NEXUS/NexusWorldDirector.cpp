@@ -8,6 +8,7 @@
 #include "NexusSaveGame.h"
 #include "NexusCampaignComponent.h"
 #include "NexusSimulationComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Engine/StaticMesh.h"
@@ -461,4 +462,14 @@ bool ANexusWorldDirector::ChooseCampaignOutcome(bool bProtectCivilians)
     Inform(bProtectCivilians?TEXT("WAHL: Zivilisten gerettet. Spaetere Einsaetze merken sich das."):
         TEXT("WAHL: Beweisdaten gesichert. Versorgung gewinnt Stabilitaet."));
     return true;
+}
+
+void ANexusWorldDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const
+{
+    Super::GetLifetimeReplicatedProps(Out);
+    DOREPLIFETIME(ANexusWorldDirector,Credits);
+    DOREPLIFETIME(ANexusWorldDirector,Phase);
+    DOREPLIFETIME(ANexusWorldDirector,Role);
+    DOREPLIFETIME(ANexusWorldDirector,RebuildStage);
+    DOREPLIFETIME(ANexusWorldDirector,RadioMessage);
 }

@@ -14,6 +14,8 @@
 ANexusVehicle::ANexusVehicle()
 {
     PrimaryActorTick.bCanEverTick = true;
+    bReplicates=true;
+    SetReplicateMovement(true);
     Collider=CreateDefaultSubobject<UBoxComponent>(TEXT("VehicleCollision"));
     Collider->SetBoxExtent(FVector(275,140,110));
     Collider->SetCollisionProfileName(TEXT("Pawn"));

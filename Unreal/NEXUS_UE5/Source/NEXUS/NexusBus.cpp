@@ -6,6 +6,8 @@
 ANexusBus::ANexusBus()
 {
     PrimaryActorTick.bCanEverTick=false;
+    bReplicates=true;
+    SetReplicateMovement(true);
     PhysicsBody=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CHAOS_BUS_MESH"));
     RootComponent=PhysicsBody;
     PhysicsBody->SetMobility(EComponentMobility::Movable);

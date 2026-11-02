@@ -5,6 +5,7 @@
 class ANexusWorldDirector;
 class ANexusExplorer;
 class ANexusVehicle;
+class APlayerController;
 
 UCLASS()
 class NEXUS_API ANexusGameMode : public AGameModeBase
@@ -13,6 +14,7 @@ class NEXUS_API ANexusGameMode : public AGameModeBase
 public:
     ANexusGameMode();
     virtual void StartPlay() override;
+    virtual void PostLogin(APlayerController* NewPlayer) override;
     UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusWorldDirector> Director;
     UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusExplorer> Explorer;
     void Interact(ANexusExplorer* Player);
@@ -23,5 +25,6 @@ public:
     void LoadProgress();
     void GoToApproach();
 private:
-    void EnterVehicle(ANexusVehicle* Vehicle);
+    void EnterVehicle(ANexusVehicle* Vehicle, ANexusExplorer* Passenger);
+    TMap<APlayerController*, ANexusExplorer*> SeatedFootPawns;
 };
