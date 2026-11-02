@@ -39,8 +39,10 @@ void ANexusAlpineRiver::BeginPlay()
 FVector ANexusAlpineRiver::RiverCenterAt(float Alpha) const
 {
     const float T=FMath::Clamp(Alpha,0.f,1.f);
-    return FVector(FMath::Lerp(-9200.f,9200.f,T),
-       610.f*FMath::Sin(T*PI*2.5f)+310.f*FMath::Sin(T*PI*6.5f),
+    // The bridge runs WEST/EAST (+X). Water runs SOUTH/NORTH (+Y),
+    // so the river crosses underneath the bridge rather than following it.
+    return FVector(610.f*FMath::Sin(T*PI*2.5f)+310.f*FMath::Sin(T*PI*6.5f),
+       FMath::Lerp(-9200.f,9200.f,T),
        BaseWaterHeight+RainFloodLevel+30.f*FMath::Sin(T*PI*7.5f));
 }
 FVector ANexusAlpineRiver::WaterNormalAt(float Alpha) const
@@ -48,7 +50,7 @@ FVector ANexusAlpineRiver::WaterNormalAt(float Alpha) const
     const FVector Prev=RiverCenterAt(FMath::Max(0.f,Alpha-.002f));
     const FVector Next=RiverCenterAt(FMath::Min(1.f,Alpha+.002f));
     const FVector Tangent=FVector(Next.X-Prev.X,Next.Y-Prev.Y,0.f).GetSafeNormal();
-    // Flow points west -> east; cross(Tangent,Up) points toward right shoreline.
+    // Flow points south -> north. cross(Tangent,Up) points toward eastern shore.
     return FVector::CrossProduct(Tangent,FVector::UpVector).GetSafeNormal();
 }
 float ANexusAlpineRiver::ErodingOuterSide(float Alpha) const
@@ -58,8 +60,9 @@ float ANexusAlpineRiver::ErodingOuterSide(float Alpha) const
     // Outer bank is opposite bend-center, inferred from signed curvature.
     const float Curvature=-610.f*A*A*FMath::Sin(Alpha*A)
                          -310.f*B*B*FMath::Sin(Alpha*B);
-    // Positive curvature bends left (+Y): outer bank is -Y, the +lateral side.
-    return Curvature>=0.f?1.f:-1.f;
+    // Positive X curvature bends the northbound river east (+X), so
+    // erosion strikes the outside western (-X) shore.
+    return Curvature>=0.f?-1.f:1.f;
 }
 float ANexusAlpineRiver::BedDepthAt(float Alpha,float Lateral) const
 {
@@ -80,8 +83,8 @@ bool ANexusAlpineRiver::SampleWater(const FVector& Position,float& SurfaceZ,
     float& BedZ,FVector& CurrentVelocity,float& LateralOffset) const
 {
     SurfaceZ=0.f;BedZ=0.f;CurrentVelocity=FVector::ZeroVector;LateralOffset=0.f;
-    if(Position.X < -9200.f || Position.X > 9200.f)return false;
-    const float Alpha=FMath::Clamp((Position.X+9200.f)/18400.f,0.f,1.f);
+    if(Position.Y < -9200.f || Position.Y > 9200.f)return false;
+    const float Alpha=FMath::Clamp((Position.Y+9200.f)/18400.f,0.f,1.f);
     const FVector Center=RiverCenterAt(Alpha);
     const FVector Normal=WaterNormalAt(Alpha);
     LateralOffset=FVector::DotProduct(Position-Center,Normal);
