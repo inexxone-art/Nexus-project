@@ -23,7 +23,7 @@ class V6MotionTests(unittest.TestCase):
     def test_import_pipeline_present(self):
         code=(ROOT/"Scripts/import_nexus_v6_pbr.py").read_text()
         ast.parse(code)
-        for token in ("Metallic","roughness","normal","sRGB" if False else "srgb",
+        for token in ("MP_METALLIC","roughness","normal","sRGB" if False else "srgb",
                       "replace_existing","False","PBR_V6"):
             self.assertIn(token,code)
 if __name__=="__main__":unittest.main()
