@@ -143,8 +143,7 @@ void ANexusWorldDirector::CreateRescueTargets()
         ANexusRescueTarget* Person=GetWorld()->SpawnActor<ANexusRescueTarget>(ANexusRescueTarget::StaticClass(),Sites[Id],FRotator::ZeroRotator);
         if(!Person) continue;
         Person->SurvivorId=Id;
-        Person->SetActorHiddenInGame(true);
-        Person->SetActorEnableCollision(false);
+        Person->SetAvailable(false);
         Survivors.Add(Person);
     }
 }
@@ -196,8 +195,7 @@ void ANexusWorldDirector::VehicleAdvanced(ANexusVehicle* Vehicle)
         if(Bus) Bus->DropBehindPlayer();
         for(TObjectPtr<ANexusRescueTarget> Person:Survivors) if(Person && !Person->bRescued)
         {
-            Person->SetActorHiddenInGame(false);
-            Person->SetActorEnableCollision(true);
+            Person->SetAvailable(true);
         }
         Phase=ENexusIncidentPhase::RoleChoice;
         Inform(TEXT("NOTRUF: IST HIER EIN SANITAETER ODER PILOT? F1 SANITAETER | F2 PILOT | F3 BODENSUCHE"));
@@ -430,7 +428,7 @@ void ANexusWorldDirector::LoadProgress()
     for(TObjectPtr<ANexusRescueTarget> Person:Survivors)if(Person)
     {
         if(Save->RescuedIds.Contains(Person->SurvivorId))Person->MarkRescued();
-        else {Person->SetActorHiddenInGame(Phase==ENexusIncidentPhase::Approach);Person->SetActorEnableCollision(Phase!=ENexusIncidentPhase::Approach);}
+        else Person->SetAvailable(Phase!=ENexusIncidentPhase::Approach);
     }
     if(Phase!=ENexusIncidentPhase::Approach && Phase!=ENexusIncidentPhase::Complete)
     {
