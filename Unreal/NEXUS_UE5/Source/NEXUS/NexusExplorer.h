@@ -3,6 +3,7 @@
 #include "GameFramework/Character.h"
 #include "NexusExplorer.generated.h"
 class UCameraComponent;
+class USpringArmComponent;
 class ANexusAlpineRiver;
 
 UCLASS()
@@ -17,6 +18,10 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
 
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UCameraComponent> ViewCamera;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USpringArmComponent> ThirdPersonArm;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UCameraComponent> ThirdPersonCamera;
+    UPROPERTY(BlueprintReadOnly,Category="NEXUS|Camera") bool bThirdPersonView=false;
+    UFUNCTION(BlueprintCallable,Category="NEXUS|Camera") void ToggleCamera();
 
     // True 3D buoyant movement uses CharacterMovement MOVE_Flying, with a
     // custom server-authoritative water detector and drag/current controller.

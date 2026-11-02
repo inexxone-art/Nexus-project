@@ -20,6 +20,11 @@ public:
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> Visual;
     UPROPERTY(VisibleAnywhere) TObjectPtr<USpringArmComponent> CameraArm;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UCameraComponent> ChaseCamera;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UCameraComponent> CockpitCamera;
+    UPROPERTY(BlueprintReadOnly) bool bCockpitView=false;
+    UFUNCTION(BlueprintCallable) void ToggleCamera();
+    UPROPERTY(VisibleAnywhere) TObjectPtr<class UPointLightComponent> BeaconRed;
+    UPROPERTY(VisibleAnywhere) TObjectPtr<class UPointLightComponent> BeaconBlue;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) bool bHelicopter = false;
     UPROPERTY(BlueprintReadOnly) float LinearSpeed = 0.f;
     UPROPERTY(BlueprintReadOnly) TObjectPtr<APlayerController> Driver;

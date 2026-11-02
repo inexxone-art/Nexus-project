@@ -5,6 +5,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/PointLightComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Components/InputComponent.h"
@@ -37,6 +38,25 @@ ANexusVehicle::ANexusVehicle()
     CameraArm->bUsePawnControlRotation=false;
     ChaseCamera=CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
     ChaseCamera->SetupAttachment(CameraArm,USpringArmComponent::SocketName);
+    CockpitCamera=CreateDefaultSubobject<UCameraComponent>(TEXT("DriverCockpitCamera"));
+    CockpitCamera->SetupAttachment(Collider);
+    CockpitCamera->SetRelativeLocation(FVector(45.f,-55.f,128.f));
+    CockpitCamera->bUsePawnControlRotation=true;
+    CockpitCamera->SetActive(false);
+    BeaconRed=CreateDefaultSubobject<UPointLightComponent>(TEXT("EmergencyBeaconRed"));
+    BeaconRed->SetupAttachment(Collider);
+    BeaconRed->SetRelativeLocation(FVector(80.f,-115.f,180.f));
+    BeaconRed->SetLightColor(FLinearColor(1.f,0.025f,0.02f));
+    BeaconRed->SetAttenuationRadius(1450.f);
+    BeaconRed->SetIntensity(0.f);
+    BeaconRed->SetCastShadows(false);
+    BeaconBlue=CreateDefaultSubobject<UPointLightComponent>(TEXT("EmergencyBeaconBlue"));
+    BeaconBlue->SetupAttachment(Collider);
+    BeaconBlue->SetRelativeLocation(FVector(80.f,115.f,180.f));
+    BeaconBlue->SetLightColor(FLinearColor(.02f,.16f,1.f));
+    BeaconBlue->SetAttenuationRadius(1450.f);
+    BeaconBlue->SetIntensity(0.f);
+    BeaconBlue->SetCastShadows(false);
     AutoPossessPlayer=EAutoReceiveInput::Disabled;
 }
 void ANexusVehicle::SetDriver(APlayerController* Controller) { Driver=Controller; }
@@ -49,12 +69,19 @@ void ANexusVehicle::SetupPlayerInputComponent(UInputComponent* Input)
     Input->BindAxis(TEXT("FlyDown"),this,&ANexusVehicle::FlyDown);
     Input->BindAction(TEXT("Interact"),IE_Pressed,this,&ANexusVehicle::RescueOrExit);
     Input->BindAction(TEXT("ExitVehicle"),IE_Pressed,this,&ANexusVehicle::ExitToFoot);
+    Input->BindAction(TEXT("ToggleCamera"),IE_Pressed,this,&ANexusVehicle::ToggleCamera);
     Input->BindAction(TEXT("RoleMedic"),IE_Pressed,this,&ANexusVehicle::ChooseMedic);
     Input->BindAction(TEXT("RolePilot"),IE_Pressed,this,&ANexusVehicle::ChoosePilot);
     Input->BindAction(TEXT("RoleGround"),IE_Pressed,this,&ANexusVehicle::ChooseGround);
     Input->BindAction(TEXT("InspectEvidence"),IE_Pressed,this,&ANexusVehicle::InspectEvidence);
     Input->BindAction(TEXT("ProtectCivilians"),IE_Pressed,this,&ANexusVehicle::ProtectCivilians);
     Input->BindAction(TEXT("SecureEvidence"),IE_Pressed,this,&ANexusVehicle::SecureEvidence);
+}
+void ANexusVehicle::ToggleCamera()
+{
+    bCockpitView=!bCockpitView;
+    ChaseCamera->SetActive(!bCockpitView);
+    CockpitCamera->SetActive(bCockpitView);
 }
 void ANexusVehicle::Drive(float V)
 {
@@ -90,6 +117,13 @@ void ANexusVehicle::FlyDown(float V)
 void ANexusVehicle::Tick(float Dt)
 {
     Super::Tick(Dt);
+    // Alternating red/blue reflections are visual-only and run on every client.
+    if(GetWorld() && BeaconRed && BeaconBlue)
+    {
+        const float Cycle=FMath::Fmod(GetWorld()->GetTimeSeconds()*3.2f,1.f);
+        BeaconRed->SetIntensity(Cycle<.38f?4400.f:0.f);
+        BeaconBlue->SetIntensity(Cycle>.50f && Cycle<.88f?5500.f:0.f);
+    }
     if(!HasAuthority() || !Driver || Dt<=0) return;
     float Traction=1.f;
     if(!bHelicopter)

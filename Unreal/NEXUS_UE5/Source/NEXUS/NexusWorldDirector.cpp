@@ -9,6 +9,7 @@
 #include "NexusCampaignComponent.h"
 #include "NexusSimulationComponent.h"
 #include "NexusCinematicScenery.h"
+#include "NexusCinematicLook.h"
 #include "NexusCompanion.h"
 #include "NexusAlpineWeather.h"
 #include "NexusAlpineRiver.h"
@@ -47,6 +48,8 @@ void ANexusWorldDirector::BeginPlay()
     PublishInventory();
     CreateStageWorld();
     GetWorld()->SpawnActor<ANexusCinematicScenery>();
+    // Local post-process and physically modelled atmosphere; no baked screenshot.
+    GetWorld()->SpawnActor<ANexusCinematicLook>();
     River=GetWorld()->SpawnActor<ANexusAlpineRiver>();
     // Underwater recorder is physically on the riverbed, not floating
     // at an arbitrary world coordinate. Recoverable only after the crash.

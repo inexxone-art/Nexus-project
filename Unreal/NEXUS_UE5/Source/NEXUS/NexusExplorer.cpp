@@ -1,5 +1,6 @@
 #include "NexusExplorer.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "NexusGameMode.h"
@@ -18,6 +19,16 @@ ANexusExplorer::ANexusExplorer()
     ViewCamera->SetupAttachment(GetCapsuleComponent());
     ViewCamera->SetRelativeLocation(FVector(0,0,66));
     ViewCamera->bUsePawnControlRotation = true;
+    ThirdPersonArm=CreateDefaultSubobject<USpringArmComponent>(TEXT("ThirdPersonCameraBoom"));
+    ThirdPersonArm->SetupAttachment(GetCapsuleComponent());
+    ThirdPersonArm->SetRelativeLocation(FVector(0.f,0.f,78.f));
+    ThirdPersonArm->TargetArmLength=390.f;
+    ThirdPersonArm->SocketOffset=FVector(0.f,65.f,25.f);
+    ThirdPersonArm->bUsePawnControlRotation=true;
+    ThirdPersonArm->bDoCollisionTest=true;
+    ThirdPersonCamera=CreateDefaultSubobject<UCameraComponent>(TEXT("ThirdPersonCamera"));
+    ThirdPersonCamera->SetupAttachment(ThirdPersonArm,USpringArmComponent::SocketName);
+    ThirdPersonCamera->SetActive(false);
     // Underwater camera color grading is applied only to the owning player.
     // Local post-process is disabled until the eyes actually enter water.
     ViewCamera->PostProcessSettings.bOverride_SceneColorTint=true;
@@ -41,6 +52,7 @@ void ANexusExplorer::SetupPlayerInputComponent(UInputComponent* Input)
     Input->BindAction(TEXT("SwimDescend"),IE_Pressed,this,&ANexusExplorer::StartDive);
     Input->BindAction(TEXT("SwimDescend"),IE_Released,this,&ANexusExplorer::StopDive);
     Input->BindAction(TEXT("Interact"),IE_Pressed,this,&ANexusExplorer::Interact);
+    Input->BindAction(TEXT("ToggleCamera"),IE_Pressed,this,&ANexusExplorer::ToggleCamera);
     Input->BindAction(TEXT("RoleMedic"),IE_Pressed,this,&ANexusExplorer::MedicRole);
     Input->BindAction(TEXT("RolePilot"),IE_Pressed,this,&ANexusExplorer::PilotRole);
     Input->BindAction(TEXT("RoleGround"),IE_Pressed,this,&ANexusExplorer::GroundRole);
@@ -57,6 +69,13 @@ void ANexusExplorer::SetupPlayerInputComponent(UInputComponent* Input)
     Input->BindAction(TEXT("AI_Follow"),IE_Pressed,this,&ANexusExplorer::TeamFollow);
     Input->BindAction(TEXT("AI_Scout"),IE_Pressed,this,&ANexusExplorer::TeamScout);
     Input->BindAction(TEXT("AI_Medic"),IE_Pressed,this,&ANexusExplorer::TeamMedic);
+}
+void ANexusExplorer::ToggleCamera()
+{
+    // Camera choice is local to this pawn: do not replicate a viewing preference.
+    bThirdPersonView=!bThirdPersonView;
+    ViewCamera->SetActive(!bThirdPersonView);
+    ThirdPersonCamera->SetActive(bThirdPersonView);
 }
 void ANexusExplorer::MoveForward(float V) { if (Controller && V!=0) AddMovementInput(GetActorForwardVector(),V); }
 void ANexusExplorer::MoveRight(float V) { if (Controller && V!=0) AddMovementInput(GetActorRightVector(),V); }
