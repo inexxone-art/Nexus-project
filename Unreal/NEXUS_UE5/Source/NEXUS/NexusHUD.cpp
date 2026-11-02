@@ -2,6 +2,8 @@
 #include "NexusGameMode.h"
 #include "NexusWorldDirector.h"
 #include "NexusExplorer.h"
+#include "NexusCampaignComponent.h"
+#include "NexusSimulationComponent.h"
 #include "Engine/Canvas.h"
 #include "Engine/Engine.h"
 #include "GameFramework/PlayerController.h"
@@ -26,6 +28,8 @@ void ANexusHUD::DrawHUD()
     Panel(15*X,55*Y,410*X,270*Y);
     Text(TEXT("NEXUS | ADLERKLAMM HAUPTMISSION"),28*X,67*Y,1.20f,FLinearColor(1.f,0.75f,0.16f,1.f));
     Text(D->PhaseDescription(),28*X,102*Y,0.85f);
+    if(D->Story)
+        Text(D->Story->GetObjectiveText(),28*X,122*Y,0.65f,FLinearColor(0.86f,0.92f,0.81f));
     Text(FString::Printf(TEXT("[ ]  Ueberlebende finden (%d/3)"),D->RescuedCount()),28*X,143*Y,0.86f);
     Text(TEXT("[ ]  Medizinische Versorgung oder Bergung"),28*X,174*Y,0.82f);
     Text(TEXT("[ ]  Bruecke sichern / Wiederaufbau planen"),28*X,205*Y,0.82f);
@@ -54,6 +58,7 @@ void ANexusHUD::DrawHUD()
     Panel(450*X,819*Y,700*X,69*Y);
     Text(TEXT("1 GEWEHR  |  2 PISTOLE  |  3 SANITAET  |  4 BAUWERKZEUG"),
         477*X,841*Y,0.95f);
+    Text(TEXT("F6 SPURENSUCHE  F7 ZIVILISTEN  F8 BEWEISE"),455*X,805*Y,0.69f,FLinearColor(0.86f,0.85f,0.75f));
     Text(TEXT("WASD BEWEGEN/FAHREN  E INTERAKTION  F AUSSTEIGEN"),
         455*X,891*Y,0.73f,FLinearColor(0.86f,0.85f,0.75f));
     if(GM->Explorer)
@@ -64,6 +69,8 @@ void ANexusHUD::DrawHUD()
     Panel(26*X,720*Y,392*X,90*Y);
     Text(TEXT("MISSION / NOTRUF"),40*X,732*Y,0.91f,FLinearColor(0.95f,0.74f,0.2f));
     Text(D->RadioMessage,40*X,764*Y,0.7f);
+    if(D->WorldMemory)
+        Text(D->WorldMemory->SectorReport(TEXT("adlerklamm")),40*X,791*Y,0.60f);
     DrawLine(Canvas->ClipX*0.5f-9,Canvas->ClipY*0.5f,Canvas->ClipX*0.5f+9,Canvas->ClipY*0.5f,FLinearColor::White,1.f);
     DrawLine(Canvas->ClipX*0.5f,Canvas->ClipY*0.5f-9,Canvas->ClipX*0.5f,Canvas->ClipY*0.5f+9,FLinearColor::White,1.f);
 }

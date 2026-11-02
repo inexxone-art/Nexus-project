@@ -49,6 +49,9 @@ void ANexusVehicle::SetupPlayerInputComponent(UInputComponent* Input)
     Input->BindAction(TEXT("RoleMedic"),IE_Pressed,this,&ANexusVehicle::ChooseMedic);
     Input->BindAction(TEXT("RolePilot"),IE_Pressed,this,&ANexusVehicle::ChoosePilot);
     Input->BindAction(TEXT("RoleGround"),IE_Pressed,this,&ANexusVehicle::ChooseGround);
+    Input->BindAction(TEXT("InspectEvidence"),IE_Pressed,this,&ANexusVehicle::InspectEvidence);
+    Input->BindAction(TEXT("ProtectCivilians"),IE_Pressed,this,&ANexusVehicle::ProtectCivilians);
+    Input->BindAction(TEXT("SecureEvidence"),IE_Pressed,this,&ANexusVehicle::SecureEvidence);
 }
 void ANexusVehicle::Drive(float V) { Throttle=FMath::Clamp(V,-1.f,1.f); }
 void ANexusVehicle::Turn(float V) { Steering=FMath::Clamp(V,-1.f,1.f); }
@@ -99,3 +102,19 @@ void ANexusVehicle::ExitToFoot() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexu
 void ANexusVehicle::ChooseMedic() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(0); }
 void ANexusVehicle::ChoosePilot() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(1); }
 void ANexusVehicle::ChooseGround() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->ChooseRole(2); }
+
+void ANexusVehicle::InspectEvidence()
+{
+    if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
+        if(GM->Director)GM->Director->InvestigateEvidence(GetActorLocation());
+}
+void ANexusVehicle::ProtectCivilians()
+{
+    if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
+        if(GM->Director)GM->Director->ChooseCampaignOutcome(true);
+}
+void ANexusVehicle::SecureEvidence()
+{
+    if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
+        if(GM->Director)GM->Director->ChooseCampaignOutcome(false);
+}

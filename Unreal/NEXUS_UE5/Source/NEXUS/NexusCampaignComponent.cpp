@@ -82,17 +82,17 @@ bool UNexusCampaignComponent::CompleteObjective(FName Action)
     const auto& Mission=MissionCatalog[ActiveMissionIndex];
     if(!Mission.Stages.IsValidIndex(ActivePhaseIndex))return false;
     const auto& Stage=Mission.Stages[ActivePhaseIndex];
-    if(Stage.Stage==TEXT("choice"))return false; // irreversible choice requires ResolveChoice.
+    if(Stage.Stage==FName(TEXT("choice")))return false; // irreversible choice requires ResolveChoice.
     if(Stage.Action!=Action)return false; // no skipping stages, no fake story time
     return AdvancePhase();
 }
 bool UNexusCampaignComponent::ResolveChoice(FName Choice,FName RequiredObjective)
 {
     if(!GetOwner() || !GetOwner()->HasAuthority() || IsFinished())return false;
-    if(Choice!=TEXT("protect_civilians") && Choice!=TEXT("secure_critical_data"))return false;
+    if(Choice!=FName(TEXT("protect_civilians")) && Choice!=FName(TEXT("secure_critical_data")))return false;
     if(!MissionCatalog.IsValidIndex(ActiveMissionIndex))return false;
     const auto& Stage=MissionCatalog[ActiveMissionIndex].Stages[ActivePhaseIndex];
-    if(Stage.Stage!=TEXT("choice") || Stage.Action!=RequiredObjective)return false;
+    if(Stage.Stage!=FName(TEXT("choice")) || Stage.Action!=RequiredObjective)return false;
     DecisionJournal.Add(FString::Printf(TEXT("%s:%s"),
         *MissionCatalog[ActiveMissionIndex].Id,*Choice.ToString()));
     return AdvancePhase();

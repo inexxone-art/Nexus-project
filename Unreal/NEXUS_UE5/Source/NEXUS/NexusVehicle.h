@@ -31,6 +31,9 @@ public:
     void ChooseMedic();
     void ChoosePilot();
     void ChooseGround();
+    void InspectEvidence();
+    void ProtectCivilians();
+    void SecureEvidence();
     void ExitToFoot();
     void SetDriver(APlayerController* Controller);
 private:

@@ -27,5 +27,8 @@ public:
     void SaveProgress();
     void LoadProgress();
     void MissionApproach();
+    void InspectEvidence();
+    void ProtectCivilians();
+    void SecureEvidence();
     UPROPERTY(BlueprintReadOnly) int32 EquipmentSlot = 0;
 };

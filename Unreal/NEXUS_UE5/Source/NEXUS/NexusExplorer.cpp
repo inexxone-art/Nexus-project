@@ -3,6 +3,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "NexusGameMode.h"
+#include "NexusWorldDirector.h"
 #include "Components/InputComponent.h"
 
 ANexusExplorer::ANexusExplorer()
@@ -35,6 +36,9 @@ void ANexusExplorer::SetupPlayerInputComponent(UInputComponent* Input)
     Input->BindAction(TEXT("SaveProgress"),IE_Pressed,this,&ANexusExplorer::SaveProgress);
     Input->BindAction(TEXT("LoadProgress"),IE_Pressed,this,&ANexusExplorer::LoadProgress);
     Input->BindAction(TEXT("MissionApproach"),IE_Pressed,this,&ANexusExplorer::MissionApproach);
+    Input->BindAction(TEXT("InspectEvidence"),IE_Pressed,this,&ANexusExplorer::InspectEvidence);
+    Input->BindAction(TEXT("ProtectCivilians"),IE_Pressed,this,&ANexusExplorer::ProtectCivilians);
+    Input->BindAction(TEXT("SecureEvidence"),IE_Pressed,this,&ANexusExplorer::SecureEvidence);
 }
 void ANexusExplorer::MoveForward(float V) { if (Controller && V!=0) AddMovementInput(GetActorForwardVector(),V); }
 void ANexusExplorer::MoveRight(float V) { if (Controller && V!=0) AddMovementInput(GetActorRightVector(),V); }
@@ -51,3 +55,19 @@ void ANexusExplorer::Slot4() { EquipmentSlot=3; }
 void ANexusExplorer::SaveProgress() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->SaveProgress(); }
 void ANexusExplorer::LoadProgress() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->LoadProgress(); }
 void ANexusExplorer::MissionApproach() { if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>()) GM->GoToApproach(); }
+
+void ANexusExplorer::InspectEvidence()
+{
+    if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
+        if(GM->Director)GM->Director->InvestigateEvidence(GetActorLocation());
+}
+void ANexusExplorer::ProtectCivilians()
+{
+    if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
+        if(GM->Director)GM->Director->ChooseCampaignOutcome(true);
+}
+void ANexusExplorer::SecureEvidence()
+{
+    if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
+        if(GM->Director)GM->Director->ChooseCampaignOutcome(false);
+}
