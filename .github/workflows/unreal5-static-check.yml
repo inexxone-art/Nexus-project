@@ -22,3 +22,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate Unreal 5.8 project and migration contracts
         run: python3 Unreal/NEXUS_UE5/Scripts/validate_migration.py
+      - name: Validate all 18 mission definitions, 126 phases, planets and gameplay wiring
+        run: python3 -m unittest discover -s Unreal/NEXUS_UE5/Scripts -p "test_*.py" -v
