@@ -1,9 +1,12 @@
 # NEXUS Windows Build Fix - Unreal Engine 5.8
 # Put this file next to NEXUS.uproject and run NEXUS_BUILD_FIX.cmd.
 # Does not delete or modify source code, assets or save games.
-param([string]$ProjectDir=$PSScriptRoot,[switch]$NoLaunch)
+param([switch]$NoLaunch)
 $ErrorActionPreference='Stop'
-$ProjectDir=(Resolve-Path -LiteralPath $ProjectDir).Path
+# Windows PowerShell can evaluate PSScriptRoot as empty in parameter defaults.
+# Determine the real folder from the executing script, not a command-line argument.
+$ProjectDir=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Path)
+if ([string]::IsNullOrWhiteSpace($ProjectDir)) { Write-Host 'NEXUS Fehler: Projektpfad leer' -ForegroundColor Red; exit 1 }
 $UProject=Join-Path $ProjectDir 'NEXUS.uproject'
 $UE='C:\Program Files\Epic Games\UE_5.8'
 $Build=Join-Path $UE 'Engine\Build\BatchFiles\Build.bat'
