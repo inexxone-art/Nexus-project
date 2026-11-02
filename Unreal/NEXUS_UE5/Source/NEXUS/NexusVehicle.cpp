@@ -6,6 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/PointLightComponent.h"
+#include "Components/SpotLightComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Components/InputComponent.h"
@@ -57,6 +58,16 @@ ANexusVehicle::ANexusVehicle()
     BeaconBlue->SetAttenuationRadius(1450.f);
     BeaconBlue->SetIntensity(0.f);
     BeaconBlue->SetCastShadows(false);
+    HelicopterSearchLight=CreateDefaultSubobject<USpotLightComponent>(TEXT("HelicopterRescueSearchlight"));
+    HelicopterSearchLight->SetupAttachment(Collider);
+    HelicopterSearchLight->SetRelativeLocation(FVector(180.f,0.f,45.f));
+    HelicopterSearchLight->SetRelativeRotation(FRotator(-62.f,0.f,0.f));
+    HelicopterSearchLight->SetLightColor(FLinearColor(.84f,.93f,1.f));
+    HelicopterSearchLight->SetAttenuationRadius(16000.f);
+    HelicopterSearchLight->SetInnerConeAngle(10.f);
+    HelicopterSearchLight->SetOuterConeAngle(28.f);
+    HelicopterSearchLight->SetIntensity(35000.f);
+    HelicopterSearchLight->SetVisibility(false);
     AutoPossessPlayer=EAutoReceiveInput::Disabled;
 }
 void ANexusVehicle::SetDriver(APlayerController* Controller) { Driver=Controller; }
@@ -118,6 +129,8 @@ void ANexusVehicle::Tick(float Dt)
 {
     Super::Tick(Dt);
     // Alternating red/blue reflections are visual-only and run on every client.
+    if(HelicopterSearchLight)
+        HelicopterSearchLight->SetVisibility(bHelicopter);
     if(GetWorld() && BeaconRed && BeaconBlue)
     {
         const float Cycle=FMath::Fmod(GetWorld()->GetTimeSeconds()*3.2f,1.f);

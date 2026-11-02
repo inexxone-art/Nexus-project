@@ -19,6 +19,8 @@ public:
     UPROPERTY(BlueprintReadOnly) bool bCollapsed=false;
     TArray<FTransform> OriginalLocalTransforms;
     void ReleaseSpan(int32 Index);
+    // A real Niagara dust burst is shown on each peer if the authored asset exists.
+    UFUNCTION(NetMulticast,Unreliable) void MulticastCollapseDust(FVector WorldLocation);
     UFUNCTION(BlueprintCallable) void Collapse();
     UFUNCTION(BlueprintCallable) void Reconstruct();
     UFUNCTION(BlueprintCallable) float GetBridgeHeight() const { return 1950.f; }

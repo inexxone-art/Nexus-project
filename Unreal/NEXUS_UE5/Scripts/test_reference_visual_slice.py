@@ -44,6 +44,9 @@ class ReferenceVisualSliceTests(unittest.TestCase):
             self.assertIn(word,look)
         self.assertIn("BeaconBlue->SetIntensity",read("NexusVehicle.cpp"))
         self.assertIn("BeaconRed->SetIntensity",read("NexusVehicle.cpp"))
+        self.assertIn("HelicopterSearchLight->SetVisibility(bHelicopter)",read("NexusVehicle.cpp"))
+        self.assertIn("MulticastCollapseDust(Piece->GetComponentLocation())",read("NexusBridge.cpp"))
+        self.assertIn("LineTraceSingleByChannel(Hit",read("NexusCinematicScenery.cpp"))
 
     def test_no_misleading_pretence_of_editor_render(self):
         doc=(ROOT/"Docs"/"REFERENCE_VISUAL_SLICE_V4.md").read_text(encoding="utf-8")

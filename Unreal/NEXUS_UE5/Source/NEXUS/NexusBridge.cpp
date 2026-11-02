@@ -4,6 +4,8 @@
 #include "Engine/StaticMesh.h"
 #include "UObject/ConstructorHelpers.h"
 #include "TimerManager.h"
+#include "NiagaraSystem.h"
+#include "NiagaraFunctionLibrary.h"
 
 ANexusBridge::ANexusBridge()
 {
@@ -53,6 +55,15 @@ void ANexusBridge::ReleaseSpan(int32 Index)
     // not hundreds of metres per second from the earlier alpha simulation.
     Piece->AddImpulse(FVector(Sign*120.f,Sign*65.f,-95.f),NAME_None,true);
     Piece->SetPhysicsAngularVelocityInDegrees(FVector(20.f*Sign,12.f,37.f*Sign));
+    if(HasAuthority())MulticastCollapseDust(Piece->GetComponentLocation());
+}
+void ANexusBridge::MulticastCollapseDust_Implementation(FVector WorldLocation)
+{
+    // Missing authored effects never become imaginary gameplay particles.
+    UNiagaraSystem* Dust=LoadObject<UNiagaraSystem>(nullptr,
+        TEXT("/Game/AAA/VFX/NS_NexusConcreteCollapse.NS_NexusConcreteCollapse"));
+    if(Dust && GetWorld())
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),Dust,WorldLocation);
 }
 void ANexusBridge::Collapse()
 {

@@ -23,3 +23,8 @@ Unreal-Engine-Version und ausgewählte Render-Einstellungen: siehe `Config/Defau
 
 ### Co-op-Korrektur
 Der Cinematic-Look wird **auf Server und Clients lokal** erzeugt, damit replizierte Missionen ohne einen nichtreplizierten rein serverseitigen Sichtfilter dargestellt werden.
+
+### Zusätzlicher Szenen-Code
+- Rettungshelikopter mit echtem Spot-Light-Component, das beim Helikopterbetrieb aktiviert wird; Teil der Volumennebel-Szene, nicht vorgerendert.
+- Brücken-Segmente lösen auf jedem Peer einen optionalen Niagara-Staubimpuls aus. Erforderliches Effektasset: `/Game/AAA/VFX/NS_NexusConcreteCollapse`. Ohne importierten Niagara-Emitter wird kein Staub behauptet oder gerendert.
+- Fichten, Felsblöcke und Büsche werden bei der Laufzeitplatzierung mit `LineTraceSingleByChannel` auf begehbare Bodenkollision gesetzt. Eine produktive PCG/Landscape-Implementierung bleibt nötig.
