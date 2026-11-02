@@ -10,6 +10,8 @@ class ANexusExplorer;
 class ANexusRescueTarget;
 class ANexusIndustrySite;
 class UStaticMeshComponent;
+class UNexusSimulationComponent;
+class UNexusCampaignComponent;
 
 UCLASS(Blueprintable)
 class NEXUS_API ANexusWorldDirector : public AActor
@@ -18,6 +20,8 @@ class NEXUS_API ANexusWorldDirector : public AActor
 public:
     ANexusWorldDirector();
     virtual void BeginPlay() override;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UNexusSimulationComponent> WorldMemory;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UNexusCampaignComponent> Story;
     UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusBridge> Bridge;
     UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusBus> Bus;
     UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusVehicle> RescueTruck;
@@ -34,6 +38,8 @@ public:
     UPROPERTY(BlueprintReadOnly) FString RadioMessage;
     void VehicleAdvanced(ANexusVehicle* Vehicle);
     void ChooseRescueRole(ENexusRescueRole NewRole);
+    UFUNCTION(BlueprintCallable) bool InvestigateEvidence(const FVector& Position);
+    UFUNCTION(BlueprintCallable) bool ChooseCampaignOutcome(bool bProtectCivilians);
     bool TryInteract(ANexusExplorer* Explorer);
     bool TryVehicleRescue(ANexusVehicle* Vehicle);
     bool TryBuildOrOperate(ANexusIndustrySite* Site);

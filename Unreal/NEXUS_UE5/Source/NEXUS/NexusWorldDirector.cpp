@@ -6,6 +6,8 @@
 #include "NexusRescueTarget.h"
 #include "NexusIndustrySite.h"
 #include "NexusSaveGame.h"
+#include "NexusCampaignComponent.h"
+#include "NexusSimulationComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Engine/StaticMesh.h"
@@ -23,6 +25,9 @@
 ANexusWorldDirector::ANexusWorldDirector()
 {
     PrimaryActorTick.bCanEverTick=false;
+    bReplicates=true;
+    WorldMemory=CreateDefaultSubobject<UNexusSimulationComponent>(TEXT("NEXUS_WORLD_MEMORY"));
+    Story=CreateDefaultSubobject<UNexusCampaignComponent>(TEXT("NEXUS_STORY_DIRECTOR"));
     RootComponent=CreateDefaultSubobject<USceneComponent>(TEXT("MissionWorldRoot"));
     Stock.Add(TEXT("Wood"),12);
     Stock.Add(TEXT("Iron"),10);
@@ -30,6 +35,9 @@ ANexusWorldDirector::ANexusWorldDirector()
 void ANexusWorldDirector::BeginPlay()
 {
     Super::BeginPlay();
+    if(!HasAuthority())return;
+    WorldMemory->InitializeWorld();
+    Story->LoadCampaignData();
     CreateStageWorld();
     CreateLighting();
     Bridge=GetWorld()->SpawnActor<ANexusBridge>(ANexusBridge::StaticClass(),FVector(0,0,1950),FRotator::ZeroRotator);
@@ -154,11 +162,20 @@ void ANexusWorldDirector::VehicleAdvanced(ANexusVehicle* Vehicle)
 {
     if(!Vehicle || Vehicle->bHelicopter || Phase!=ENexusIncidentPhase::Approach) return;
     const FVector P=Vehicle->GetActorLocation();
-    if(FMath::Abs(P.X)<3800.f && FMath::Abs(P.Y)<1300.f)
+    if(FMath::Abs(P.X)<3800.f && FMath::Abs(P.Y)<1300.f && !bEnteredSpan)
+    {
         bEnteredSpan=true;
+        if(Story) Story->CompleteObjective(TEXT("scan_damage"));
+    }
     if(bEnteredSpan && P.X>4600.f && FMath::Abs(P.Y)<2000.f)
     {
         Phase=ENexusIncidentPhase::Collapse;
+        if(WorldMemory)
+        {
+            WorldMemory->SetRoadDamage(TEXT("adlerklamm"),100);
+            const FName Incident=WorldMemory->EvaluateIncident(TEXT("adlerklamm"),1);
+            if(Incident!=NAME_None)UE_LOG(LogTemp,Display,TEXT("NEXUS EVENT: %s"),*Incident.ToString());
+        }
         if(Bridge) Bridge->Collapse();
         if(Bus) Bus->DropBehindPlayer();
         for(TObjectPtr<ANexusRescueTarget> Person:Survivors) if(Person && !Person->bRescued)
@@ -189,7 +206,13 @@ bool ANexusWorldDirector::RescuePerson(ANexusRescueTarget* Person)
 {
     if(Phase!=ENexusIncidentPhase::Rescue || !Person || Person->bRescued) return false;
     Person->MarkRescued();
+    if(WorldMemory) WorldMemory->RecordRescue(FName(*FString::Printf(TEXT("survivor_%d"),Person->SurvivorId)),TEXT("adlerklamm"));
     const int32 Count=RescuedCount();
+    if(Story)
+    {
+        if(Count==1)Story->CompleteObjective(TEXT("evacuate_bus"));
+        if(Count==2)Story->CompleteObjective(TEXT("protect_medics"));
+    }
     Inform(FString::Printf(TEXT("BERGUNG: %d/3 Personen gerettet."),Count));
     if(Count==3)
     {
@@ -307,7 +330,9 @@ bool ANexusWorldDirector::TryReconstruct()
     case 1:
         Need.Add(TEXT("Wood"),4);Need.Add(TEXT("Iron"),6);
         if(!Stock.Spend(Need)) { Inform(TEXT("STAHLTRAeGER: 4 Holz und 6 Eisen fehlen."));return true; }
-        RebuildStage=2;Inform(TEXT("BAUPHASE 2/4: Neue Stahltraeger installiert."));return true;
+        RebuildStage=2;
+        if(Story) Story->CompleteObjective(TEXT("stabilize_route"));
+        Inform(TEXT("BAUPHASE 2/4: Neue Stahltraeger installiert."));return true;
     case 2:
         Need.Add(TEXT("Cement"),4);Need.Add(TEXT("Wood"),2);
         if(!Stock.Spend(Need)) { Inform(TEXT("BETONIEREN: 4 Zement und 2 Holz fehlen."));return true; }
@@ -317,6 +342,8 @@ bool ANexusWorldDirector::TryReconstruct()
         if(!Stock.Spend(Need)) { Inform(TEXT("FAHRBAHN: 3 Asphalt aus der Asphaltmischanlage fehlen."));return true; }
         RebuildStage=4;
         if(Bridge)Bridge->Reconstruct();
+        if(WorldMemory) WorldMemory->SetBridgeRepaired(TEXT("adlerklamm"));
+        if(Story) Story->CompleteObjective(TEXT("reach_rescue_rally"));
         Phase=ENexusIncidentPhase::Complete;
         Credits+=420;
         Inform(TEXT("BAUPHASE 4/4: Asphalt und Freigabe. BRUECKE OFFEN! +420 Credits."));
@@ -352,6 +379,20 @@ void ANexusWorldDirector::SaveProgress()
     Save->Role=Role;
     Save->RebuildStage=RebuildStage;
     Save->bRewardPaid=bPaidRescue;
+    if(Story)
+    {
+        Save->ActiveChapter=Story->ActiveMissionIndex;
+        Save->ActiveStoryPhase=Story->ActivePhaseIndex;
+        Save->CompletedChapters=Story->CompletedChapters;
+        Save->Decisions=Story->DecisionJournal;
+    }
+    if(WorldMemory)
+    {
+        Save->Sectors=WorldMemory->Sectors;
+        Save->Citizens=WorldMemory->Citizens;
+        Save->EventHistory=WorldMemory->EventHistory;
+        Save->GameDay=WorldMemory->GameDay;
+    }
     for(TObjectPtr<ANexusIndustrySite> Site:Industry)if(Site && Site->bConstructed)Save->ConstructedSites.Add(Site->Facility);
     for(TObjectPtr<ANexusRescueTarget> Person:Survivors)if(Person && Person->bRescued)Save->RescuedIds.Add(Person->SurvivorId);
     if(UGameplayStatics::SaveGameToSlot(Save,TEXT("NEXUS_UNREAL_V1"),0))
@@ -363,6 +404,8 @@ void ANexusWorldDirector::LoadProgress()
     if(!Save){Inform(TEXT("Kein Unreal-Spielstand vorhanden."));return;}
     Stock=Save->Stock;Credits=Save->Credits;Phase=Save->Phase;
     Role=Save->Role;RebuildStage=Save->RebuildStage;bPaidRescue=Save->bRewardPaid;
+    if(Story)Story->Restore(Save->ActiveChapter,Save->ActiveStoryPhase,Save->CompletedChapters,Save->Decisions);
+    if(WorldMemory)WorldMemory->Restore(Save->Sectors,Save->Citizens,Save->EventHistory,Save->GameDay);
     for(TObjectPtr<ANexusIndustrySite> Site:Industry)if(Site)Site->SetConstructed(Save->ConstructedSites.Contains(Site->Facility));
     for(TObjectPtr<ANexusRescueTarget> Person:Survivors)if(Person)
     {
@@ -382,4 +425,40 @@ void ANexusWorldDirector::TeleportToApproach(ANexusExplorer* Explorer)
     if(!Explorer)return;
     Explorer->SetActorLocation(FVector(-7300,310,2180));
     Inform(TEXT("MISSION ADLERKLAMM | E beim Rettungsfahrzeug, dann W zum Fahren."));
+}
+
+bool ANexusWorldDirector::InvestigateEvidence(const FVector& Position)
+{
+    if(!HasAuthority() || Phase<ENexusIncidentPhase::Rescue || !Story)return false;
+    // Evidence from the east canyon rescue rally, not a global skip button.
+    if(Position.X<4400.f || Position.X>7900.f || FMath::Abs(Position.Y)>2200.f)
+        return false;
+    if(Story->CompleteObjective(TEXT("investigate_saboteur")))
+    {
+        Inform(TEXT("FUNDFUNK: Hinweise auf die sabotierte Bruecke gesichert. Auftrag aktualisiert."));
+        return true;
+    }
+    return false;
+}
+bool ANexusWorldDirector::ChooseCampaignOutcome(bool bProtectCivilians)
+{
+    if(!HasAuthority() || !Story)return false;
+    const FName Answer=bProtectCivilians?TEXT("protect_civilians"):TEXT("secure_critical_data");
+    // The active mission's own objective is required by the story state machine.
+    if(!Story->MissionCatalog.IsValidIndex(Story->ActiveMissionIndex))return false;
+    const auto& Mission=Story->MissionCatalog[Story->ActiveMissionIndex];
+    if(!Mission.Stages.IsValidIndex(Story->ActivePhaseIndex))return false;
+    const FName Required=Mission.Stages[Story->ActivePhaseIndex].Action;
+    if(!Story->ResolveChoice(Answer,Required))return false;
+    if(WorldMemory)
+    {
+        if(auto* S=WorldMemory->FindSectorMutable(TEXT("adlerklamm")))
+        {
+            if(bProtectCivilians) S->Safety=FMath::Min(100,S->Safety+12);
+            else S->TradeSupply=FMath::Min(100,S->TradeSupply+12);
+        }
+    }
+    Inform(bProtectCivilians?TEXT("WAHL: Zivilisten gerettet. Spaetere Einsaetze merken sich das."):
+        TEXT("WAHL: Beweisdaten gesichert. Versorgung gewinnt Stabilitaet."));
+    return true;
 }
