@@ -2,6 +2,7 @@
 #include "NexusGameMode.h"
 #include "NexusWorldDirector.h"
 #include "NexusExplorer.h"
+#include "NexusWeaponComponent.h"
 #include "NexusVehicle.h"
 #include "NexusBridge.h"
 #include "NexusCampaignComponent.h"
@@ -207,7 +208,7 @@ void ANexusHUD::DrawHUD()
     }
     if(LocalExplorer && LocalExplorer->bPhoneOpen)
     {
-        Panel(1174*X,313*Y,395*X,279*Y);
+        Panel(1174*X,313*Y,395*X,302*Y);
         Text(TEXT("NEXUS PHONE  |  FINANZEN"),1190*X,324*Y,1.04f,NexusUI::Amber);
         Text(FString::Printf(TEXT("KONTOSTAND: %d CREDITS"),D->Credits),1190*X,359*Y,.85f,NexusUI::Pale);
         Text(FString::Printf(TEXT("GOLDERZ: %d STUECK"),D->GetResourceCount(TEXT("GoldOre"))),1190*X,391*Y,.82f);
@@ -216,9 +217,21 @@ void ANexusHUD::DrawHUD()
         int32 Income=0;
         for(const auto& Property:D->RentalProperties)Income+=Property.NetPerDay();
         Text(FString::Printf(TEXT("MIETE NETTO: +%d C / SPIELTAG"),Income),1190*X,500*Y,.79f,NexusUI::Pale);
-        Text(TEXT("M SCHLIESSEN  |  PREISE SIND SPIELWERTE"),1190*X,545*Y,.67f,NexusUI::Muted);
+        Text(TEXT("Z  SCI-FI FORSCHUNG: 950 C + 3 METEORITEN"),1190*X,542*Y,.67f,NexusUI::Muted);
+        Text(TEXT("M SCHLIESSEN"),1190*X,566*Y,.67f,NexusUI::Muted);
     }
 
+    // This is actual replicated gameplay ammo, not an invented HUD number.
+    if(LocalExplorer && LocalExplorer->Weapons)
+    {
+        Panel(1154*X,740*Y,410*X,93*Y);
+        Text(FString::Printf(TEXT("WAFFE: %s"),*LocalExplorer->Weapons->GetCurrentName()),
+             1170*X,749*Y,.86f,NexusUI::Pale);
+        Text(FString::Printf(TEXT("MUNITION: %d / %d"),
+             LocalExplorer->Weapons->GetMagazineAmmo(),
+             LocalExplorer->Weapons->GetReserveAmmo()),1170*X,779*Y,.84f,NexusUI::Amber);
+        Text(TEXT("MAUS LINKS SCHIESSEN  Q WECHSELN  R LADEN"),1170*X,807*Y,.65f,NexusUI::Muted);
+    }
     // Small crosshair, suppressed while piloting/driving.
     if(!LocalVehicle)
     {

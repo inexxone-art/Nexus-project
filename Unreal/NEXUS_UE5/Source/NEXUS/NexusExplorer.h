@@ -3,6 +3,8 @@
 #include "GameFramework/Character.h"
 #include "NexusExplorer.generated.h"
 class UCameraComponent;
+class UNexusWeaponComponent;
+class UStaticMeshComponent;
 class USpringArmComponent;
 class ANexusAlpineRiver;
 
@@ -18,6 +20,13 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
 
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UCameraComponent> ViewCamera;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UNexusWeaponComponent> Weapons;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> FirstPersonWeaponVisual;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> ThirdPersonWeaponVisual;
+    UFUNCTION(BlueprintCallable) void FireWeapon();
+    UFUNCTION(BlueprintCallable) void ReloadWeapon();
+    UFUNCTION(BlueprintCallable) void NextWeapon();
+    void RefreshWeaponVisual();
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USpringArmComponent> ThirdPersonArm;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UCameraComponent> ThirdPersonCamera;
     UPROPERTY(BlueprintReadOnly,Category="NEXUS|Camera") bool bThirdPersonView=false;
@@ -71,8 +80,10 @@ public:
     void TogglePhone();
     void SellGoldFromPhone();
     void BuyRentalFromPhone();
+    void ResearchSciFiFromPhone();
 
 private:
+    int32 CachedWeaponVisualIndex=-1;
     float SwimVerticalInput=0.f;
     bool bHoldAscend=false;
     bool bHoldDescend=false;

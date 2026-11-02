@@ -56,3 +56,8 @@ Das in dieser Unterhaltung bereitgestellte **NEXUS_UE5_ALLE_VORHANDENEN_ASSETS_I
 3. In **Tools > Execute Python Script** `Scripts/import_nexus_all_verified.py` ausführen – die Pipeline importiert PBR, Hero-Meshes, Terrain-Vorschauen, Foliage und CC0-Felsscan soweit verfügbar.
 4. Das `Content/SourceArt/Heightmap/Adlerklamm_Landscape_2017x2017_16bit.png` im Landscape-Tool als echte Landschaft importieren; nicht als glatte Terrain-Mesh-Vorschau behandeln.
 5. Nach Import Assets prüfen, Maße/Materialien, Kollision, Lumen/Nanite-FPS testen. Noch keine Real-UE-Renderfreigabe.
+
+## V5 – Waffensystem (spielbarer Source-Code-Prototyp)
+- **Maus links**: spielinterne Schussabgabe; derzeit ausschließlich Wertung auf Trainingszielen (kein PvP, keine neutrale-NPC-Schadensmechanik). **Q**: durch vier konventionelle Waffen und später zwei Sci-Fi-Waffen wechseln. **R**: nachladen. Ammo/Magazin im HUD sind echte Spielzustände; serverautoritativ für 4 Spieler.
+- Pistole, Karabiner, Präzisionsgewehr und leichte Waffe sind von Beginn freigeschaltet; Alien-Puls und Plasmabogen erst nach der kurzen Schießstand-Übung (5 Treffer), später entdeckter Sektor-31-Meteoritenforschung, **3 Meteoritenproben und 950 Credits**. Dieser Labor-Questteil ist noch nicht spielbar, daher sind Sci-Fi-Modelle derzeit bewusst gesperrt. **M**, danach **Z**, fordert die Forschung an und gibt bei fehlenden Voraussetzungen einen Hinweis.
+- Visuelle Modelle unter `/Game/AAA/Geometry/Props/SM_Nexus_...` werden nur angezeigt, wenn V5-GLBs im Editor importiert sind. Alternierende Ansichten mit **V**; spätere Animation, Treffer-VFX, Sounds und vollwertige Gegner-KI benötigen gesonderte Assets und QA.

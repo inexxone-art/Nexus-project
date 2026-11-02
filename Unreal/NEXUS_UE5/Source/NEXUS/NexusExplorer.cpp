@@ -6,6 +6,8 @@
 #include "NexusGameMode.h"
 #include "NexusWorldDirector.h"
 #include "NexusStarterHome.h"
+#include "NexusWeaponComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "NexusAlpineRiver.h"
 #include "EngineUtils.h"
 #include "Net/UnrealNetwork.h"
@@ -16,6 +18,7 @@ ANexusExplorer::ANexusExplorer()
     PrimaryActorTick.bCanEverTick = true;
     bReplicates=true;
     SetReplicateMovement(true);
+    Weapons=CreateDefaultSubobject<UNexusWeaponComponent>(TEXT("NEXUS_WEAPON_ARSENAL"));
     ViewCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
     ViewCamera->SetupAttachment(GetCapsuleComponent());
     ViewCamera->SetRelativeLocation(FVector(0,0,66));
@@ -30,6 +33,18 @@ ANexusExplorer::ANexusExplorer()
     ThirdPersonCamera=CreateDefaultSubobject<UCameraComponent>(TEXT("ThirdPersonCamera"));
     ThirdPersonCamera->SetupAttachment(ThirdPersonArm,USpringArmComponent::SocketName);
     ThirdPersonCamera->SetActive(false);
+    FirstPersonWeaponVisual=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FirstPersonWeaponModel"));
+    FirstPersonWeaponVisual->SetupAttachment(ViewCamera);
+    FirstPersonWeaponVisual->SetRelativeLocation(FVector(85.f,22.f,-38.f));
+    FirstPersonWeaponVisual->SetRelativeRotation(FRotator(0.f,-4.f,0.f));
+    FirstPersonWeaponVisual->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    FirstPersonWeaponVisual->SetCastShadow(false);
+    FirstPersonWeaponVisual->SetVisibility(false);
+    ThirdPersonWeaponVisual=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ThirdPersonWeaponModel"));
+    ThirdPersonWeaponVisual->SetupAttachment(GetCapsuleComponent());
+    ThirdPersonWeaponVisual->SetRelativeLocation(FVector(45.f,33.f,94.f));
+    ThirdPersonWeaponVisual->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    ThirdPersonWeaponVisual->SetVisibility(false);
     // Underwater camera color grading is applied only to the owning player.
     // Local post-process is disabled until the eyes actually enter water.
     ViewCamera->PostProcessSettings.bOverride_SceneColorTint=true;
@@ -53,10 +68,14 @@ void ANexusExplorer::SetupPlayerInputComponent(UInputComponent* Input)
     Input->BindAction(TEXT("SwimDescend"),IE_Pressed,this,&ANexusExplorer::StartDive);
     Input->BindAction(TEXT("SwimDescend"),IE_Released,this,&ANexusExplorer::StopDive);
     Input->BindAction(TEXT("Interact"),IE_Pressed,this,&ANexusExplorer::Interact);
+    Input->BindAction(TEXT("WeaponFire"),IE_Pressed,this,&ANexusExplorer::FireWeapon);
+    Input->BindAction(TEXT("WeaponReload"),IE_Pressed,this,&ANexusExplorer::ReloadWeapon);
+    Input->BindAction(TEXT("WeaponCycle"),IE_Pressed,this,&ANexusExplorer::NextWeapon);
     Input->BindAction(TEXT("TogglePinboard"),IE_Pressed,this,&ANexusExplorer::TogglePinboard);
     Input->BindAction(TEXT("TogglePhone"),IE_Pressed,this,&ANexusExplorer::TogglePhone);
     Input->BindAction(TEXT("SellGold"),IE_Pressed,this,&ANexusExplorer::SellGoldFromPhone);
     Input->BindAction(TEXT("BuyRental"),IE_Pressed,this,&ANexusExplorer::BuyRentalFromPhone);
+    Input->BindAction(TEXT("ResearchSciFi"),IE_Pressed,this,&ANexusExplorer::ResearchSciFiFromPhone);
     Input->BindAction(TEXT("ToggleCamera"),IE_Pressed,this,&ANexusExplorer::ToggleCamera);
     Input->BindAction(TEXT("RoleMedic"),IE_Pressed,this,&ANexusExplorer::MedicRole);
     Input->BindAction(TEXT("RolePilot"),IE_Pressed,this,&ANexusExplorer::PilotRole);
@@ -74,6 +93,37 @@ void ANexusExplorer::SetupPlayerInputComponent(UInputComponent* Input)
     Input->BindAction(TEXT("AI_Follow"),IE_Pressed,this,&ANexusExplorer::TeamFollow);
     Input->BindAction(TEXT("AI_Scout"),IE_Pressed,this,&ANexusExplorer::TeamScout);
     Input->BindAction(TEXT("AI_Medic"),IE_Pressed,this,&ANexusExplorer::TeamMedic);
+}
+void ANexusExplorer::FireWeapon()
+{
+    if(Weapons && !bPhoneOpen && !bPinboardOpen)Weapons->Fire();
+}
+void ANexusExplorer::ReloadWeapon(){if(Weapons)Weapons->Reload();}
+void ANexusExplorer::NextWeapon(){if(Weapons)Weapons->SelectNextWeapon();}
+void ANexusExplorer::RefreshWeaponVisual()
+{
+    if(!Weapons || !IsLocallyControlled())return;
+    const int32 I=Weapons->EquippedIndex;
+    if(I!=CachedWeaponVisualIndex)
+    {
+        CachedWeaponVisualIndex=I;
+        const TCHAR* MeshNames[6]={
+            TEXT("SM_Nexus_Sidearm"),TEXT("SM_Nexus_Carbine"),
+            TEXT("SM_Nexus_Precision"),TEXT("SM_Nexus_CompactRifle"),
+            TEXT("SM_Nexus_PulseCaster"),TEXT("SM_Nexus_ArcEmitter")};
+        UStaticMesh* Model=nullptr;
+        if(I>=0 && I<6)
+        {
+            const FString Path=FString::Printf(TEXT("/Game/AAA/Geometry/Props/%s.%s"),
+                MeshNames[I],MeshNames[I]);
+            Model=LoadObject<UStaticMesh>(nullptr,*Path);
+        }
+        FirstPersonWeaponVisual->SetStaticMesh(Model);
+        ThirdPersonWeaponVisual->SetStaticMesh(Model);
+    }
+    const bool bVisible=FirstPersonWeaponVisual->GetStaticMesh()!=nullptr;
+    FirstPersonWeaponVisual->SetVisibility(bVisible && !bThirdPersonView);
+    ThirdPersonWeaponVisual->SetVisibility(bVisible && bThirdPersonView);
 }
 void ANexusExplorer::ToggleCamera()
 {
@@ -111,6 +161,13 @@ void ANexusExplorer::BuyRentalFromPhone()
     if(!HasAuthority()){ServerCommand(14);return;}
     if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
         if(GM->Director)GM->Director->PurchaseRentalProperty();
+}
+void ANexusExplorer::ResearchSciFiFromPhone()
+{
+    if(!IsLocallyControlled() || !bPhoneOpen)return;
+    if(!HasAuthority()){ServerCommand(15);return;}
+    if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
+        if(GM->Director)GM->Director->TryResearchSciFi(this);
 }
 void ANexusExplorer::MoveForward(float V) { if (Controller && V!=0) AddMovementInput(GetActorForwardVector(),V); }
 void ANexusExplorer::MoveRight(float V) { if (Controller && V!=0) AddMovementInput(GetActorRightVector(),V); }
@@ -170,6 +227,8 @@ void ANexusExplorer::ServerCommand_Implementation(uint8 Code)
                      if(GM->Director)GM->Director->SellGoldOre();break;
         case 14: if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
                      if(GM->Director)GM->Director->PurchaseRentalProperty();break;
+        case 15: if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
+                     if(GM->Director)GM->Director->TryResearchSciFi(this);break;
         default:break;
     }
 }
@@ -292,6 +351,7 @@ void ANexusExplorer::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
     DetectWaterAndSwim(DeltaSeconds);
+    RefreshWeaponVisual();
     if(IsLocallyControlled() && bPinboardOpen)
     {
         bool bNear=false;

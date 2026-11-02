@@ -8,6 +8,8 @@
 #include "NexusSaveGame.h"
 #include "NexusStarterHome.h"
 #include "NexusCityDistrict.h"
+#include "NexusPracticeTarget.h"
+#include "NexusWeaponComponent.h"
 #include "NexusCampaignComponent.h"
 #include "NexusSimulationComponent.h"
 #include "NexusCinematicScenery.h"
@@ -101,6 +103,8 @@ void ANexusWorldDirector::BeginPlay()
     CreateRescueTargets();
     CreateFactories();
     CreateFleet();
+    PracticeTarget=GetWorld()->SpawnActor<ANexusPracticeTarget>(
+        ANexusPracticeTarget::StaticClass(),FVector(-11200.f,5700.f,2550.f),FRotator(0,0,0));
     for(int32 I=0;I<2;++I)
     {
         auto* Ally=GetWorld()->SpawnActor<ANexusCompanion>(ANexusCompanion::StaticClass(),
@@ -649,12 +653,34 @@ TArray<FString> ANexusWorldDirector::GetDiscoveredBoardLines() const
         if(Topic==TEXT("welcome"))Lines.Add(TEXT("Dein Haus und Buero erkunden"));
         else if(Topic==TEXT("bridge_intro"))Lines.Add(TEXT("Adlerklamm: Notruf an der Bruecke"));
         else if(Topic==TEXT("military_training"))Lines.Add(TEXT("Militaeruebung: vor Sektor 31 vorbereiten (geplant)"));
+        else if(Topic==TEXT("military_training_completed"))Lines.Add(TEXT("Militaer-Grunduebung abgeschlossen. Sektor 31 spaeter erkunden"));
+        else if(Topic==TEXT("meteor_research"))Lines.Add(TEXT("Meteoritenforschung entdeckt. Sci-Fi-Waffen im Forschungslabor freischalten"));
         else if(Topic==TEXT("goldmine"))Lines.Add(TEXT("Entdeckt: Goldmine. Erz foerdern und verkaufen"));
         else if(Topic==TEXT("sawmill"))Lines.Add(TEXT("Entdeckt: Saegewerk. Bretter fertigen"));
         else if(Topic==TEXT("quarry"))Lines.Add(TEXT("Entdeckt: Steinbruch. Zement fuer die Bruecke"));
         else if(Topic==TEXT("oil_rig"))Lines.Add(TEXT("Entdeckt: Oelplattform. Foerderung und Raffinerie"));
     }
     return Lines;
+}
+bool ANexusWorldDirector::TryResearchSciFi(ANexusExplorer* Player)
+{
+    if(!HasAuthority() || !Player || !Player->Weapons)return false;
+    if(Player->Weapons->bSciFiUnlocked)return false;
+    // Sci-Fi never available on day one. Story must reveal the actual
+    // meteorite laboratory and collected meteorite fragments first.
+    if(!DiscoveredTopics.Contains(TEXT("meteor_research")) ||
+       !DiscoveredTopics.Contains(TEXT("military_training_completed")) ||
+       Stock.Get(TEXT("MeteorOre"))<3 || Credits<950)
+    {
+        Inform(TEXT("FORSCHUNG: Zuerst Sektor 31 erkunden und 3 Meteoritenproben finden. Kosten: 950 Credits."));
+        return false;
+    }
+    Stock.Add(TEXT("MeteorOre"),-3);
+    Credits-=950;
+    PublishInventory();
+    Player->Weapons->UnlockSciFiFromResearch();
+    Inform(TEXT("FORSCHUNG ABGESCHLOSSEN: Alien-Puls und Plasmabogen verfuegbar (Q wechseln)."));
+    return true;
 }
 bool ANexusWorldDirector::SellGoldOre()
 {

@@ -19,6 +19,7 @@ class ANexusAlpineRiver;
 class ANexusUnderwaterEvidence;
 class ANexusStarterHome;
 class ANexusCityDistrict;
+class ANexusPracticeTarget;
 
 UCLASS(Blueprintable)
 class NEXUS_API ANexusWorldDirector : public AActor
@@ -32,6 +33,8 @@ public:
     UPROPERTY(BlueprintReadOnly,Replicated) TArray<FNexusRentalProperty> RentalProperties;
     UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusStarterHome> StarterHome;
     UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusCityDistrict> CityDistrict;
+    UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusPracticeTarget> PracticeTarget;
+    UFUNCTION(BlueprintCallable) bool TryResearchSciFi(ANexusExplorer* Player);
     UPROPERTY(BlueprintReadOnly) TArray<TObjectPtr<ANexusVehicle>> Fleet;
     UFUNCTION(BlueprintCallable) TArray<FString> GetDiscoveredBoardLines() const;
     UFUNCTION(BlueprintCallable) bool SellGoldOre();
