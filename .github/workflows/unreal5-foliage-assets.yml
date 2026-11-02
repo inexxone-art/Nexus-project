@@ -1,0 +1,46 @@
+name: NEXUS UE5 - Original Alpine 3D Assets (no paid GPU)
+
+on:
+  push:
+    branches: [feature/unreal5-nexus-adlerklamm-foundation]
+    paths:
+      - "Unreal/NEXUS_UE5/Scripts/generate_nexus_foliage.py"
+      - ".github/workflows/unreal5-foliage-assets.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-alpine-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install free offline 3D mesh tools
+        run: pip install --disable-pip-version-check "numpy>=1.26,<3" "trimesh>=4.0,<5"
+      - name: Generate 5 real editable alpine mesh assets
+        run: python3 Unreal/NEXUS_UE5/Scripts/generate_nexus_foliage.py build/foliage
+      - name: Inspect meshes and produce portable ZIP
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, trimesh, zipfile
+          src=pathlib.Path("build/foliage")
+          m=json.loads((src/"NEXUS_Foliage_Manifest.json").read_text())
+          assert len(m["files"])==5
+          for file,metadata in m["files"].items():
+              mesh=trimesh.load(str(src/file),force="mesh")
+              assert len(mesh.faces)==metadata["triangles"] and len(mesh.faces)>=600
+          with zipfile.ZipFile("build/NEXUS_UE5_ORIGINAL_ALPINE_FOLIAGE.zip","w",zipfile.ZIP_DEFLATED) as z:
+              for p in src.iterdir():
+                  if p.is_file():z.write(p,arcname=p.name)
+          print("PASS: 5 valid custom GLB files, no stock/demo screenshots")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NEXUS-UE5-5-ORIGINAL-ALPINE-GLB
+          path: build/NEXUS_UE5_ORIGINAL_ALPINE_FOLIAGE.zip
+          retention-days: 14

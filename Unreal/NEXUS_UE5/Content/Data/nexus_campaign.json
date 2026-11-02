@@ -1,0 +1,1076 @@
+{
+  "schema_version": 1,
+  "source": "PROJECT_NEXUS_V30_MASTER_MISSIONEN_18_STORYS.pdf, chapters 16-20",
+  "completion_note": "These are structured mission definitions and conditional progression hooks, not 48h of staged playable campaign or authored cinematics.",
+  "acts": [
+    {
+      "id": 1,
+      "theme": "Earth crises",
+      "target_hours": [
+        10,
+        12
+      ]
+    },
+    {
+      "id": 2,
+      "theme": "Solarfront and exploration",
+      "target_hours": [
+        10,
+        12
+      ]
+    },
+    {
+      "id": 3,
+      "theme": "NEXUS crisis",
+      "target_hours": [
+        10,
+        12
+      ]
+    },
+    {
+      "id": 4,
+      "theme": "Consequential finale",
+      "target_hours": [
+        10,
+        12
+      ]
+    }
+  ],
+  "phase_order": [
+    "recon",
+    "intervention",
+    "escalation",
+    "twist",
+    "climax",
+    "choice",
+    "extraction"
+  ],
+  "missions": [
+    {
+      "id": "NEXUS_01",
+      "number": 1,
+      "act": 1,
+      "world": "terra",
+      "region": "aurelia",
+      "title": "Die letzte Brücke",
+      "hook": "Bus hinter gesprengter Klammbrücke; ein Saboteur bittet selbst um Rettung",
+      "phases": [
+        {
+          "id": "recon",
+          "objective_id": "scan_damage",
+          "consequence_key": null
+        },
+        {
+          "id": "intervention",
+          "objective_id": "evacuate_bus",
+          "consequence_key": null
+        },
+        {
+          "id": "escalation",
+          "objective_id": "protect_medics",
+          "consequence_key": null
+        },
+        {
+          "id": "twist",
+          "objective_id": "investigate_saboteur",
+          "consequence_key": null
+        },
+        {
+          "id": "climax",
+          "objective_id": "stabilize_route",
+          "consequence_key": null
+        },
+        {
+          "id": "choice",
+          "objective_id": "save_people_or_evidence",
+          "consequence_key": "branch_1"
+        },
+        {
+          "id": "extraction",
+          "objective_id": "reach_rescue_rally",
+          "consequence_key": null
+        }
+      ],
+      "complications": [
+        "radio_shadow",
+        "reinforcements",
+        "time_pressure"
+      ],
+      "choices": [
+        "protect_civilians",
+        "secure_critical_data"
+      ],
+      "completed_reward_credits": 180,
+      "unlocks": "NEXUS_02"
+    },
+    {
+      "id": "NEXUS_02",
+      "number": 2,
+      "act": 1,
+      "world": "terra",
+      "region": "stahlhafen",
+      "title": "Spur der Sprengladung",
+      "hook": "Ein verschwundener Helfer führt zur Verschwörung einer Baufirma",
+      "phases": [
+        {
+          "id": "recon",
+          "objective_id": "collect_fragments",
+          "consequence_key": null
+        },
+        {
+          "id": "intervention",
+          "objective_id": "trace_contract",
+          "consequence_key": null
+        },
+        {
+          "id": "escalation",
+          "objective_id": "intercept_courier",
+          "consequence_key": null
+        },
+        {
+          "id": "twist",
+          "objective_id": "uncover_corruption",
+          "consequence_key": null
+        },
+        {
+          "id": "climax",
+          "objective_id": "secure_data_server",
+          "consequence_key": null
+        },
+        {
+          "id": "choice",
+          "objective_id": "publish_or_protect_witness",
+          "consequence_key": "branch_2"
+        },
+        {
+          "id": "extraction",
+          "objective_id": "extract_informer",
+          "consequence_key": null
+        }
+      ],
+      "complications": [
+        "radio_shadow",
+        "reinforcements",
+        "time_pressure"
+      ],
+      "choices": [
+        "protect_civilians",
+        "secure_critical_data"
+      ],
+      "completed_reward_credits": 200,
+      "unlocks": "NEXUS_03"
+    },
+    {
+      "id": "NEXUS_03",
+      "number": 3,
+      "act": 1,
+      "world": "terra",
+      "region": "bergstadt",
+      "title": "Die Nacht des Staudamms",
+      "hook": "Eine Flutwelle bedroht Krankenhaus und Dorf gleichzeitig",
+      "phases": [
+        {
+          "id": "recon",
+          "objective_id": "inspect_dam",
+          "consequence_key": null
+        },
+        {
+          "id": "intervention",
+          "objective_id": "restore_pumps",
+          "consequence_key": null
+        },
+        {
+          "id": "escalation",
+          "objective_id": "evacuate_residents",
+          "consequence_key": null
+        },
+        {
+          "id": "twist",
+          "objective_id": "find_secondary_leak",
+          "consequence_key": null
+        },
+        {
+          "id": "climax",
+          "objective_id": "defend_emergency_gate",
+          "consequence_key": null
+        },
+        {
+          "id": "choice",
+          "objective_id": "protect_hospital_or_village",
+          "consequence_key": "branch_3"
+        },
+        {
+          "id": "extraction",
+          "objective_id": "evacuate_by_rescue_boat",
+          "consequence_key": null
+        }
+      ],
+      "complications": [
+        "radio_shadow",
+        "reinforcements",
+        "time_pressure"
+      ],
+      "choices": [
+        "protect_civilians",
+        "secure_critical_data"
+      ],
+      "completed_reward_credits": 220,
+      "unlocks": "NEXUS_04"
+    },
+    {
+      "id": "NEXUS_04",
+      "number": 4,
+      "act": 2,
+      "world": "sahra",
+      "region": "sahra_ix",
+      "title": "Der Geisterkonvoi",
+      "hook": "Verfolgung im Sandsturm; die geheime Fracht ist ein Lebensrettungsreaktor",
+      "phases": [
+        {
+          "id": "recon",
+          "objective_id": "track_convoy",
+          "consequence_key": null
+        },
+        {
+          "id": "intervention",
+          "objective_id": "repair_sand_rover",
+          "consequence_key": null
+        },
+        {
+          "id": "escalation",
+          "objective_id": "cross_ambush",
+          "consequence_key": null
+        },
+        {
+          "id": "twist",
+          "objective_id": "identify_reactor",
+          "consequence_key": null
+        },
+        {
+          "id": "climax",
+          "objective_id": "escort_convoy",
+          "consequence_key": null
+        },
+        {
+          "id": "choice",
+          "objective_id": "save_fuel_or_civilians",
+          "consequence_key": "branch_4"
+        },
+        {
+          "id": "extraction",
+          "objective_id": "reach_dune_port",
+          "consequence_key": null
+        }
+      ],
+      "complications": [
+        "radio_shadow",
+        "reinforcements",
+        "time_pressure"
+      ],
+      "choices": [
+        "protect_civilians",
+        "secure_critical_data"
+      ],
+      "completed_reward_credits": 240,
+      "unlocks": "NEXUS_05"
+    },
+    {
+      "id": "NEXUS_05",
+      "number": 5,
+      "act": 2,
+      "world": "sahra",
+      "region": "sahra_ix",
+      "title": "Das Sandglas-Protokoll",
+      "hook": "Eine Untergrundstadt leidet unter sabotierter Wasserleitung",
+      "phases": [
+        {
+          "id": "recon",
+          "objective_id": "survey_aquifer",
+          "consequence_key": null
+        },
+        {
+          "id": "intervention",
+          "objective_id": "restore_valves",
+          "consequence_key": null
+        },
+        {
+          "id": "escalation",
+          "objective_id": "defend_water_station",
+          "consequence_key": null
+        },
+        {
+          "id": "twist",
+          "objective_id": "find_hidden_reservoir",
+          "consequence_key": null
+        },
+        {
+          "id": "climax",
+          "objective_id": "repair_distribution",
+          "consequence_key": null
+        },
+        {
+          "id": "choice",
+          "objective_id": "share_water_or_secure_research",
+          "consequence_key": "branch_5"
+        },
+        {
+          "id": "extraction",
+          "objective_id": "evacuate_tunnel",
+          "consequence_key": null
+        }
+      ],
+      "complications": [
+        "radio_shadow",
+        "reinforcements",
+        "time_pressure"
+      ],
+      "choices": [
+        "protect_civilians",
+        "secure_critical_data"
+      ],
+      "completed_reward_credits": 260,
+      "unlocks": "NEXUS_06"
+    },
+    {
+      "id": "NEXUS_06",
+      "number": 6,
+      "act": 2,
+      "world": "sahra",
+      "region": "sahra_ix",
+      "title": "Der Sturmkönig",
+      "hook": "Panzerzug mit Wettertechnik: Gegner oder letzte Rettung?",
+      "phases": [
+        {
+          "id": "recon",
+          "objective_id": "scan_stormtrain",
+          "consequence_key": null
+        },
+        {
+          "id": "intervention",
+          "objective_id": "board_engine",
+          "consequence_key": null
+        },
+        {
+          "id": "escalation",
+          "objective_id": "survive_sandstorm",
+          "consequence_key": null
+        },
+        {
+          "id": "twist",
+          "objective_id": "verify_train_objective",
+          "consequence_key": null
+        },
+        {
+          "id": "climax",
+          "objective_id": "secure_weather_core",
+          "consequence_key": null
+        },
+        {
+          "id": "choice",
+          "objective_id": "disable_or_repurpose_train",
+          "consequence_key": "branch_6"
+        },
+        {
+          "id": "extraction",
+          "objective_id": "extract_by_rover",
+          "consequence_key": null
+        }
+      ],
+      "complications": [
+        "radio_shadow",
+        "reinforcements",
+        "time_pressure"
+      ],
+      "choices": [
+        "protect_civilians",
+        "secure_critical_data"
+      ],
+      "completed_reward_credits": 280,
+      "unlocks": "NEXUS_07"
+    },
+    {
+      "id": "NEXUS_07",
+      "number": 7,
+      "act": 2,
+      "world": "nivora",
+      "region": "nivora",
+      "title": "Signal unter Null",
+      "hook": "Klopfzeichen einer Eisstation; Funkspruch ist nur eine Aufzeichnung",
+      "phases": [
+        {
+          "id": "recon",
+          "objective_id": "triangulate_signal",
+          "consequence_key": null
+        },
+        {
+          "id": "intervention",
+          "objective_id": "open_frozen_airlock",
+          "consequence_key": null
+        },
+        {
+          "id": "escalation",
+          "objective_id": "protect_team_from_cold",
+          "consequence_key": null
+        },
+        {
+          "id": "twist",
+          "objective_id": "decode_recording",
+          "consequence_key": null
+        },
+        {
+          "id": "climax",
+          "objective_id": "reactivate_heater",
+          "consequence_key": null
+        },
+        {
+          "id": "choice",
+          "objective_id": "preserve_records_or_heat",
+          "consequence_key": "branch_7"
+        },
+        {
+          "id": "extraction",
+          "objective_id": "return_to_shelter",
+          "consequence_key": null
+        }
+      ],
+      "complications": [
+        "radio_shadow",
+        "reinforcements",
+        "time_pressure"
+      ],
+      "choices": [
+        "protect_civilians",
+        "secure_critical_data"
+      ],
+      "completed_reward_credits": 300,
+      "unlocks": "NEXUS_08"
+    },
+    {
+      "id": "NEXUS_08",
+      "number": 8,
+      "act": 2,
+      "world": "nivora",
+      "region": "nivora",
+      "title": "Der schwarze See",
+      "hook": "Verschollene Taucher empfangen Signale aus einer anderen Zeit",
+      "phases": [
+        {
+          "id": "recon",
+          "objective_id": "survey_ice_crack",
+          "consequence_key": null
+        },
+        {
+          "id": "intervention",
+          "objective_id": "deploy_submersible",
+          "consequence_key": null
+        },
+        {
+          "id": "escalation",
+          "objective_id": "avoid_pressure_break",
+          "consequence_key": null
+        },
+        {
+          "id": "twist",
+          "objective_id": "recover_blackbox",
+          "consequence_key": null
+        },
+        {
+          "id": "climax",
+          "objective_id": "rescue_divers",
+          "consequence_key": null
+        },
+        {
+          "id": "choice",
+          "objective_id": "keep_signal_or_destroy_transmitter",
+          "consequence_key": "branch_8"
+        },
+        {
+          "id": "extraction",
+          "objective_id": "reach_ice_port",
+          "consequence_key": null
+        }
+      ],
+      "complications": [
+        "radio_shadow",
+        "reinforcements",
+        "time_pressure"
+      ],
+      "choices": [
+        "protect_civilians",
+        "secure_critical_data"
+      ],
+      "completed_reward_credits": 320,
+      "unlocks": "NEXUS_09"
+    },
+    {
+      "id": "NEXUS_09",
+      "number": 9,
+      "act": 2,
+      "world": "nivora",
+      "region": "nivora",
+      "title": "Das Eisgericht",
+      "hook": "Manipuliertes Gerichtsverfahren gegen Überlebende und lernende KI",
+      "phases": [
+        {
+          "id": "recon",
+          "objective_id": "collect_testimony",
+          "consequence_key": null
+        },
+        {
+          "id": "intervention",
+          "objective_id": "restore_tribunal_power",
+          "consequence_key": null
+        },
+        {
+          "id": "escalation",
+          "objective_id": "defend_witness",
+          "consequence_key": null
+        },
+        {
+          "id": "twist",
+          "objective_id": "inspect_false_evidence",
+          "consequence_key": null
+        },
+        {
+          "id": "climax",
+          "objective_id": "unlock_tribunal_records",
+          "consequence_key": null
+        },
+        {
+          "id": "choice",
+          "objective_id": "free_suspect_or_publish_truth",
+          "consequence_key": "branch_9"
+        },
+        {
+          "id": "extraction",
+          "objective_id": "escort_civilians",
+          "consequence_key": null
+        }
+      ],
+      "complications": [
+        "radio_shadow",
+        "reinforcements",
+        "time_pressure"
+      ],
+      "choices": [
+        "protect_civilians",
+        "secure_critical_data"
+      ],
+      "completed_reward_credits": 340,
+      "unlocks": "NEXUS_10"
+    },
+    {
+      "id": "NEXUS_10",
+      "number": 10,
+      "act": 3,
+      "world": "vesper",
+      "region": "vesper",
+      "title": "Das grüne Schweigen",
+      "hook": "Ein Wald wehrt sich gegen Industrieabfälle",
+      "phases": [
+        {
+          "id": "recon",
+          "objective_id": "scan_dead_forest",
+          "consequence_key": null
+        },
+        {
+          "id": "intervention",
+          "objective_id": "stop_industrial_runoff",
+          "consequence_key": null
+        },
+        {
+          "id": "escalation",
+          "objective_id": "protect_ecologists",
+          "consequence_key": null
+        },
+        {
+          "id": "twist",
+          "objective_id": "discover_root_network",
+          "consequence_key": null
+        },
+        {
+          "id": "climax",
+          "objective_id": "purify_water",
+          "consequence_key": null
+        },
+        {
+          "id": "choice",
+          "objective_id": "save_colony_or_ancient_tree",
+          "consequence_key": "branch_10"
+        },
+        {
+          "id": "extraction",
+          "objective_id": "evacuate_stations",
+          "consequence_key": null
+        }
+      ],
+      "complications": [
+        "radio_shadow",
+        "reinforcements",
+        "time_pressure"
+      ],
+      "choices": [
+        "protect_civilians",
+        "secure_critical_data"
+      ],
+      "completed_reward_credits": 360,
+      "unlocks": "NEXUS_11"
+    },
+    {
+      "id": "NEXUS_11",
+      "number": 11,
+      "act": 3,
+      "world": "vesper",
+      "region": "vesper",
+      "title": "Wurzeln der Lüge",
+      "hook": "Geheime Heilversuche an Bewohnern unter abgestorbenem Baum",
+      "phases": [
+        {
+          "id": "recon",
+          "objective_id": "collect_bio_samples",
+          "consequence_key": null
+        },
+        {
+          "id": "intervention",
+          "objective_id": "enter_hidden_lab",
+          "consequence_key": null
+        },
+        {
+          "id": "escalation",
+          "objective_id": "evade_security_patrol",
+          "consequence_key": null
+        },
+        {
+          "id": "twist",
+          "objective_id": "rescue_test_subjects",
+          "consequence_key": null
+        },
+        {
+          "id": "climax",
+          "objective_id": "restore_medical_records",
+          "consequence_key": null
+        },
+        {
+          "id": "choice",
+          "objective_id": "expose_lab_or_save_research",
+          "consequence_key": "branch_11"
+        },
+        {
+          "id": "extraction",
+          "objective_id": "secure_evacuation",
+          "consequence_key": null
+        }
+      ],
+      "complications": [
+        "radio_shadow",
+        "reinforcements",
+        "time_pressure"
+      ],
+      "choices": [
+        "protect_civilians",
+        "secure_critical_data"
+      ],
+      "completed_reward_credits": 380,
+      "unlocks": "NEXUS_12"
+    },
+    {
+      "id": "NEXUS_12",
+      "number": 12,
+      "act": 3,
+      "world": "vesper",
+      "region": "vesper",
+      "title": "Die letzte Blüte",
+      "hook": "Urorganismus will verhandeln; Fraktionen wollen ihn bewaffnen",
+      "phases": [
+        {
+          "id": "recon",
+          "objective_id": "contact_organism",
+          "consequence_key": null
+        },
+        {
+          "id": "intervention",
+          "objective_id": "restore_translation",
+          "consequence_key": null
+        },
+        {
+          "id": "escalation",
+          "objective_id": "stop_sabotage",
+          "consequence_key": null
+        },
+        {
+          "id": "twist",
+          "objective_id": "decode_organism_request",
+          "consequence_key": null
+        },
+        {
+          "id": "climax",
+          "objective_id": "protect_peace_meeting",
+          "consequence_key": null
+        },
+        {
+          "id": "choice",
+          "objective_id": "negotiate_or_quarantine",
+          "consequence_key": "branch_12"
+        },
+        {
+          "id": "extraction",
+          "objective_id": "extract_delegation",
+          "consequence_key": null
+        }
+      ],
+      "complications": [
+        "radio_shadow",
+        "reinforcements",
+        "time_pressure"
+      ],
+      "choices": [
+        "protect_civilians",
+        "secure_critical_data"
+      ],
+      "completed_reward_credits": 400,
+      "unlocks": "NEXUS_13"
+    },
+    {
+      "id": "NEXUS_13",
+      "number": 13,
+      "act": 3,
+      "world": "ignis",
+      "region": "ignis_prime",
+      "title": "Der brennende Kern",
+      "hook": "Geothermische Station kollabiert; KI sollte vernichtet werden",
+      "phases": [
+        {
+          "id": "recon",
+          "objective_id": "map_lava_front",
+          "consequence_key": null
+        },
+        {
+          "id": "intervention",
+          "objective_id": "activate_cooling",
+          "consequence_key": null
+        },
+        {
+          "id": "escalation",
+          "objective_id": "evacuate_workers",
+          "consequence_key": null
+        },
+        {
+          "id": "twist",
+          "objective_id": "recover_ai_unit",
+          "consequence_key": null
+        },
+        {
+          "id": "climax",
+          "objective_id": "seal_reactor",
+          "consequence_key": null
+        },
+        {
+          "id": "choice",
+          "objective_id": "save_ai_or_research_data",
+          "consequence_key": "branch_13"
+        },
+        {
+          "id": "extraction",
+          "objective_id": "escape_by_lava_rover",
+          "consequence_key": null
+        }
+      ],
+      "complications": [
+        "radio_shadow",
+        "reinforcements",
+        "time_pressure"
+      ],
+      "choices": [
+        "protect_civilians",
+        "secure_critical_data"
+      ],
+      "completed_reward_credits": 420,
+      "unlocks": "NEXUS_14"
+    },
+    {
+      "id": "NEXUS_14",
+      "number": 14,
+      "act": 3,
+      "world": "ignis",
+      "region": "ignis_prime",
+      "title": "Der Asche-Code",
+      "hook": "Die scheinbar feindliche KI warnte vor tektonischem Kettenbruch",
+      "phases": [
+        {
+          "id": "recon",
+          "objective_id": "analyze_ash_code",
+          "consequence_key": null
+        },
+        {
+          "id": "intervention",
+          "objective_id": "repair_sensor_grid",
+          "consequence_key": null
+        },
+        {
+          "id": "escalation",
+          "objective_id": "endure_eruption",
+          "consequence_key": null
+        },
+        {
+          "id": "twist",
+          "objective_id": "trace_ai_warning",
+          "consequence_key": null
+        },
+        {
+          "id": "climax",
+          "objective_id": "reroute_power",
+          "consequence_key": null
+        },
+        {
+          "id": "choice",
+          "objective_id": "trust_ai_or_shutdown_grid",
+          "consequence_key": "branch_14"
+        },
+        {
+          "id": "extraction",
+          "objective_id": "fly_to_station",
+          "consequence_key": null
+        }
+      ],
+      "complications": [
+        "radio_shadow",
+        "reinforcements",
+        "time_pressure"
+      ],
+      "choices": [
+        "protect_civilians",
+        "secure_critical_data"
+      ],
+      "completed_reward_credits": 440,
+      "unlocks": "NEXUS_15"
+    },
+    {
+      "id": "NEXUS_15",
+      "number": 15,
+      "act": 3,
+      "world": "ignis",
+      "region": "ignis_prime",
+      "title": "Der Vulkan erwacht",
+      "hook": "Konzern hat eine Evakuierungsfalle am letzten Fluchtweg gelegt",
+      "phases": [
+        {
+          "id": "recon",
+          "objective_id": "survey_escape_route",
+          "consequence_key": null
+        },
+        {
+          "id": "intervention",
+          "objective_id": "reinforce_bridge",
+          "consequence_key": null
+        },
+        {
+          "id": "escalation",
+          "objective_id": "intercept_security",
+          "consequence_key": null
+        },
+        {
+          "id": "twist",
+          "objective_id": "expose_evacuation_trap",
+          "consequence_key": null
+        },
+        {
+          "id": "climax",
+          "objective_id": "rescue_stranded_team",
+          "consequence_key": null
+        },
+        {
+          "id": "choice",
+          "objective_id": "save_workers_or_supplies",
+          "consequence_key": "branch_15"
+        },
+        {
+          "id": "extraction",
+          "objective_id": "launch_rescue_shuttle",
+          "consequence_key": null
+        }
+      ],
+      "complications": [
+        "radio_shadow",
+        "reinforcements",
+        "time_pressure"
+      ],
+      "choices": [
+        "protect_civilians",
+        "secure_critical_data"
+      ],
+      "completed_reward_credits": 460,
+      "unlocks": "NEXUS_16"
+    },
+    {
+      "id": "NEXUS_16",
+      "number": 16,
+      "act": 4,
+      "world": "umbra",
+      "region": "umbra",
+      "title": "Unter zwei Himmeln",
+      "hook": "Fremde KI spricht mit Stimmen früherer Zivilisationen",
+      "phases": [
+        {
+          "id": "recon",
+          "objective_id": "survey_ruin",
+          "consequence_key": null
+        },
+        {
+          "id": "intervention",
+          "objective_id": "power_translation_beacon",
+          "consequence_key": null
+        },
+        {
+          "id": "escalation",
+          "objective_id": "escape_anomaly",
+          "consequence_key": null
+        },
+        {
+          "id": "twist",
+          "objective_id": "decipher_archives",
+          "consequence_key": null
+        },
+        {
+          "id": "climax",
+          "objective_id": "protect_witness",
+          "consequence_key": null
+        },
+        {
+          "id": "choice",
+          "objective_id": "reveal_or_seal_memory",
+          "consequence_key": "branch_16"
+        },
+        {
+          "id": "extraction",
+          "objective_id": "return_to_gateway",
+          "consequence_key": null
+        }
+      ],
+      "complications": [
+        "radio_shadow",
+        "reinforcements",
+        "time_pressure"
+      ],
+      "choices": [
+        "protect_civilians",
+        "secure_critical_data"
+      ],
+      "completed_reward_credits": 480,
+      "unlocks": "NEXUS_17"
+    },
+    {
+      "id": "NEXUS_17",
+      "number": 17,
+      "act": 4,
+      "world": "umbra",
+      "region": "umbra",
+      "title": "Das falsche Sternentor",
+      "hook": "Portal prüft Mitgefühl und hält friedliche Gefangene fest",
+      "phases": [
+        {
+          "id": "recon",
+          "objective_id": "scan_gateway",
+          "consequence_key": null
+        },
+        {
+          "id": "intervention",
+          "objective_id": "restore_lock_mechanism",
+          "consequence_key": null
+        },
+        {
+          "id": "escalation",
+          "objective_id": "guard_prisoners",
+          "consequence_key": null
+        },
+        {
+          "id": "twist",
+          "objective_id": "decode_ethics_test",
+          "consequence_key": null
+        },
+        {
+          "id": "climax",
+          "objective_id": "rescue_captives",
+          "consequence_key": null
+        },
+        {
+          "id": "choice",
+          "objective_id": "open_gate_or_disable_it",
+          "consequence_key": "branch_17"
+        },
+        {
+          "id": "extraction",
+          "objective_id": "extract_to_orbit",
+          "consequence_key": null
+        }
+      ],
+      "complications": [
+        "radio_shadow",
+        "reinforcements",
+        "time_pressure"
+      ],
+      "choices": [
+        "protect_civilians",
+        "secure_critical_data"
+      ],
+      "completed_reward_credits": 500,
+      "unlocks": "NEXUS_18"
+    },
+    {
+      "id": "NEXUS_18",
+      "number": 18,
+      "act": 4,
+      "world": "umbra",
+      "region": "umbra",
+      "title": "Die letzte Erinnerung",
+      "hook": "Eine bedrohliche Flotte ist ein gespaltenes Archiv",
+      "phases": [
+        {
+          "id": "recon",
+          "objective_id": "scan_ghost_fleet",
+          "consequence_key": null
+        },
+        {
+          "id": "intervention",
+          "objective_id": "board_archive_ship",
+          "consequence_key": null
+        },
+        {
+          "id": "escalation",
+          "objective_id": "survive_data_storm",
+          "consequence_key": null
+        },
+        {
+          "id": "twist",
+          "objective_id": "reveal_archive_split",
+          "consequence_key": null
+        },
+        {
+          "id": "climax",
+          "objective_id": "restore_core_link",
+          "consequence_key": null
+        },
+        {
+          "id": "choice",
+          "objective_id": "reconcile_or_isolate_fleet",
+          "consequence_key": "branch_18"
+        },
+        {
+          "id": "extraction",
+          "objective_id": "escape_to_home_sector",
+          "consequence_key": null
+        }
+      ],
+      "complications": [
+        "radio_shadow",
+        "reinforcements",
+        "time_pressure"
+      ],
+      "choices": [
+        "protect_civilians",
+        "secure_critical_data"
+      ],
+      "completed_reward_credits": 520,
+      "unlocks": null
+    }
+  ]
+}

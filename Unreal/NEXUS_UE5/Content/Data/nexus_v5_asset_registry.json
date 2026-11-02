@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "engine": "Unreal Engine 5.8",
+  "status": "ORIGINAL_PROCEDURAL_SOURCE_GLBS_PACKAGED_SEPARATELY_NOT_IMPORTED_IN_UNREAL_EDITOR",
+  "license": "Original generated NEXUS mesh geometry; no third-party asset licensing claims.",
+  "copyright_trademark": "Original fictional generic designs, no branded vehicles, no copied franchise models.",
+  "quality": "Detailed but textureless vertex-colored multi-part GLB PROTOTYPES; not photorealistic AAA.",
+  "source_package": "NEXUS_V5_28_3D_MODELLE_GEBAEUDE_FAHRZEUGE_PANZER_WAFFEN.zip",
+  "asset_count": 28,
+  "assets": [
+    {
+      "id": "nexus_v5_sportscar",
+      "kind": "Sportscar",
+      "category": "vehicles",
+      "filename": "SM_Nexus_Sportscar.glb",
+      "source_relpath": "vehicles/SM_Nexus_Sportscar.glb",
+      "destination": "/Game/AAA/Geometry/Fleet",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_sedan",
+      "kind": "Sedan",
+      "category": "vehicles",
+      "filename": "SM_Nexus_Sedan.glb",
+      "source_relpath": "vehicles/SM_Nexus_Sedan.glb",
+      "destination": "/Game/AAA/Geometry/Fleet",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_suv",
+      "kind": "SUV",
+      "category": "vehicles",
+      "filename": "SM_Nexus_SUV.glb",
+      "source_relpath": "vehicles/SM_Nexus_SUV.glb",
+      "destination": "/Game/AAA/Geometry/Fleet",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_policecar",
+      "kind": "PoliceCar",
+      "category": "vehicles",
+      "filename": "SM_Nexus_PoliceCar.glb",
+      "source_relpath": "vehicles/SM_Nexus_PoliceCar.glb",
+      "destination": "/Game/AAA/Geometry/Fleet",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_ambulance",
+      "kind": "Ambulance",
+      "category": "vehicles",
+      "filename": "SM_Nexus_Ambulance.glb",
+      "source_relpath": "vehicles/SM_Nexus_Ambulance.glb",
+      "destination": "/Game/AAA/Geometry/Fleet",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_firetruck",
+      "kind": "FireTruck",
+      "category": "vehicles",
+      "filename": "SM_Nexus_FireTruck.glb",
+      "source_relpath": "vehicles/SM_Nexus_FireTruck.glb",
+      "destination": "/Game/AAA/Geometry/Fleet",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_deliverytruck",
+      "kind": "DeliveryTruck",
+      "category": "vehicles",
+      "filename": "SM_Nexus_DeliveryTruck.glb",
+      "source_relpath": "vehicles/SM_Nexus_DeliveryTruck.glb",
+      "destination": "/Game/AAA/Geometry/Fleet",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_policevan",
+      "kind": "PoliceVan",
+      "category": "vehicles",
+      "filename": "SM_Nexus_PoliceVan.glb",
+      "source_relpath": "vehicles/SM_Nexus_PoliceVan.glb",
+      "destination": "/Game/AAA/Geometry/Fleet",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_rescuehelicopter",
+      "kind": "RescueHelicopter",
+      "category": "vehicles",
+      "filename": "SM_Nexus_RescueHelicopter.glb",
+      "source_relpath": "vehicles/SM_Nexus_RescueHelicopter.glb",
+      "destination": "/Game/AAA/Geometry/Fleet",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_utilityhelicopter",
+      "kind": "UtilityHelicopter",
+      "category": "vehicles",
+      "filename": "SM_Nexus_UtilityHelicopter.glb",
+      "source_relpath": "vehicles/SM_Nexus_UtilityHelicopter.glb",
+      "destination": "/Game/AAA/Geometry/Fleet",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_heavyutilityhelicopter",
+      "kind": "HeavyUtilityHelicopter",
+      "category": "vehicles",
+      "filename": "SM_Nexus_HeavyUtilityHelicopter.glb",
+      "source_relpath": "vehicles/SM_Nexus_HeavyUtilityHelicopter.glb",
+      "destination": "/Game/AAA/Geometry/Fleet",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_historicarmoredtank",
+      "kind": "HistoricArmoredTank",
+      "category": "vehicles",
+      "filename": "SM_Nexus_HistoricArmoredTank.glb",
+      "source_relpath": "vehicles/SM_Nexus_HistoricArmoredTank.glb",
+      "destination": "/Game/AAA/Geometry/Fleet",
+      "world_placement": "ww2_1945_only",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_fictionalarmoredexplorer",
+      "kind": "FictionalArmoredExplorer",
+      "category": "vehicles",
+      "filename": "SM_Nexus_FictionalArmoredExplorer.glb",
+      "source_relpath": "vehicles/SM_Nexus_FictionalArmoredExplorer.glb",
+      "destination": "/Game/AAA/Geometry/Fleet",
+      "world_placement": "alien_world_only",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_sidearm",
+      "kind": "Sidearm",
+      "category": "props",
+      "filename": "SM_Nexus_Sidearm.glb",
+      "source_relpath": "props/SM_Nexus_Sidearm.glb",
+      "destination": "/Game/AAA/Geometry/Props",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_carbine",
+      "kind": "Carbine",
+      "category": "props",
+      "filename": "SM_Nexus_Carbine.glb",
+      "source_relpath": "props/SM_Nexus_Carbine.glb",
+      "destination": "/Game/AAA/Geometry/Props",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_precision",
+      "kind": "Precision",
+      "category": "props",
+      "filename": "SM_Nexus_Precision.glb",
+      "source_relpath": "props/SM_Nexus_Precision.glb",
+      "destination": "/Game/AAA/Geometry/Props",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_compactrifle",
+      "kind": "CompactRifle",
+      "category": "props",
+      "filename": "SM_Nexus_CompactRifle.glb",
+      "source_relpath": "props/SM_Nexus_CompactRifle.glb",
+      "destination": "/Game/AAA/Geometry/Props",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_pulsecaster",
+      "kind": "PulseCaster",
+      "category": "props",
+      "filename": "SM_Nexus_PulseCaster.glb",
+      "source_relpath": "props/SM_Nexus_PulseCaster.glb",
+      "destination": "/Game/AAA/Geometry/Props",
+      "world_placement": "story_research_locked",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_arcemitter",
+      "kind": "ArcEmitter",
+      "category": "props",
+      "filename": "SM_Nexus_ArcEmitter.glb",
+      "source_relpath": "props/SM_Nexus_ArcEmitter.glb",
+      "destination": "/Game/AAA/Geometry/Props",
+      "world_placement": "story_research_locked",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_practicetarget",
+      "kind": "PracticeTarget",
+      "category": "props",
+      "filename": "SM_Nexus_PracticeTarget.glb",
+      "source_relpath": "props/SM_Nexus_PracticeTarget.glb",
+      "destination": "/Game/AAA/Geometry/Props",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_supermarket",
+      "kind": "Supermarket",
+      "category": "architecture",
+      "filename": "SM_Nexus_Supermarket.glb",
+      "source_relpath": "architecture/SM_Nexus_Supermarket.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_policestation",
+      "kind": "PoliceStation",
+      "category": "architecture",
+      "filename": "SM_Nexus_PoliceStation.glb",
+      "source_relpath": "architecture/SM_Nexus_PoliceStation.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_firestation",
+      "kind": "FireStation",
+      "category": "architecture",
+      "filename": "SM_Nexus_FireStation.glb",
+      "source_relpath": "architecture/SM_Nexus_FireStation.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_airportterminal",
+      "kind": "AirportTerminal",
+      "category": "architecture",
+      "filename": "SM_Nexus_AirportTerminal.glb",
+      "source_relpath": "architecture/SM_Nexus_AirportTerminal.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_medievalhall",
+      "kind": "MedievalHall",
+      "category": "architecture",
+      "filename": "SM_Nexus_MedievalHall.glb",
+      "source_relpath": "architecture/SM_Nexus_MedievalHall.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_alpinevilla",
+      "kind": "AlpineVilla",
+      "category": "architecture",
+      "filename": "SM_Nexus_AlpineVilla.glb",
+      "source_relpath": "architecture/SM_Nexus_AlpineVilla.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_goldmineentrance",
+      "kind": "GoldMineEntrance",
+      "category": "architecture",
+      "filename": "SM_Nexus_GoldMineEntrance.glb",
+      "source_relpath": "architecture/SM_Nexus_GoldMineEntrance.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    },
+    {
+      "id": "nexus_v5_spaceresearchlab",
+      "kind": "SpaceResearchLab",
+      "category": "architecture",
+      "filename": "SM_Nexus_SpaceResearchLab.glb",
+      "source_relpath": "architecture/SM_Nexus_SpaceResearchLab.glb",
+      "destination": "/Game/AAA/Geometry/StoryAreas",
+      "world_placement": "modern_earth",
+      "pipeline_status": "GLB_AVAILABLE_IN_DOWNLOAD_PACKAGE_NOT_YET_IN_UNREAL"
+    }
+  ]
+}

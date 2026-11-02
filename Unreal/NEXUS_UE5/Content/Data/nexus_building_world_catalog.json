@@ -1,0 +1,848 @@
+{
+  "schema_version": 1,
+  "status": "DESIGN_CATALOGUE_NOT_RENDERED_LEVELS",
+  "engine": "Unreal Engine 5.8",
+  "spending_eur": 0,
+  "artifact": "NEXUS AAA design-to-production catalogue",
+  "architecture_standard": {
+    "units": "centimetres UE world",
+    "modular_grid_cm": [
+      50,
+      100,
+      200,
+      400
+    ],
+    "hero_buildings_first": 5,
+    "modules": [
+      "foundation",
+      "wall",
+      "wall_corner",
+      "door_frame",
+      "door",
+      "window_frame",
+      "glazing",
+      "roof",
+      "roof_edge",
+      "balcony",
+      "stairs",
+      "railing",
+      "utility",
+      "interior",
+      "damage",
+      "repair"
+    ],
+    "materials_required": [
+      "base_color",
+      "normal",
+      "roughness",
+      "metallic_when_applicable",
+      "ao_when_applicable"
+    ],
+    "quality_gates": [
+      "physics_collision",
+      "real_pbr_materials",
+      "exterior_details",
+      "interior_if_enterable",
+      "lighting",
+      "npc_navigation",
+      "save_state",
+      "4_player_replication",
+      "performance",
+      "real_unreal_screenshot"
+    ],
+    "image_reference": "visual reference only; no Shutterstock visual assets"
+  },
+  "buildings": [
+    {
+      "id": "B01",
+      "name": "Alpenhof Bauernhaus",
+      "style": "alpine",
+      "surface_palettes": [
+        "stone",
+        "timber",
+        "plaster",
+        "roof",
+        "slate"
+      ],
+      "interior_modules": [
+        "kitchen",
+        "living_room",
+        "barn",
+        "woodshop"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B02",
+      "name": "Berghuette Gasthaus",
+      "style": "alpine",
+      "surface_palettes": [
+        "wood",
+        "shingle",
+        "stone",
+        "glass"
+      ],
+      "interior_modules": [
+        "restaurant",
+        "kitchen",
+        "guest_rooms"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B03",
+      "name": "Einfamilienhaus",
+      "style": "european",
+      "surface_palettes": [
+        "plaster",
+        "brick",
+        "wood",
+        "glass"
+      ],
+      "interior_modules": [
+        "living",
+        "kitchen",
+        "garage"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B04",
+      "name": "Mehrfamilienhaus",
+      "style": "european",
+      "surface_palettes": [
+        "plaster",
+        "concrete",
+        "glass"
+      ],
+      "interior_modules": [
+        "lobby",
+        "stairwell",
+        "apartment"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B05",
+      "name": "Luxusvilla",
+      "style": "contemporary",
+      "surface_palettes": [
+        "stone",
+        "glass",
+        "steel",
+        "wood"
+      ],
+      "interior_modules": [
+        "living",
+        "terrace",
+        "garage"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B06",
+      "name": "Bueroturm",
+      "style": "urban",
+      "surface_palettes": [
+        "glass",
+        "steel",
+        "concrete"
+      ],
+      "interior_modules": [
+        "lobby",
+        "floor",
+        "rooftop"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B07",
+      "name": "Geschaeft",
+      "style": "urban",
+      "surface_palettes": [
+        "brick",
+        "metal",
+        "glass"
+      ],
+      "interior_modules": [
+        "shop",
+        "storage"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B08",
+      "name": "Krankenhaus",
+      "style": "civic",
+      "surface_palettes": [
+        "concrete",
+        "glass",
+        "steel"
+      ],
+      "interior_modules": [
+        "emergency",
+        "patient_room"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B09",
+      "name": "Feuerwehr Polizei",
+      "style": "civic",
+      "surface_palettes": [
+        "concrete",
+        "brick",
+        "steel"
+      ],
+      "interior_modules": [
+        "vehicle_hall",
+        "control_room"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B10",
+      "name": "Bahnhof",
+      "style": "transport",
+      "surface_palettes": [
+        "steel",
+        "glass",
+        "stone"
+      ],
+      "interior_modules": [
+        "concourse",
+        "workshop"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B11",
+      "name": "Schule Gemeindeamt",
+      "style": "civic",
+      "surface_palettes": [
+        "plaster",
+        "stone",
+        "glass"
+      ],
+      "interior_modules": [
+        "foyer",
+        "office"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B12",
+      "name": "Logistikhalle",
+      "style": "industrial",
+      "surface_palettes": [
+        "steel",
+        "cladding",
+        "concrete"
+      ],
+      "interior_modules": [
+        "warehouse",
+        "loading"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B13",
+      "name": "Saegewerk",
+      "style": "industrial",
+      "surface_palettes": [
+        "wood",
+        "steel",
+        "concrete"
+      ],
+      "interior_modules": [
+        "wood_mill",
+        "logistics"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B14",
+      "name": "Schmelzofen",
+      "style": "industrial",
+      "surface_palettes": [
+        "steel",
+        "refractory_brick",
+        "concrete"
+      ],
+      "interior_modules": [
+        "furnace",
+        "control"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B15",
+      "name": "Zementwerk",
+      "style": "industrial",
+      "surface_palettes": [
+        "concrete",
+        "steel",
+        "stone"
+      ],
+      "interior_modules": [
+        "kiln",
+        "silo"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B16",
+      "name": "Raffinerie Offshore",
+      "style": "industrial",
+      "surface_palettes": [
+        "metal",
+        "glass",
+        "steel"
+      ],
+      "interior_modules": [
+        "pump",
+        "control"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B17",
+      "name": "Asphaltwerk",
+      "style": "industrial",
+      "surface_palettes": [
+        "steel",
+        "concrete",
+        "asphalt"
+      ],
+      "interior_modules": [
+        "mixer",
+        "storage"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B18",
+      "name": "Staudamm Wasserkraft",
+      "style": "industrial",
+      "surface_palettes": [
+        "concrete",
+        "metal",
+        "water"
+      ],
+      "interior_modules": [
+        "turbine",
+        "control"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B19",
+      "name": "Planetenforschungsbasis",
+      "style": "planetary",
+      "surface_palettes": [
+        "insulated_metal",
+        "glass"
+      ],
+      "interior_modules": [
+        "airlock",
+        "lab",
+        "habitat"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B20",
+      "name": "Raumstation",
+      "style": "orbital",
+      "surface_palettes": [
+        "aluminium",
+        "composite",
+        "glass"
+      ],
+      "interior_modules": [
+        "dock",
+        "control",
+        "habitat"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B21",
+      "name": "Lavastation",
+      "style": "ignis",
+      "surface_palettes": [
+        "basalt",
+        "refractory_glass",
+        "metal"
+      ],
+      "interior_modules": [
+        "cooling",
+        "geothermal"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B22",
+      "name": "Eisstation",
+      "style": "nivora",
+      "surface_palettes": [
+        "ice_composite",
+        "metal",
+        "insulated_glass"
+      ],
+      "interior_modules": [
+        "airlock",
+        "research"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B23",
+      "name": "Wuestenstadt Wasserwerk",
+      "style": "sahra",
+      "surface_palettes": [
+        "sandstone",
+        "composite",
+        "glass"
+      ],
+      "interior_modules": [
+        "water_plant",
+        "housing"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    },
+    {
+      "id": "B24",
+      "name": "Alien Archiv",
+      "style": "umbra",
+      "surface_palettes": [
+        "alien_mineral",
+        "luminous_glass"
+      ],
+      "interior_modules": [
+        "archive",
+        "portal"
+      ],
+      "enterable_goal": true,
+      "asset_status": "DESIGN_ONLY",
+      "variant_seeds": 8
+    }
+  ],
+  "worlds": [
+    {
+      "id": "mercury",
+      "name": "Merkur",
+      "biome": "regolith_craters",
+      "building_catalog_ids": [
+        "B19"
+      ],
+      "hero_gameplay": "mining_heat_shelter",
+      "access": "surface_local",
+      "world_status": "PROFILE_ONLY",
+      "target_minimum": {
+        "hero_location": 1,
+        "architecture_kits": 3,
+        "material_families": 8,
+        "foliage_or_geology_kits": 3,
+        "weather_modes": 2
+      }
+    },
+    {
+      "id": "venus",
+      "name": "Venus",
+      "biome": "acid_clouds",
+      "building_catalog_ids": [
+        "B19"
+      ],
+      "hero_gameplay": "upper_atmosphere_probe",
+      "access": "extreme_conditions_station",
+      "world_status": "PROFILE_ONLY",
+      "target_minimum": {
+        "hero_location": 1,
+        "architecture_kits": 3,
+        "material_families": 8,
+        "foliage_or_geology_kits": 3,
+        "weather_modes": 2
+      }
+    },
+    {
+      "id": "earth",
+      "name": "Erde",
+      "biome": "alpine_city_coast",
+      "building_catalog_ids": [
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B09",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B14",
+        "B15",
+        "B16",
+        "B17",
+        "B18"
+      ],
+      "hero_gameplay": "rescue_industry_transport",
+      "access": "surface_local",
+      "world_status": "PROFILE_ONLY",
+      "target_minimum": {
+        "hero_location": 1,
+        "architecture_kits": 3,
+        "material_families": 8,
+        "foliage_or_geology_kits": 3,
+        "weather_modes": 2
+      }
+    },
+    {
+      "id": "mars",
+      "name": "Mars",
+      "biome": "oxide_dunes",
+      "building_catalog_ids": [
+        "B19",
+        "B23"
+      ],
+      "hero_gameplay": "rover_colony",
+      "access": "surface_local",
+      "world_status": "PROFILE_ONLY",
+      "target_minimum": {
+        "hero_location": 1,
+        "architecture_kits": 3,
+        "material_families": 8,
+        "foliage_or_geology_kits": 3,
+        "weather_modes": 2
+      }
+    },
+    {
+      "id": "jupiter",
+      "name": "Jupiter",
+      "biome": "gas_giant",
+      "building_catalog_ids": [
+        "B20"
+      ],
+      "hero_gameplay": "storm_sampling",
+      "access": "orbit_only",
+      "world_status": "PROFILE_ONLY",
+      "target_minimum": {
+        "hero_location": 1,
+        "architecture_kits": 3,
+        "material_families": 8,
+        "foliage_or_geology_kits": 3,
+        "weather_modes": 2
+      }
+    },
+    {
+      "id": "saturn",
+      "name": "Saturn",
+      "biome": "gas_giant_rings",
+      "building_catalog_ids": [
+        "B20"
+      ],
+      "hero_gameplay": "ring_navigation",
+      "access": "orbit_only",
+      "world_status": "PROFILE_ONLY",
+      "target_minimum": {
+        "hero_location": 1,
+        "architecture_kits": 3,
+        "material_families": 8,
+        "foliage_or_geology_kits": 3,
+        "weather_modes": 2
+      }
+    },
+    {
+      "id": "uranus",
+      "name": "Uranus",
+      "biome": "ice_giant",
+      "building_catalog_ids": [
+        "B20"
+      ],
+      "hero_gameplay": "sensor_station",
+      "access": "orbit_only",
+      "world_status": "PROFILE_ONLY",
+      "target_minimum": {
+        "hero_location": 1,
+        "architecture_kits": 3,
+        "material_families": 8,
+        "foliage_or_geology_kits": 3,
+        "weather_modes": 2
+      }
+    },
+    {
+      "id": "neptune",
+      "name": "Neptun",
+      "biome": "ice_giant_winds",
+      "building_catalog_ids": [
+        "B20"
+      ],
+      "hero_gameplay": "orbital_weather",
+      "access": "orbit_only",
+      "world_status": "PROFILE_ONLY",
+      "target_minimum": {
+        "hero_location": 1,
+        "architecture_kits": 3,
+        "material_families": 8,
+        "foliage_or_geology_kits": 3,
+        "weather_modes": 2
+      }
+    },
+    {
+      "id": "terra_nova",
+      "name": "Terra Nova",
+      "biome": "highland",
+      "building_catalog_ids": [
+        "B01",
+        "B04",
+        "B06",
+        "B12",
+        "B14"
+      ],
+      "hero_gameplay": "infrastructure_rescue",
+      "access": "surface_local",
+      "world_status": "PROFILE_ONLY",
+      "target_minimum": {
+        "hero_location": 1,
+        "architecture_kits": 3,
+        "material_families": 8,
+        "foliage_or_geology_kits": 3,
+        "weather_modes": 2
+      }
+    },
+    {
+      "id": "sahra_ix",
+      "name": "Sahra IX",
+      "biome": "desert",
+      "building_catalog_ids": [
+        "B19",
+        "B23"
+      ],
+      "hero_gameplay": "sandstorm_convoy_water",
+      "access": "surface_local",
+      "world_status": "PROFILE_ONLY",
+      "target_minimum": {
+        "hero_location": 1,
+        "architecture_kits": 3,
+        "material_families": 8,
+        "foliage_or_geology_kits": 3,
+        "weather_modes": 2
+      }
+    },
+    {
+      "id": "nivora",
+      "name": "Nivora",
+      "biome": "ice_glacier",
+      "building_catalog_ids": [
+        "B19",
+        "B22"
+      ],
+      "hero_gameplay": "ice_signal_research",
+      "access": "surface_local",
+      "world_status": "PROFILE_ONLY",
+      "target_minimum": {
+        "hero_location": 1,
+        "architecture_kits": 3,
+        "material_families": 8,
+        "foliage_or_geology_kits": 3,
+        "weather_modes": 2
+      }
+    },
+    {
+      "id": "vesper",
+      "name": "Vesper",
+      "biome": "rainforest",
+      "building_catalog_ids": [
+        "B19",
+        "B23"
+      ],
+      "hero_gameplay": "ecology_rescue",
+      "access": "surface_local",
+      "world_status": "PROFILE_ONLY",
+      "target_minimum": {
+        "hero_location": 1,
+        "architecture_kits": 3,
+        "material_families": 8,
+        "foliage_or_geology_kits": 3,
+        "weather_modes": 2
+      }
+    },
+    {
+      "id": "ignis_prime",
+      "name": "Ignis Prime",
+      "biome": "lava",
+      "building_catalog_ids": [
+        "B19",
+        "B21"
+      ],
+      "hero_gameplay": "geothermal_evacuation",
+      "access": "surface_local",
+      "world_status": "PROFILE_ONLY",
+      "target_minimum": {
+        "hero_location": 1,
+        "architecture_kits": 3,
+        "material_families": 8,
+        "foliage_or_geology_kits": 3,
+        "weather_modes": 2
+      }
+    },
+    {
+      "id": "umbra",
+      "name": "Umbra",
+      "biome": "alien_ruins",
+      "building_catalog_ids": [
+        "B20",
+        "B24"
+      ],
+      "hero_gameplay": "archive_puzzle",
+      "access": "surface_local",
+      "world_status": "PROFILE_ONLY",
+      "target_minimum": {
+        "hero_location": 1,
+        "architecture_kits": 3,
+        "material_families": 8,
+        "foliage_or_geology_kits": 3,
+        "weather_modes": 2
+      }
+    }
+  ],
+  "maps": [
+    {
+      "id": "L_Adlerklamm_VerticalSlice",
+      "size_km": [
+        2,
+        2
+      ],
+      "phase": "G2",
+      "zones": [
+        "WestApproach",
+        "82mBridge",
+        "MeanderingRiver",
+        "ErosionCliff",
+        "RescueHelipad",
+        "Village",
+        "Quarry",
+        "SteelAndWood",
+        "HospitalFire",
+        "CitySkyline"
+      ],
+      "status": "BLOCKOUT_ONLY"
+    },
+    {
+      "id": "L_Terra_Alpenland",
+      "target_size_km": [
+        16,
+        16
+      ],
+      "phase": "POST_G4",
+      "zones": [
+        "mountains",
+        "forest",
+        "rivers",
+        "town",
+        "hydropower",
+        "rail"
+      ],
+      "status": "DESIGN_ONLY"
+    },
+    {
+      "id": "L_Terra_Stahlhafen",
+      "target_size_km": [
+        8,
+        8
+      ],
+      "phase": "POST_G4",
+      "zones": [
+        "port",
+        "refinery",
+        "highrises",
+        "industry"
+      ],
+      "status": "DESIGN_ONLY"
+    },
+    {
+      "id": "L_OrbitalHub",
+      "phase": "POST_G6",
+      "zones": [
+        "docks",
+        "hangars",
+        "habitats"
+      ],
+      "status": "DESIGN_ONLY"
+    }
+  ],
+  "campaign": {
+    "missions": 18,
+    "phases_per_mission": 7,
+    "target_hours": 48,
+    "source": "Content/Data/nexus_campaign.json",
+    "status": "STORY_DATA_AND_PARTIAL_CHAPTER_1_ONLY"
+  },
+  "gates": [
+    "G0_SOURCE",
+    "G1_UE5_REAL_BUILD",
+    "G2_ALPINE_NATURE",
+    "G3_HERO_BUILDINGS",
+    "G4_RESCUE_GAMEPLAY",
+    "G5_ECONOMY_COOP",
+    "G6_PLANET_VERTICAL_SLICE",
+    "G7_18_CHAPTERS_PLAYTEST",
+    "G8_PHOTOREALISM_GPU_REVIEW"
+  ],
+  "must_not_claim": [
+    "AAA photorealism achieved",
+    "UE5 compiled without build",
+    "48 hours measured",
+    "14 full planet levels built",
+    "free cloud GPU available"
+  ]
+}

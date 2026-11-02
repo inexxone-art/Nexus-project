@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "units": {
+    "gravity": "m/s^2",
+    "environment_temp": "C"
+  },
+  "areas": [
+    {
+      "id": "mercury",
+      "label": "Merkur",
+      "biome": "regolith",
+      "gravity": 3.7,
+      "surface_temperature_c": -160,
+      "material_set": "rock_craters",
+      "vehicle_profile": "rover",
+      "status": "design_profile_not_full_level"
+    },
+    {
+      "id": "venus",
+      "label": "Venus",
+      "biome": "acid_clouds",
+      "gravity": 8.87,
+      "surface_temperature_c": 460,
+      "material_set": "corrosion_shelters",
+      "vehicle_profile": "armoured_rover",
+      "status": "design_profile_not_full_level"
+    },
+    {
+      "id": "earth",
+      "label": "Erde",
+      "biome": "alpine_forest",
+      "gravity": 9.81,
+      "surface_temperature_c": 12,
+      "material_set": "wet_rock_forest_city",
+      "vehicle_profile": "mixed_fleet",
+      "status": "design_profile_not_full_level"
+    },
+    {
+      "id": "mars",
+      "label": "Mars",
+      "biome": "rust_sediment",
+      "gravity": 3.71,
+      "surface_temperature_c": -62,
+      "material_set": "sand_fall",
+      "vehicle_profile": "pressurized_rover",
+      "status": "design_profile_not_full_level"
+    },
+    {
+      "id": "jupiter",
+      "label": "Jupiter",
+      "biome": "gas_atmosphere",
+      "gravity": 24.79,
+      "surface_temperature_c": -110,
+      "material_set": "storm_orbit_only",
+      "vehicle_profile": "orbital_shuttle",
+      "status": "design_profile_not_full_level"
+    },
+    {
+      "id": "saturn",
+      "label": "Saturn",
+      "biome": "gas_atmosphere",
+      "gravity": 10.44,
+      "surface_temperature_c": -140,
+      "material_set": "ring_station_orbit_only",
+      "vehicle_profile": "orbital_shuttle",
+      "status": "design_profile_not_full_level"
+    },
+    {
+      "id": "uranus",
+      "label": "Uranus",
+      "biome": "gas_atmosphere",
+      "gravity": 8.69,
+      "surface_temperature_c": -195,
+      "material_set": "cloud_base_orbit_only",
+      "vehicle_profile": "orbital_shuttle",
+      "status": "design_profile_not_full_level"
+    },
+    {
+      "id": "neptune",
+      "label": "Neptun",
+      "biome": "gas_atmosphere",
+      "gravity": 11.15,
+      "surface_temperature_c": -200,
+      "material_set": "wind_orbit_only",
+      "vehicle_profile": "orbital_shuttle",
+      "status": "design_profile_not_full_level"
+    },
+    {
+      "id": "terra_nova",
+      "label": "Terra Nova",
+      "biome": "highland",
+      "gravity": 9.7,
+      "surface_temperature_c": 8,
+      "material_set": "alpine",
+      "vehicle_profile": "ground_fleet",
+      "status": "design_profile_not_full_level"
+    },
+    {
+      "id": "sahra_ix",
+      "label": "Sahra IX",
+      "biome": "dunes",
+      "gravity": 7.9,
+      "surface_temperature_c": 43,
+      "material_set": "heat_haze_dust",
+      "vehicle_profile": "sand_rover",
+      "status": "design_profile_not_full_level"
+    },
+    {
+      "id": "nivora",
+      "label": "Nivora",
+      "biome": "ice",
+      "gravity": 5.9,
+      "surface_temperature_c": -85,
+      "material_set": "ice_refraction_blizzard",
+      "vehicle_profile": "tracked_rescue",
+      "status": "design_profile_not_full_level"
+    },
+    {
+      "id": "vesper",
+      "label": "Vesper",
+      "biome": "rainforest",
+      "gravity": 9.4,
+      "surface_temperature_c": 34,
+      "material_set": "wet_vegetation",
+      "vehicle_profile": "hovercraft",
+      "status": "design_profile_not_full_level"
+    },
+    {
+      "id": "ignis_prime",
+      "label": "Ignis Prime",
+      "biome": "volcanic",
+      "gravity": 11.2,
+      "surface_temperature_c": 290,
+      "material_set": "basalt_lava_ash",
+      "vehicle_profile": "heat_shield_rover",
+      "status": "design_profile_not_full_level"
+    },
+    {
+      "id": "umbra",
+      "label": "Umbra",
+      "biome": "alien_ruin",
+      "gravity": 8.3,
+      "surface_temperature_c": -33,
+      "material_set": "mineral_emission",
+      "vehicle_profile": "exosuit",
+      "status": "design_profile_not_full_level"
+    }
+  ],
+  "extra_destinations": [
+    "moon",
+    "phobos",
+    "deimos",
+    "europa",
+    "ganymede",
+    "titan",
+    "enceladus",
+    "orbital_stations"
+  ]
+}

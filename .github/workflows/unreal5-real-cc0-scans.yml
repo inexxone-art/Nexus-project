@@ -1,0 +1,45 @@
+name: NEXUS UE5 - Download Real CC0 Photogrammetry
+
+on:
+  push:
+    branches: [feature/unreal5-nexus-adlerklamm-foundation]
+    paths:
+      - "Unreal/NEXUS_UE5/Scripts/download_cc0_photogrammetry.py"
+      - ".github/workflows/unreal5-real-cc0-scans.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+jobs:
+  scan-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install open-source glTF conversion tools
+        run: pip install --disable-pip-version-check "numpy>=1.26,<3" "trimesh>=4,<5" "pillow>=10"
+      - name: Download original Poly Haven scan with MD5 verification
+        run: python3 Unreal/NEXUS_UE5/Scripts/download_cc0_photogrammetry.py build/cc0_scanned_rocks
+      - name: Zip measured source assets and provenance
+        run: |
+          python3 - <<'PY'
+          import pathlib,zipfile,json
+          base=pathlib.Path("build/cc0_scanned_rocks")
+          manifest=json.loads((base/"CC0_PROVENANCE.json").read_text())
+          assert len(manifest["files"])>=4
+          assert manifest["converted_glb"]["triangles"]>=10000
+          assert (base/"SM_NEXUS_ScannedRockSet.glb").is_file()
+          target=pathlib.Path("build/NEXUS_UE5_CC0_PHOTOSCANNED_ROCKS.zip")
+          with zipfile.ZipFile(target,"w",zipfile.ZIP_DEFLATED) as z:
+              for path in base.rglob("*"):
+                  if path.is_file():z.write(path,path.relative_to(base))
+          print("VERIFIED CC0 ARCHIVE",target.stat().st_size,"bytes")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NEXUS-UE5-PHOTOSCANNED-CC0-ROCKS
+          path: build/NEXUS_UE5_CC0_PHOTOSCANNED_ROCKS.zip
+          retention-days: 14
