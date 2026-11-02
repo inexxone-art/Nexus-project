@@ -15,8 +15,9 @@ ANexusCinematicScenery::ANexusCinematicScenery()
     PineForestA=CreateDefaultSubobject<UHierarchicalInstancedStaticMeshComponent>(TEXT("AlpineSpruceA"));
     PineForestB=CreateDefaultSubobject<UHierarchicalInstancedStaticMeshComponent>(TEXT("AlpineSpruceB"));
     TalusBoulders=CreateDefaultSubobject<UHierarchicalInstancedStaticMeshComponent>(TEXT("ErodedTalus"));
+    PhotoScannedRocks=CreateDefaultSubobject<UHierarchicalInstancedStaticMeshComponent>(TEXT("VerifiedCC0PhotoScannedRocks"));
     AlpineShrubs=CreateDefaultSubobject<UHierarchicalInstancedStaticMeshComponent>(TEXT("AlpineShrub"));
-    for(auto* HISM:{PineForestA.Get(),PineForestB.Get(),TalusBoulders.Get(),AlpineShrubs.Get()})
+    for(auto* HISM:{PineForestA.Get(),PineForestB.Get(),TalusBoulders.Get(),AlpineShrubs.Get(),PhotoScannedRocks.Get()})
     {
         HISM->SetupAttachment(SceneryRoot);
         HISM->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -57,6 +58,8 @@ void ANexusCinematicScenery::PopulateLandscape()
        TEXT("/Game/AAA/Geometry/Foliage/SM_NEXUS_Boulder_01.SM_NEXUS_Boulder_01"));
     const bool Shrubs=LoadFoliageMesh(AlpineShrubs,
        TEXT("/Game/AAA/Geometry/Foliage/SM_NEXUS_AlpineShrub_01.SM_NEXUS_AlpineShrub_01"));
+    const bool Scans=LoadFoliageMesh(PhotoScannedRocks,
+       TEXT("/Game/AAA/Geometry/CC0/SM_NEXUS_ScannedRockSet.SM_NEXUS_ScannedRockSet"));
     FRandomStream Random(LandscapeSeed);
     const int32 Trees=FMath::Clamp(TreeCount,0,3000);
     for(int32 I=0;I<Trees;++I)
@@ -82,6 +85,8 @@ void ANexusCinematicScenery::PopulateLandscape()
         const FTransform T(FRotator(Random.FRandRange(-12.f,12.f),
           Random.FRandRange(0.f,360.f),0),FVector(X,Y,1700.f),FVector(Radius));
         if(Rocks)TalusBoulders->AddInstance(T);
+        if(Scans && I%4==0)
+            PhotoScannedRocks->AddInstance(T);
         if(Shrubs && I%3==0)
             AlpineShrubs->AddInstance(FTransform(FRotator(0,Random.FRandRange(0.f,360.f),0),
                 FVector(X+Random.FRandRange(100.f,330.f),Y,1970.f),FVector(1.0f)));

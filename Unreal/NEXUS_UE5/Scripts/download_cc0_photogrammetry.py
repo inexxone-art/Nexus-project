@@ -60,6 +60,21 @@ def main():
             size=download_checked(meta["url"],actual,meta["md5"],200*1024*1024)
             report["files"].append({"path":relative,"md5":meta["md5"],"bytes":size,"origin":meta["url"]})
             print(f"CC0 PHOTO-SCAN VERIFIED {relative}: {size} bytes")
+    # Convert the full downloaded glTF scene + 2K maps into ONE portable GLB.
+    # The original glTF remains included for provenance and manual UE import.
+    import trimesh
+    source=OUT/"rock_moss_set_02"/"rock_moss_set_02_2k.gltf"
+    scene=trimesh.load(source,force="scene")
+    triangles=sum(len(m.faces) for m in scene.geometry.values())
+    if triangles<10000:
+        raise ValueError(f"Low-poly model unexpected: {triangles} faces")
+    glb=OUT/"SM_NEXUS_ScannedRockSet.glb"
+    glb.write_bytes(scene.export(file_type="glb"))
+    verify=trimesh.load(glb,force="scene")
+    assert sum(len(m.faces) for m in verify.geometry.values())==triangles
+    report["converted_glb"]={"file":glb.name,"triangles":triangles,
+        "bytes":glb.stat().st_size,"sha256":hashlib.sha256(glb.read_bytes()).hexdigest()}
+    print("REAL CC0 PHOTO-SCANNED GLB VERIFIED",triangles,"triangles")
     (OUT/"CC0_PROVENANCE.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
     (OUT/"README_CC0.txt").write_text(
         "Rock Moss Set 02 by Kless Gyzen, Poly Haven, CC0-1.0.\n"
