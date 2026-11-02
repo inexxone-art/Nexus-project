@@ -26,4 +26,7 @@ public:
     UPROPERTY(SaveGame) TArray<FNexusCitizenMemory> Citizens;
     UPROPERTY(SaveGame) TArray<FNexusIncidentMemory> EventHistory;
     UPROPERTY(SaveGame) int32 GameDay = 1;
+    UPROPERTY(SaveGame) int32 WeatherMode=1;
+    UPROPERTY(SaveGame) int32 WeatherSeverity=38;
+    UPROPERTY(SaveGame) int32 ClockMinutes=840;
 };

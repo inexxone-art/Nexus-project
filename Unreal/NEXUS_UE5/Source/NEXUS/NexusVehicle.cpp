@@ -1,6 +1,7 @@
 #include "NexusVehicle.h"
 #include "NexusGameMode.h"
 #include "NexusWorldDirector.h"
+#include "NexusAlpineWeather.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
@@ -90,9 +91,14 @@ void ANexusVehicle::Tick(float Dt)
 {
     Super::Tick(Dt);
     if(!HasAuthority() || !Driver || Dt<=0) return;
-    const float TargetSpeed=Throttle*(bHelicopter?2400.f:1650.f);
+    float Traction=1.f;
+    if(!bHelicopter)
+        if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
+            if(GM->Director && GM->Director->Weather)
+                Traction=GM->Director->Weather->RoadTractionMultiplier();
+    const float TargetSpeed=Throttle*(bHelicopter?2400.f:1650.f)*Traction;
     LinearSpeed=FMath::FInterpTo(LinearSpeed,TargetSpeed,Dt,bHelicopter?1.3f:1.8f);
-    AddActorWorldRotation(FRotator(0,Steering*(bHelicopter?38.f:60.f)*Dt,0));
+    AddActorWorldRotation(FRotator(0,Steering*(bHelicopter?38.f:60.f)*Dt*Traction,0));
     const FVector Delta=GetActorForwardVector()*LinearSpeed*Dt+
         (bHelicopter?FVector(0,0,Vertical*1350.f*Dt):FVector::ZeroVector);
     AddActorWorldOffset(Delta,true);

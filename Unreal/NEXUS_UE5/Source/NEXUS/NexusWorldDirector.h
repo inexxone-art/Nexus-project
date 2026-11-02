@@ -14,6 +14,7 @@ class UStaticMeshComponent;
 class UNexusSimulationComponent;
 class UNexusCampaignComponent;
 class ANexusCompanion;
+class ANexusAlpineWeather;
 
 UCLASS(Blueprintable)
 class NEXUS_API ANexusWorldDirector : public AActor
@@ -23,6 +24,7 @@ public:
     ANexusWorldDirector();
     virtual void BeginPlay() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+    UPROPERTY(BlueprintReadOnly,Replicated) TObjectPtr<ANexusAlpineWeather> Weather;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UNexusSimulationComponent> WorldMemory;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UNexusCampaignComponent> Story;
     UPROPERTY(BlueprintReadOnly) TArray<TObjectPtr<ANexusCompanion>> RescueHelpers;
@@ -65,6 +67,5 @@ private:
     void CreateStageWorld();
     void CreateRescueTargets();
     void CreateFactories();
-    void CreateLighting();
     void CreateSceneryBox(FVector Position,FVector Scale,FRotator Rotation,const TCHAR* Name);
 };

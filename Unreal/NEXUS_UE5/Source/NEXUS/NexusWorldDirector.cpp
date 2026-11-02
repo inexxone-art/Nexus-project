@@ -10,6 +10,7 @@
 #include "NexusSimulationComponent.h"
 #include "NexusCinematicScenery.h"
 #include "NexusCompanion.h"
+#include "NexusAlpineWeather.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
@@ -44,7 +45,12 @@ void ANexusWorldDirector::BeginPlay()
     PublishInventory();
     CreateStageWorld();
     GetWorld()->SpawnActor<ANexusCinematicScenery>();
-    CreateLighting();
+    Weather=GetWorld()->SpawnActor<ANexusAlpineWeather>();
+    if(Weather)
+    {
+        Weather->SetClockMinutes(840);
+        Weather->SetClimate(ENexusClimate::Rain,38);
+    }
     Bridge=GetWorld()->SpawnActor<ANexusBridge>(ANexusBridge::StaticClass(),FVector(0,0,1950),FRotator::ZeroRotator);
     Bus=GetWorld()->SpawnActor<ANexusBus>(ANexusBus::StaticClass(),FVector(0,0,2440),FRotator::ZeroRotator);
     RescueTruck=GetWorld()->SpawnActor<ANexusVehicle>(ANexusVehicle::StaticClass(),FVector(-6900,0,2160),FRotator::ZeroRotator);
@@ -120,19 +126,6 @@ void ANexusWorldDirector::CreateStageWorld()
     // UE5 world Partition/PCG/Nanite import anchor: place high-poly meshes in the
     // editor; fallback blocks are development-only, not the quality target.
 }
-void ANexusWorldDirector::CreateLighting()
-{
-    ADirectionalLight* Sun=GetWorld()->SpawnActor<ADirectionalLight>();
-    if(Sun) { Sun->SetActorRotation(FRotator(-42.f,28.f,0)); Sun->GetLightComponent()->SetIntensity(5.0f); }
-    ASkyLight* Sky=GetWorld()->SpawnActor<ASkyLight>();
-    if(Sky) { Sky->GetLightComponent()->SetIntensity(0.7f); }
-    AExponentialHeightFog* Fog=GetWorld()->SpawnActor<AExponentialHeightFog>();
-    if(Fog && Fog->GetComponent())
-    {
-        Fog->GetComponent()->SetFogDensity(0.012f);
-        Fog->GetComponent()->bEnableVolumetricFog=true;
-    }
-}
 void ANexusWorldDirector::CreateRescueTargets()
 {
     const FVector Sites[3]={
@@ -185,9 +178,12 @@ void ANexusWorldDirector::VehicleAdvanced(ANexusVehicle* Vehicle)
     if(bEnteredSpan && P.X>4600.f && FMath::Abs(P.Y)<2000.f)
     {
         Phase=ENexusIncidentPhase::Collapse;
+        if(Weather)Weather->SetClimate(ENexusClimate::Storm,87);
         if(WorldMemory)
         {
             WorldMemory->SetRoadDamage(TEXT("adlerklamm"),100);
+            if(auto* S=WorldMemory->FindSectorMutable(TEXT("adlerklamm")))
+                S->WeatherSeverity=87;
             const FName Incident=WorldMemory->EvaluateIncident(TEXT("adlerklamm"),1);
             if(Incident!=NAME_None)UE_LOG(LogTemp,Display,TEXT("NEXUS EVENT: %s"),*Incident.ToString());
         }
@@ -360,7 +356,13 @@ bool ANexusWorldDirector::TryReconstruct()
         RebuildStage=4;
         PublishInventory();
         if(Bridge)Bridge->Reconstruct();
-        if(WorldMemory) WorldMemory->SetBridgeRepaired(TEXT("adlerklamm"));
+        if(WorldMemory)
+        {
+            WorldMemory->SetBridgeRepaired(TEXT("adlerklamm"));
+            if(auto* S=WorldMemory->FindSectorMutable(TEXT("adlerklamm")))
+                S->WeatherSeverity=30;
+        }
+        if(Weather)Weather->SetClimate(ENexusClimate::Rain,30);
         if(Story) Story->CompleteObjective(TEXT("reach_rescue_rally"));
         Phase=ENexusIncidentPhase::Complete;
         Credits+=420;
@@ -397,6 +399,12 @@ void ANexusWorldDirector::SaveProgress()
     Save->Role=Role;
     Save->RebuildStage=RebuildStage;
     Save->bRewardPaid=bPaidRescue;
+    if(Weather)
+    {
+        Save->WeatherMode=static_cast<int32>(Weather->Climate);
+        Save->WeatherSeverity=Weather->Severity;
+        Save->ClockMinutes=Weather->MinuteOfDay;
+    }
     if(Story)
     {
         Save->ActiveChapter=Story->ActiveMissionIndex;
@@ -422,6 +430,12 @@ void ANexusWorldDirector::LoadProgress()
     if(!Save){Inform(TEXT("Kein Unreal-Spielstand vorhanden."));return;}
     Stock=Save->Stock;PublishInventory();Credits=Save->Credits;Phase=Save->Phase;
     Role=Save->Role;RebuildStage=Save->RebuildStage;bPaidRescue=Save->bRewardPaid;
+    if(Weather)
+    {
+        Weather->SetClockMinutes(Save->ClockMinutes);
+        Weather->SetClimate(static_cast<ENexusClimate>(FMath::Clamp(Save->WeatherMode,0,4)),
+                            Save->WeatherSeverity);
+    }
     if(Story)Story->Restore(Save->ActiveChapter,Save->ActiveStoryPhase,Save->CompletedChapters,Save->Decisions);
     if(WorldMemory)WorldMemory->Restore(Save->Sectors,Save->Citizens,Save->EventHistory,Save->GameDay);
     for(TObjectPtr<ANexusIndustrySite> Site:Industry)if(Site)Site->SetConstructed(Save->ConstructedSites.Contains(Site->Facility));
@@ -489,6 +503,7 @@ bool ANexusWorldDirector::ChooseCampaignOutcome(bool bProtectCivilians)
 void ANexusWorldDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const
 {
     Super::GetLifetimeReplicatedProps(Out);
+    DOREPLIFETIME(ANexusWorldDirector,Weather);
     DOREPLIFETIME(ANexusWorldDirector,Credits);
     DOREPLIFETIME(ANexusWorldDirector,ReplicatedInventory);
     DOREPLIFETIME(ANexusWorldDirector,Phase);

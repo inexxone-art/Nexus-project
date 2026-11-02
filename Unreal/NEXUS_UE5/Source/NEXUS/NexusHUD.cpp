@@ -4,6 +4,7 @@
 #include "NexusExplorer.h"
 #include "NexusCampaignComponent.h"
 #include "NexusSimulationComponent.h"
+#include "NexusAlpineWeather.h"
 #include "Engine/Canvas.h"
 #include "Engine/Engine.h"
 #include "EngineUtils.h"
@@ -30,6 +31,8 @@ void ANexusHUD::DrawHUD()
     Panel(15*X,55*Y,410*X,270*Y);
     Text(TEXT("NEXUS | ADLERKLAMM HAUPTMISSION"),28*X,67*Y,1.20f,FLinearColor(1.f,0.75f,0.16f,1.f));
     Text(D->PhaseDescription(),28*X,102*Y,0.85f);
+    if(D->Weather)
+        Text(D->Weather->WeatherReport(),28*X,238*Y,.84f,FLinearColor(.55f,.83f,1.f));
     if(D->Story)
         Text(D->Story->GetObjectiveText(),28*X,122*Y,0.65f,FLinearColor(0.86f,0.92f,0.81f));
     Text(FString::Printf(TEXT("[ ]  Ueberlebende finden (%d/3)"),D->RescuedCount()),28*X,143*Y,0.86f);
@@ -40,7 +43,7 @@ void ANexusHUD::DrawHUD()
     Panel(1110*X,50*Y,470*X,254*Y);
     Text(TEXT("ROHSTOFFE & WIRTSCHAFT"),1125*X,68*Y,1.2f,FLinearColor(1.f,0.75f,0.16f,1.f));
     Text(FString::Printf(TEXT("Holz: %d       Eisen: %d      Eisenerz: %d"),
-        D->GetResourceCount(TEXT("Wood")),D->Stock.Get(TEXT("Iron")),D->Stock.Get(TEXT("IronOre"))),
+        D->GetResourceCount(TEXT("Wood")),D->GetResourceCount(TEXT("Iron")),D->Stock.Get(TEXT("IronOre"))),
         1125*X,118*Y,0.91f);
     Text(FString::Printf(TEXT("Zement: %d   Asphalt: %d"),
         D->Stock.Get(TEXT("Cement")),D->Stock.Get(TEXT("Asphalt"))),
