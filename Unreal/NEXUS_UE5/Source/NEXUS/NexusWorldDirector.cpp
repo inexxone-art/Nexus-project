@@ -455,6 +455,8 @@ bool ANexusWorldDirector::InvestigateEvidence(const FVector& Position)
         return false;
     if(Story->CompleteObjective(TEXT("investigate_saboteur")))
     {
+        // A repaired route remains valid even if players investigate late.
+        if(RebuildStage>=2)Story->CompleteObjective(TEXT("stabilize_route"));
         Inform(TEXT("FUNDFUNK: Hinweise auf die sabotierte Bruecke gesichert. Auftrag aktualisiert."));
         return true;
     }
@@ -470,6 +472,9 @@ bool ANexusWorldDirector::ChooseCampaignOutcome(bool bProtectCivilians)
     if(!Mission.Stages.IsValidIndex(Story->ActivePhaseIndex))return false;
     const FName Required=Mission.Stages[Story->ActivePhaseIndex].Action;
     if(!Story->ResolveChoice(Answer,Required))return false;
+    // No soft-lock when the bridge was reconstructed before the decision.
+    if(Phase==ENexusIncidentPhase::Complete)
+        Story->CompleteObjective(TEXT("reach_rescue_rally"));
     if(WorldMemory)
     {
         if(auto* S=WorldMemory->FindSectorMutable(TEXT("adlerklamm")))
