@@ -96,9 +96,20 @@ void ANexusExplorer::SetupPlayerInputComponent(UInputComponent* Input)
 }
 void ANexusExplorer::FireWeapon()
 {
-    if(Weapons && !bPhoneOpen && !bPinboardOpen)Weapons->Fire();
+    if(Weapons && !bPhoneOpen && !bPinboardOpen)
+    {
+        Weapons->Fire();
+        WeaponRecoilAlpha=1.f; // local visual-only recoil
+    }
 }
-void ANexusExplorer::ReloadWeapon(){if(Weapons)Weapons->Reload();}
+void ANexusExplorer::ReloadWeapon()
+{
+    if(Weapons)
+    {
+        Weapons->Reload();
+        WeaponReloadAlpha=1.f; // local hand/weapon dip, pending humanoid retarget
+    }
+}
 void ANexusExplorer::NextWeapon(){if(Weapons)Weapons->SelectNextWeapon();}
 void ANexusExplorer::RefreshWeaponVisual()
 {
@@ -352,6 +363,14 @@ void ANexusExplorer::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
     DetectWaterAndSwim(DeltaSeconds);
     RefreshWeaponVisual();
+    // Minimal continuous transform-based animation until authored hand rigs /
+    // Unreal Animation Blueprint clips can replace the temporary visual.
+    WeaponRecoilAlpha=FMath::FInterpTo(WeaponRecoilAlpha,0.f,DeltaSeconds,12.f);
+    WeaponReloadAlpha=FMath::FInterpTo(WeaponReloadAlpha,0.f,DeltaSeconds,3.2f);
+    if(FirstPersonWeaponVisual)
+        FirstPersonWeaponVisual->SetRelativeLocation(FVector(
+            85.f-14.f*WeaponRecoilAlpha,22.f,
+            -38.f+7.f*WeaponRecoilAlpha-22.f*WeaponReloadAlpha));
     if(IsLocallyControlled() && bPinboardOpen)
     {
         bool bNear=false;

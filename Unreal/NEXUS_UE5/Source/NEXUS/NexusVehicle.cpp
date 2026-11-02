@@ -3,6 +3,7 @@
 #include "NexusWorldDirector.h"
 #include "NexusAlpineWeather.h"
 #include "Components/BoxComponent.h"
+#include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/PointLightComponent.h"
@@ -27,6 +28,22 @@ ANexusVehicle::ANexusVehicle()
     Visual=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VehicleVisualReplaceWithHeroMesh"));
     Visual->SetupAttachment(Collider);
     Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    MainRotorPivot=CreateDefaultSubobject<USceneComponent>(TEXT("RotatingHelicopterRotor"));
+    MainRotorPivot->SetupAttachment(Collider);
+    MainRotorPivot->SetRelativeLocation(FVector(0.f,0.f,392.f));
+    MainRotorVisual=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MainRotorBlades"));
+    MainRotorVisual->SetupAttachment(MainRotorPivot);
+    MainRotorVisual->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    MainRotorVisual->SetVisibility(false);
+    for(int32 I=0;I<4;++I)
+    {
+        const FName PartName(*FString::Printf(TEXT("AnimatedRoadWheel_%d"),I));
+        auto* Part=CreateDefaultSubobject<UStaticMeshComponent>(PartName);
+        Part->SetupAttachment(Collider);
+        Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Part->SetVisibility(false);
+        RoadWheels.Add(Part);
+    }
     static ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultBox(TEXT("/Engine/BasicShapes/Cube.Cube"));
     if(auto* Model=LoadObject<UStaticMesh>(nullptr,
         TEXT("/Game/AAA/Geometry/Hero/SM_NEXUS_FireRescue_Truck.SM_NEXUS_FireRescue_Truck")))
@@ -104,17 +121,30 @@ void ANexusVehicle::OnRep_VehicleType()
         VehicleType==ENexusVehicleType::HeavyUtilityHelicopter;
     const bool bHero=VehicleType==ENexusVehicleType::RescueTruck ||
         VehicleType==ENexusVehicleType::RescueHelicopter;
+    bV6MovingParts=false;
+    bVisualLocationInitialized=false;
     if(FileName)
     {
+        const FString MotionName=FString::Printf(TEXT("SM_Nexus_%s_MotionBody"),
+            *FString(FileName).Replace(TEXT("SM_Nexus_"),TEXT("")).Replace(TEXT("SM_NEXUS_"),TEXT("")));
+        const FString MotionPath=FString::Printf(TEXT("/Game/AAA/Geometry/MotionBodies/%s.%s"),
+            *MotionName,*MotionName);
+        if(UStaticMesh* AnimatedBody=LoadObject<UStaticMesh>(nullptr,*MotionPath))
+        {
+            Visual->SetStaticMesh(AnimatedBody);
+            Visual->SetRelativeScale3D(FVector::OneVector);
+            bV6MovingParts=true;
+        }
         const FString AssetPath=FString::Printf(bHero?
             TEXT("/Game/AAA/Geometry/Hero/%s.%s"):
             TEXT("/Game/AAA/Geometry/Fleet/%s.%s"),FileName,FileName);
+        if(!bV6MovingParts)
         if(UStaticMesh* Mesh=LoadObject<UStaticMesh>(nullptr,*AssetPath))
         {
             Visual->SetStaticMesh(Mesh);
             Visual->SetRelativeScale3D(FVector::OneVector);
         }
-        else
+        else if(!bV6MovingParts)
         {
             // Actual fallback is explicitly an alpha blockout, never labelled photoreal.
             Visual->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube")));
@@ -122,6 +152,43 @@ void ANexusVehicle::OnRep_VehicleType()
                 (VehicleType==ENexusVehicleType::HistoricArmoredTank?FVector(6.6f,3.1f,2.0f):FVector(4.7f,2.2f,1.7f)));
         }
     }
+    const bool bAnimatedRotor=bV6MovingParts && bHelicopter;
+    const bool bAnimatedWheels=bV6MovingParts && !bHelicopter &&
+        VehicleType!=ENexusVehicleType::HistoricArmoredTank &&
+        VehicleType!=ENexusVehicleType::FictionalArmoredExplorer;
+    if(bAnimatedRotor)
+    {
+        const TCHAR* Which=VehicleType==ENexusVehicleType::HeavyUtilityHelicopter?
+            TEXT("SM_Nexus_RotorFive"):TEXT("SM_Nexus_RotorFour");
+        const FString RPath=FString::Printf(TEXT("/Game/AAA/Geometry/Animated/%s.%s"),Which,Which);
+        MainRotorVisual->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,*RPath));
+    }
+    MainRotorVisual->SetVisibility(bAnimatedRotor && MainRotorVisual->GetStaticMesh()!=nullptr);
+    if(bAnimatedWheels)
+    {
+        UStaticMesh* Wheel=LoadObject<UStaticMesh>(nullptr,
+            TEXT("/Game/AAA/Geometry/Animated/SM_Nexus_AnimatedWheel.SM_Nexus_AnimatedWheel"));
+        const bool bTruck=VehicleType==ENexusVehicleType::FireTruck ||
+            VehicleType==ENexusVehicleType::Ambulance ||
+            VehicleType==ENexusVehicleType::DeliveryTruck ||
+            VehicleType==ENexusVehicleType::PoliceVan;
+        const float L=bTruck?(VehicleType==ENexusVehicleType::DeliveryTruck?7.8f:6.7f):
+            (VehicleType==ENexusVehicleType::Sportscar?4.3f:4.9f);
+        const float HalfY=bTruck?1.12f:
+            (VehicleType==ENexusVehicleType::Sportscar?.91f:1.04f);
+        const float Radius=bTruck?.54f:
+            (VehicleType==ENexusVehicleType::Sportscar?.4f:.48f);
+        for(int32 I=0;I<RoadWheels.Num();++I)
+        {
+            const float AX=I<2?-L*(bTruck?.32f:.29f):L*(bTruck?.31f:.30f);
+            const float SY=(I%2==0)?-HalfY:HalfY;
+            RoadWheels[I]->SetStaticMesh(Wheel);
+            RoadWheels[I]->SetRelativeLocation(FVector(AX*100.f,SY*100.f,(Radius+.15f)*100.f));
+            RoadWheels[I]->SetRelativeScale3D(FVector(Radius/.46f));
+        }
+    }
+    for(auto* Wheel:RoadWheels)
+        if(Wheel)Wheel->SetVisibility(bAnimatedWheels && Wheel->GetStaticMesh()!=nullptr);
     const bool bEmergency=VehicleType==ENexusVehicleType::RescueTruck ||
         VehicleType==ENexusVehicleType::RescueHelicopter ||
         VehicleType==ENexusVehicleType::FireTruck ||
@@ -207,6 +274,22 @@ void ANexusVehicle::Tick(float Dt)
         const float Cycle=FMath::Fmod(GetWorld()->GetTimeSeconds()*3.2f,1.f);
         BeaconRed->SetIntensity(Cycle<.38f?4400.f:0.f);
         BeaconBlue->SetIntensity(Cycle>.50f && Cycle<.88f?5500.f:0.f);
+    }
+    // Looping, true component motion on EVERY client. Travel distance is read
+    // from replicated actor positions, so clients animate wheels independently.
+    if(bV6MovingParts && Dt>0.f)
+    {
+        if(MainRotorVisual && MainRotorVisual->IsVisible())
+            MainRotorPivot->AddLocalRotation(FRotator(0.f,FMath::Fmod(Dt*(Driver?1050.f:650.f),360.f),0.f));
+        if(bVisualLocationInitialized)
+        {
+            const float Moved=FVector::Dist2D(GetActorLocation(),PreviousVisualLocation);
+            const float Angle=FMath::Clamp(Moved/45.f*FMath::RadiansToDegrees(1.f),0.f,72.f);
+            for(auto* Wheel:RoadWheels)
+                if(Wheel && Wheel->IsVisible())Wheel->AddLocalRotation(FRotator(Angle,0.f,0.f));
+        }
+        PreviousVisualLocation=GetActorLocation();
+        bVisualLocationInitialized=true;
     }
     if(!HasAuthority() || !Driver || Dt<=0) return;
     float Traction=1.f;

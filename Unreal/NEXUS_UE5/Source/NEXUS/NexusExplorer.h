@@ -83,6 +83,8 @@ public:
     void ResearchSciFiFromPhone();
 
 private:
+    float WeaponRecoilAlpha=0.f;
+    float WeaponReloadAlpha=0.f;
     int32 CachedWeaponVisualIndex=-1;
     float SwimVerticalInput=0.f;
     bool bHoldAscend=false;

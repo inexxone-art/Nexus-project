@@ -11,6 +11,7 @@ enum class ENexusVehicleType : uint8
     HeavyUtilityHelicopter, HistoricArmoredTank, FictionalArmoredExplorer
 };
 class UBoxComponent;
+class USceneComponent;
 class UStaticMeshComponent;
 class USpringArmComponent;
 class UCameraComponent;
@@ -26,6 +27,12 @@ public:
     virtual void SetupPlayerInputComponent(UInputComponent* Input) override;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UBoxComponent> Collider;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> Visual;
+    // Actual mesh component animation, not a prerecorded cinematic.
+    // Replaces rigid V5 body when V6 MotionBody mesh is installed.
+    UPROPERTY(VisibleAnywhere) TObjectPtr<USceneComponent> MainRotorPivot;
+    UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> MainRotorVisual;
+    UPROPERTY(VisibleAnywhere) TArray<TObjectPtr<UStaticMeshComponent>> RoadWheels;
+    UPROPERTY(BlueprintReadOnly) bool bV6MovingParts=false;
     UPROPERTY(VisibleAnywhere) TObjectPtr<USpringArmComponent> CameraArm;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UCameraComponent> ChaseCamera;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UCameraComponent> CockpitCamera;
@@ -61,4 +68,6 @@ private:
     float Steering=0.f;
     float Vertical=0.f;
     float FallingSpeed=0.f;
+    FVector PreviousVisualLocation=FVector::ZeroVector;
+    bool bVisualLocationInitialized=false;
 };

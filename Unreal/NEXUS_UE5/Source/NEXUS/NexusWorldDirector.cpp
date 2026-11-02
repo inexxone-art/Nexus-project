@@ -91,14 +91,8 @@ void ANexusWorldDirector::BeginPlay()
     if(RescueHelicopter)
     {
         RescueHelicopter->ConfigureVehicle(ENexusVehicleType::RescueHelicopter);
-        if(auto* Model=LoadObject<UStaticMesh>(nullptr,
-            TEXT("/Game/AAA/Geometry/Hero/SM_NEXUS_RescueHelicopter.SM_NEXUS_RescueHelicopter")))
-        {
-            RescueHelicopter->Visual->SetStaticMesh(Model);
-            RescueHelicopter->Visual->SetRelativeScale3D(FVector::OneVector);
-        }
-        else
-            RescueHelicopter->Visual->SetRelativeScale3D(FVector(8.f,3.f,2.f));
+        // Let ANexusVehicle choose its new separated-motion V6 mesh if
+        // imported, otherwise retain the prior V5 rescue helicopter mesh.
     }
     CreateRescueTargets();
     CreateFactories();
