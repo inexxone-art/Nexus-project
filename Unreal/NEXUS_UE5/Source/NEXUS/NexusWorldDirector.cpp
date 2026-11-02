@@ -7,6 +7,7 @@
 #include "NexusIndustrySite.h"
 #include "NexusSaveGame.h"
 #include "NexusStarterHome.h"
+#include "NexusCityDistrict.h"
 #include "NexusCampaignComponent.h"
 #include "NexusSimulationComponent.h"
 #include "NexusCinematicScenery.h"
@@ -57,6 +58,8 @@ void ANexusWorldDirector::BeginPlay()
     StarterHome=GetWorld()->SpawnActor<ANexusStarterHome>(ANexusStarterHome::StaticClass(),
         FVector(-9900.f,4100.f,2380.f),FRotator::ZeroRotator);
     GetWorld()->SpawnActor<ANexusCinematicScenery>();
+    CityDistrict=GetWorld()->SpawnActor<ANexusCityDistrict>(ANexusCityDistrict::StaticClass(),
+        FVector(8650.f,2900.f,2390.f),FRotator::ZeroRotator);
     River=GetWorld()->SpawnActor<ANexusAlpineRiver>();
     // Underwater recorder is physically on the riverbed, not floating
     // at an arbitrary world coordinate. Recoverable only after the crash.
@@ -82,9 +85,10 @@ void ANexusWorldDirector::BeginPlay()
     Bus=GetWorld()->SpawnActor<ANexusBus>(ANexusBus::StaticClass(),FVector(0,0,2440),FRotator::ZeroRotator);
     RescueTruck=GetWorld()->SpawnActor<ANexusVehicle>(ANexusVehicle::StaticClass(),FVector(-6900,0,2160),FRotator::ZeroRotator);
     RescueHelicopter=GetWorld()->SpawnActor<ANexusVehicle>(ANexusVehicle::StaticClass(),FVector(6300,1050,2300),FRotator::ZeroRotator);
+    if(RescueTruck)RescueTruck->ConfigureVehicle(ENexusVehicleType::RescueTruck);
     if(RescueHelicopter)
     {
-        RescueHelicopter->bHelicopter=true;
+        RescueHelicopter->ConfigureVehicle(ENexusVehicleType::RescueHelicopter);
         if(auto* Model=LoadObject<UStaticMesh>(nullptr,
             TEXT("/Game/AAA/Geometry/Hero/SM_NEXUS_RescueHelicopter.SM_NEXUS_RescueHelicopter")))
         {
@@ -96,6 +100,7 @@ void ANexusWorldDirector::BeginPlay()
     }
     CreateRescueTargets();
     CreateFactories();
+    CreateFleet();
     for(int32 I=0;I<2;++I)
     {
         auto* Ally=GetWorld()->SpawnActor<ANexusCompanion>(ANexusCompanion::StaticClass(),
@@ -190,6 +195,34 @@ void ANexusWorldDirector::CreateFactories()
         Site->Facility=Types[Index];
         Site->SetConstructed(Types[Index]==ENexusIndustry::LoggingCamp);
         Industry.Add(Site);
+    }
+}
+void ANexusWorldDirector::CreateFleet()
+{
+    // Only everyday vehicles, police and rescue helicopters on the FIRST map.
+    // Historic tank belongs to the separate 1945 story world, and is NOT spawned here.
+    struct FLocation { ENexusVehicleType Type; FVector Position; float Yaw; };
+    const FLocation Parking[]={
+        {ENexusVehicleType::Sportscar,FVector(-11450,3900,2490),90.f},
+        {ENexusVehicleType::SUV,FVector(-10650,5350,2490),90.f},
+        {ENexusVehicleType::Sedan,FVector(-11900,5500,2490),0.f},
+        {ENexusVehicleType::PoliceCar,FVector(6500,4000,2490),180.f},
+        {ENexusVehicleType::Ambulance,FVector(7200,4700,2490),180.f},
+        {ENexusVehicleType::FireTruck,FVector(8100,5400,2520),180.f},
+        {ENexusVehicleType::DeliveryTruck,FVector(10100,5200,2520),180.f},
+        {ENexusVehicleType::PoliceVan,FVector(11400,3500,2520),180.f},
+        {ENexusVehicleType::UtilityHelicopter,FVector(12000,5600,2640),90.f},
+        {ENexusVehicleType::HeavyUtilityHelicopter,FVector(-11800,-4200,2640),0.f}
+    };
+    for(const auto& Item:Parking)
+    {
+        auto* V=GetWorld()->SpawnActor<ANexusVehicle>(ANexusVehicle::StaticClass(),
+            Item.Position,FRotator(0.f,Item.Yaw,0.f));
+        if(V)
+        {
+            V->ConfigureVehicle(Item.Type);
+            Fleet.Add(V);
+        }
     }
 }
 void ANexusWorldDirector::Inform(const FString& Message)

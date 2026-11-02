@@ -2,6 +2,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "NexusVehicle.generated.h"
+
+UENUM(BlueprintType)
+enum class ENexusVehicleType : uint8
+{
+    RescueTruck, RescueHelicopter, Sportscar, Sedan, SUV, PoliceCar,
+    Ambulance, FireTruck, DeliveryTruck, PoliceVan, UtilityHelicopter,
+    HeavyUtilityHelicopter, HistoricArmoredTank, FictionalArmoredExplorer
+};
 class UBoxComponent;
 class UStaticMeshComponent;
 class USpringArmComponent;
@@ -26,7 +34,11 @@ public:
     UPROPERTY(VisibleAnywhere) TObjectPtr<class UPointLightComponent> BeaconRed;
     UPROPERTY(VisibleAnywhere) TObjectPtr<class UPointLightComponent> BeaconBlue;
     UPROPERTY(VisibleAnywhere) TObjectPtr<class USpotLightComponent> HelicopterSearchLight;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing=OnRep_VehicleType) ENexusVehicleType VehicleType=ENexusVehicleType::RescueTruck;
+    UFUNCTION(BlueprintCallable,Category="NEXUS|Fleet") void ConfigureVehicle(ENexusVehicleType NewType);
+    UFUNCTION() void OnRep_VehicleType();
     UPROPERTY(EditAnywhere, BlueprintReadWrite) bool bHelicopter = false;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     UPROPERTY(BlueprintReadOnly) float LinearSpeed = 0.f;
     UPROPERTY(BlueprintReadOnly) TObjectPtr<APlayerController> Driver;
     void Drive(float InputValue);

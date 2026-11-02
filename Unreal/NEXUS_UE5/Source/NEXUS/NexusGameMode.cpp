@@ -2,6 +2,7 @@
 #include "NexusWorldDirector.h"
 #include "NexusExplorer.h"
 #include "NexusVehicle.h"
+#include "EngineUtils.h"
 #include "NexusHUD.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
@@ -64,6 +65,19 @@ void ANexusGameMode::Interact(ANexusExplorer* Player)
     { EnterVehicle(Director->RescueTruck,Player);return; }
     if(Director->RescueHelicopter && FVector::Dist(Player->GetActorLocation(),Director->RescueHelicopter->GetActorLocation())<700.f)
     { EnterVehicle(Director->RescueHelicopter,Player);return; }
+    // Every spawned fleet vehicle uses the same possess/exit control path.
+    // First-person and chase camera are controlled locally by the driver.
+    for(TActorIterator<ANexusVehicle> It(GetWorld());It;++It)
+    {
+        ANexusVehicle* Candidate=*It;
+        if(Candidate && !Candidate->Driver &&
+           FVector::Dist2D(Player->GetActorLocation(),Candidate->GetActorLocation())<460.f &&
+           FMath::Abs(Player->GetActorLocation().Z-Candidate->GetActorLocation().Z)<400.f)
+        {
+            EnterVehicle(Candidate,Player);
+            return;
+        }
+    }
     Director->TryInteract(Player);
 }
 bool ANexusGameMode::InteractVehicle(ANexusVehicle* Vehicle)

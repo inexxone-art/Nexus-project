@@ -18,6 +18,7 @@ class ANexusAlpineWeather;
 class ANexusAlpineRiver;
 class ANexusUnderwaterEvidence;
 class ANexusStarterHome;
+class ANexusCityDistrict;
 
 UCLASS(Blueprintable)
 class NEXUS_API ANexusWorldDirector : public AActor
@@ -30,6 +31,8 @@ public:
     UPROPERTY(BlueprintReadOnly,Replicated) TArray<FName> DiscoveredTopics;
     UPROPERTY(BlueprintReadOnly,Replicated) TArray<FNexusRentalProperty> RentalProperties;
     UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusStarterHome> StarterHome;
+    UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusCityDistrict> CityDistrict;
+    UPROPERTY(BlueprintReadOnly) TArray<TObjectPtr<ANexusVehicle>> Fleet;
     UFUNCTION(BlueprintCallable) TArray<FString> GetDiscoveredBoardLines() const;
     UFUNCTION(BlueprintCallable) bool SellGoldOre();
     UFUNCTION(BlueprintCallable) bool PurchaseRentalProperty();
@@ -83,5 +86,6 @@ private:
     void CreateStageWorld();
     void CreateRescueTargets();
     void CreateFactories();
+    void CreateFleet();
     void CreateSceneryBox(FVector Position,FVector Scale,FRotator Rotation,const TCHAR* Name);
 };

@@ -13,6 +13,7 @@
 #include "Engine/World.h"
 #include "CollisionQueryParams.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Net/UnrealNetwork.h"
 
 ANexusVehicle::ANexusVehicle()
 {
@@ -69,6 +70,76 @@ ANexusVehicle::ANexusVehicle()
     HelicopterSearchLight->SetIntensity(35000.f);
     HelicopterSearchLight->SetVisibility(false);
     AutoPossessPlayer=EAutoReceiveInput::Disabled;
+}
+void ANexusVehicle::ConfigureVehicle(ENexusVehicleType NewType)
+{
+    if(!HasAuthority())return;
+    VehicleType=NewType;
+    OnRep_VehicleType();
+    ForceNetUpdate();
+}
+void ANexusVehicle::OnRep_VehicleType()
+{
+    // Pack source: NEXUS_V5_FLEET_ASSETS.zip. Import paths are stable.
+    const TCHAR* FileName=nullptr;
+    switch(VehicleType)
+    {
+    case ENexusVehicleType::RescueTruck:FileName=TEXT("SM_NEXUS_FireRescue_Truck");break;
+    case ENexusVehicleType::RescueHelicopter:FileName=TEXT("SM_NEXUS_RescueHelicopter");break;
+    case ENexusVehicleType::Sportscar:FileName=TEXT("SM_Nexus_Sportscar");break;
+    case ENexusVehicleType::Sedan:FileName=TEXT("SM_Nexus_Sedan");break;
+    case ENexusVehicleType::SUV:FileName=TEXT("SM_Nexus_SUV");break;
+    case ENexusVehicleType::PoliceCar:FileName=TEXT("SM_Nexus_PoliceCar");break;
+    case ENexusVehicleType::Ambulance:FileName=TEXT("SM_Nexus_Ambulance");break;
+    case ENexusVehicleType::FireTruck:FileName=TEXT("SM_Nexus_FireTruck");break;
+    case ENexusVehicleType::DeliveryTruck:FileName=TEXT("SM_Nexus_DeliveryTruck");break;
+    case ENexusVehicleType::PoliceVan:FileName=TEXT("SM_Nexus_PoliceVan");break;
+    case ENexusVehicleType::UtilityHelicopter:FileName=TEXT("SM_Nexus_UtilityHelicopter");break;
+    case ENexusVehicleType::HeavyUtilityHelicopter:FileName=TEXT("SM_Nexus_HeavyUtilityHelicopter");break;
+    case ENexusVehicleType::HistoricArmoredTank:FileName=TEXT("SM_Nexus_HistoricArmoredTank");break;
+    case ENexusVehicleType::FictionalArmoredExplorer:FileName=TEXT("SM_Nexus_FictionalArmoredExplorer");break;
+    }
+    bHelicopter=VehicleType==ENexusVehicleType::RescueHelicopter ||
+        VehicleType==ENexusVehicleType::UtilityHelicopter ||
+        VehicleType==ENexusVehicleType::HeavyUtilityHelicopter;
+    const bool bHero=VehicleType==ENexusVehicleType::RescueTruck ||
+        VehicleType==ENexusVehicleType::RescueHelicopter;
+    if(FileName)
+    {
+        const FString AssetPath=FString::Printf(bHero?
+            TEXT("/Game/AAA/Geometry/Hero/%s.%s"):
+            TEXT("/Game/AAA/Geometry/Fleet/%s.%s"),FileName,FileName);
+        if(UStaticMesh* Mesh=LoadObject<UStaticMesh>(nullptr,*AssetPath))
+        {
+            Visual->SetStaticMesh(Mesh);
+            Visual->SetRelativeScale3D(FVector::OneVector);
+        }
+        else
+        {
+            // Actual fallback is explicitly an alpha blockout, never labelled photoreal.
+            Visual->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube")));
+            Visual->SetRelativeScale3D(bHelicopter?FVector(8.f,3.f,2.6f):
+                (VehicleType==ENexusVehicleType::HistoricArmoredTank?FVector(6.6f,3.1f,2.0f):FVector(4.7f,2.2f,1.7f)));
+        }
+    }
+    const bool bEmergency=VehicleType==ENexusVehicleType::RescueTruck ||
+        VehicleType==ENexusVehicleType::RescueHelicopter ||
+        VehicleType==ENexusVehicleType::FireTruck ||
+        VehicleType==ENexusVehicleType::Ambulance ||
+        VehicleType==ENexusVehicleType::PoliceCar ||
+        VehicleType==ENexusVehicleType::PoliceVan;
+    BeaconRed->SetVisibility(bEmergency);
+    BeaconBlue->SetVisibility(bEmergency);
+    CameraArm->TargetArmLength=bHelicopter?1100.f:
+        (VehicleType==ENexusVehicleType::HistoricArmoredTank?950.f:730.f);
+    Collider->SetBoxExtent(bHelicopter?FVector(370.f,150.f,160.f):
+        (VehicleType==ENexusVehicleType::HistoricArmoredTank?FVector(350.f,168.f,160.f):
+          FVector(275.f,140.f,110.f)),true);
+}
+void ANexusVehicle::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const
+{
+    Super::GetLifetimeReplicatedProps(Out);
+    DOREPLIFETIME(ANexusVehicle,VehicleType);
 }
 void ANexusVehicle::SetDriver(APlayerController* Controller) { Driver=Controller; }
 void ANexusVehicle::SetupPlayerInputComponent(UInputComponent* Input)
@@ -131,7 +202,7 @@ void ANexusVehicle::Tick(float Dt)
     // Alternating red/blue reflections are visual-only and run on every client.
     if(HelicopterSearchLight)
         HelicopterSearchLight->SetVisibility(bHelicopter);
-    if(GetWorld() && BeaconRed && BeaconBlue)
+    if(GetWorld() && BeaconRed && BeaconBlue && BeaconRed->IsVisible())
     {
         const float Cycle=FMath::Fmod(GetWorld()->GetTimeSeconds()*3.2f,1.f);
         BeaconRed->SetIntensity(Cycle<.38f?4400.f:0.f);
