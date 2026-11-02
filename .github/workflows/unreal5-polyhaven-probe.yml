@@ -1,0 +1,25 @@
+name: NEXUS - Probe Free CC0 Photo-scanned Asset API
+
+on:
+  push:
+    branches: [feature/unreal5-nexus-adlerklamm-foundation]
+    paths:
+      - "Unreal/NEXUS_UE5/Scripts/probe_polyhaven_assets.py"
+      - ".github/workflows/unreal5-polyhaven-probe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read public CC0 model metadata
+        run: python3 Unreal/NEXUS_UE5/Scripts/probe_polyhaven_assets.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NEXUS-POLYHAVEN-PUBLIC-API-METADATA
+          path: build/polyhaven_metadata/
+          retention-days: 7
