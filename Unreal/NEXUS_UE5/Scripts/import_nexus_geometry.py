@@ -9,6 +9,7 @@ TOOLS = unreal.AssetToolsHelpers.get_asset_tools()
 LIB = unreal.EditorAssetLibrary
 HERO = "/Game/AAA/Geometry/Hero"
 TERRAIN = "/Game/AAA/Geometry/TerrainPreview"
+FOLIAGE = "/Game/AAA/Geometry/Foliage"
 
 def import_glb(file, destination):
     name = file.stem
@@ -43,10 +44,12 @@ def import_glb(file, destination):
 def main():
     heroes = sorted((BASE/"Hero").glob("*.glb"))
     tiles = sorted((BASE/"TerrainTiles").glob("*.glb"))
+    foliage = sorted((BASE/"Foliage").glob("*.glb"))
     if len(heroes) != 4 or len(tiles) != 9:
         raise RuntimeError(f"Expected 4 hero + 9 terrain GLBs, got {len(heroes)} and {len(tiles)}")
     for src in heroes: import_glb(src, HERO)
     for src in tiles: import_glb(src, TERRAIN)
+    for src in foliage: import_glb(src, FOLIAGE)
     unreal.log("13 original meshes imported. Hero models should auto-load in NEXUS C++ if package names match.")
     unreal.log_warning("TerrainPreview is NOT a physics Landscape; never overlap a Landscape with the same GLBs.")
 
