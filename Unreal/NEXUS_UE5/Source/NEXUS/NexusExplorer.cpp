@@ -5,6 +5,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "NexusGameMode.h"
 #include "NexusWorldDirector.h"
+#include "NexusStarterHome.h"
 #include "NexusAlpineRiver.h"
 #include "EngineUtils.h"
 #include "Net/UnrealNetwork.h"
@@ -52,6 +53,10 @@ void ANexusExplorer::SetupPlayerInputComponent(UInputComponent* Input)
     Input->BindAction(TEXT("SwimDescend"),IE_Pressed,this,&ANexusExplorer::StartDive);
     Input->BindAction(TEXT("SwimDescend"),IE_Released,this,&ANexusExplorer::StopDive);
     Input->BindAction(TEXT("Interact"),IE_Pressed,this,&ANexusExplorer::Interact);
+    Input->BindAction(TEXT("TogglePinboard"),IE_Pressed,this,&ANexusExplorer::TogglePinboard);
+    Input->BindAction(TEXT("TogglePhone"),IE_Pressed,this,&ANexusExplorer::TogglePhone);
+    Input->BindAction(TEXT("SellGold"),IE_Pressed,this,&ANexusExplorer::SellGoldFromPhone);
+    Input->BindAction(TEXT("BuyRental"),IE_Pressed,this,&ANexusExplorer::BuyRentalFromPhone);
     Input->BindAction(TEXT("ToggleCamera"),IE_Pressed,this,&ANexusExplorer::ToggleCamera);
     Input->BindAction(TEXT("RoleMedic"),IE_Pressed,this,&ANexusExplorer::MedicRole);
     Input->BindAction(TEXT("RolePilot"),IE_Pressed,this,&ANexusExplorer::PilotRole);
@@ -76,6 +81,36 @@ void ANexusExplorer::ToggleCamera()
     bThirdPersonView=!bThirdPersonView;
     ViewCamera->SetActive(!bThirdPersonView);
     ThirdPersonCamera->SetActive(bThirdPersonView);
+}
+void ANexusExplorer::TogglePinboard()
+{
+    if(!IsLocallyControlled())return;
+    for(TActorIterator<ANexusStarterHome> It(GetWorld());It;++It)
+        if(It->IsNearPinboard(GetActorLocation()))
+        {
+            bPinboardOpen=!bPinboardOpen;
+            return;
+        }
+    bPinboardOpen=false;
+}
+void ANexusExplorer::TogglePhone()
+{
+    if(!IsLocallyControlled())return;
+    bPhoneOpen=!bPhoneOpen;
+}
+void ANexusExplorer::SellGoldFromPhone()
+{
+    if(!IsLocallyControlled() || !bPhoneOpen)return;
+    if(!HasAuthority()){ServerCommand(13);return;}
+    if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
+        if(GM->Director)GM->Director->SellGoldOre();
+}
+void ANexusExplorer::BuyRentalFromPhone()
+{
+    if(!IsLocallyControlled() || !bPhoneOpen)return;
+    if(!HasAuthority()){ServerCommand(14);return;}
+    if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
+        if(GM->Director)GM->Director->PurchaseRentalProperty();
 }
 void ANexusExplorer::MoveForward(float V) { if (Controller && V!=0) AddMovementInput(GetActorForwardVector(),V); }
 void ANexusExplorer::MoveRight(float V) { if (Controller && V!=0) AddMovementInput(GetActorRightVector(),V); }
@@ -130,6 +165,11 @@ void ANexusExplorer::ServerCommand_Implementation(uint8 Code)
         case 10: TeamFollow();break;
         case 11: TeamScout();break;
         case 12: TeamMedic();break;
+        // The UI check is local. Server validates stock/funds and records all changes.
+        case 13: if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
+                     if(GM->Director)GM->Director->SellGoldOre();break;
+        case 14: if(auto* GM=GetWorld()->GetAuthGameMode<ANexusGameMode>())
+                     if(GM->Director)GM->Director->PurchaseRentalProperty();break;
         default:break;
     }
 }
@@ -252,6 +292,13 @@ void ANexusExplorer::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
     DetectWaterAndSwim(DeltaSeconds);
+    if(IsLocallyControlled() && bPinboardOpen)
+    {
+        bool bNear=false;
+        for(TActorIterator<ANexusStarterHome> It(GetWorld());It;++It)
+            if(It->IsNearPinboard(GetActorLocation())){bNear=true;break;}
+        if(!bNear)bPinboardOpen=false;
+    }
     if(IsLocallyControlled() && ViewCamera)
         ViewCamera->PostProcessBlendWeight=bHeadUnderwater?0.85f:0.f;
 }

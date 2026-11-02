@@ -9,7 +9,7 @@ UENUM(BlueprintType)
 enum class ENexusIncidentPhase : uint8 { Approach, Collapse, RoleChoice, Rescue, Reconstruction, Complete };
 
 UENUM(BlueprintType)
-enum class ENexusIndustry : uint8 { LoggingCamp, Quarry, Smelter, OilPlatform, Refinery, CementPlant, AsphaltPlant };
+enum class ENexusIndustry : uint8 { LoggingCamp, Quarry, Smelter, OilPlatform, Refinery, CementPlant, AsphaltPlant, GoldMine, Sawmill };
 
 USTRUCT(BlueprintType)
 struct FNexusResourceStock
@@ -38,4 +38,16 @@ struct FNexusNetworkResource
     GENERATED_BODY()
     UPROPERTY(BlueprintReadOnly) FName Key;
     UPROPERTY(BlueprintReadOnly) int32 Amount=0;
+};
+
+USTRUCT(BlueprintType)
+struct FNexusRentalProperty
+{
+    GENERATED_BODY()
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,SaveGame) FName PropertyId=NAME_None;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,SaveGame) int32 PurchasePrice=0;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,SaveGame) int32 GrossRentPerDay=0;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,SaveGame) int32 UpkeepPerDay=0;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,SaveGame) int32 LastPaidDay=1;
+    int32 NetPerDay() const {return GrossRentPerDay-UpkeepPerDay;}
 };

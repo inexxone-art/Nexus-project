@@ -17,6 +17,7 @@ class ANexusCompanion;
 class ANexusAlpineWeather;
 class ANexusAlpineRiver;
 class ANexusUnderwaterEvidence;
+class ANexusStarterHome;
 
 UCLASS(Blueprintable)
 class NEXUS_API ANexusWorldDirector : public AActor
@@ -25,6 +26,15 @@ class NEXUS_API ANexusWorldDirector : public AActor
 public:
     ANexusWorldDirector();
     virtual void BeginPlay() override;
+    virtual void Tick(float DeltaSeconds) override;
+    UPROPERTY(BlueprintReadOnly,Replicated) TArray<FName> DiscoveredTopics;
+    UPROPERTY(BlueprintReadOnly,Replicated) TArray<FNexusRentalProperty> RentalProperties;
+    UPROPERTY(BlueprintReadOnly) TObjectPtr<ANexusStarterHome> StarterHome;
+    UFUNCTION(BlueprintCallable) TArray<FString> GetDiscoveredBoardLines() const;
+    UFUNCTION(BlueprintCallable) bool SellGoldOre();
+    UFUNCTION(BlueprintCallable) bool PurchaseRentalProperty();
+    void UnlockTopic(FName Topic);
+    void TeleportToStarterHome(ANexusExplorer* Explorer);
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     UPROPERTY(BlueprintReadOnly,Replicated) TObjectPtr<ANexusAlpineWeather> Weather;
     UPROPERTY(BlueprintReadOnly,Replicated) TObjectPtr<ANexusAlpineRiver> River;
@@ -65,6 +75,8 @@ public:
     FString ResourceDescription() const;
     int32 RescuedCount() const;
 private:
+    int32 PreviousClockMinutes=-1;
+    void SettleRentAtMidnight();
     bool RescuePerson(ANexusRescueTarget* Person);
     bool HasCosts(const TMap<FName,int32>& Need) const;
     void Inform(const FString& Message);

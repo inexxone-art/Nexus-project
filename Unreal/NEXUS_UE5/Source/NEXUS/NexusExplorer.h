@@ -65,6 +65,12 @@ public:
     void TeamScout();
     void TeamMedic();
     UPROPERTY(BlueprintReadOnly) int32 EquipmentSlot=0;
+    UPROPERTY(BlueprintReadOnly) bool bPinboardOpen=false;
+    UPROPERTY(BlueprintReadOnly) bool bPhoneOpen=false;
+    void TogglePinboard();
+    void TogglePhone();
+    void SellGoldFromPhone();
+    void BuyRentalFromPhone();
 
 private:
     float SwimVerticalInput=0.f;

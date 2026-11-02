@@ -192,6 +192,33 @@ void ANexusHUD::DrawHUD()
             Text(TEXT("SPACE AUF  |  STRG AB"),1100*X,447*Y,.74f,NexusUI::Muted);
     }
 
+    // Local modal overlays contain only discovered tasks and actual economics.
+    if(LocalExplorer && LocalExplorer->bPinboardOpen)
+    {
+        Panel(466*X,145*Y,665*X,452*Y);
+        Text(TEXT("DEIN BUERO  |  PINNWAND"),492*X,161*Y,1.20f,NexusUI::Amber);
+        Text(TEXT("NUR GEFUNDENE AUFTRAEGE  -  B SCHLIESSEN"),492*X,196*Y,.78f,NexusUI::Muted);
+        const TArray<FString> Tasks=D->GetDiscoveredBoardLines();
+        for(int32 I=0;I<Tasks.Num() && I<10;++I)
+        {
+            DrawRect(FLinearColor(.24f,.22f,.17f,.50f),487*X,(240+I*31)*Y,609*X,27*Y);
+            Text(FString::Printf(TEXT("%d.  %s"),I+1,*Tasks[I]),502*X,(243+I*31)*Y,.83f,NexusUI::Pale);
+        }
+    }
+    if(LocalExplorer && LocalExplorer->bPhoneOpen)
+    {
+        Panel(1174*X,313*Y,395*X,279*Y);
+        Text(TEXT("NEXUS PHONE  |  FINANZEN"),1190*X,324*Y,1.04f,NexusUI::Amber);
+        Text(FString::Printf(TEXT("KONTOSTAND: %d CREDITS"),D->Credits),1190*X,359*Y,.85f,NexusUI::Pale);
+        Text(FString::Printf(TEXT("GOLDERZ: %d STUECK"),D->GetResourceCount(TEXT("GoldOre"))),1190*X,391*Y,.82f);
+        Text(TEXT("K  GOLDERZ VERKAUFEN: +180 C"),1190*X,429*Y,.79f,NexusUI::Green);
+        Text(TEXT("U  MIETWOHNUNG KAUFEN: 1500 C"),1190*X,465*Y,.79f,NexusUI::Pale);
+        int32 Income=0;
+        for(const auto& Property:D->RentalProperties)Income+=Property.NetPerDay();
+        Text(FString::Printf(TEXT("MIETE NETTO: +%d C / SPIELTAG"),Income),1190*X,500*Y,.79f,NexusUI::Pale);
+        Text(TEXT("M SCHLIESSEN  |  PREISE SIND SPIELWERTE"),1190*X,545*Y,.67f,NexusUI::Muted);
+    }
+
     // Small crosshair, suppressed while piloting/driving.
     if(!LocalVehicle)
     {

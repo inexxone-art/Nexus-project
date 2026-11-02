@@ -11,6 +11,8 @@ class NEXUS_API UNexusSaveGame : public USaveGame
     GENERATED_BODY()
 public:
     UPROPERTY(SaveGame) FNexusResourceStock Stock;
+    UPROPERTY(SaveGame) TArray<FName> DiscoveredTopics;
+    UPROPERTY(SaveGame) TArray<FNexusRentalProperty> RentalProperties;
     UPROPERTY(SaveGame) TArray<ENexusIndustry> ConstructedSites;
     UPROPERTY(SaveGame) TArray<int32> RescuedIds;
     UPROPERTY(SaveGame) ENexusRescueRole Role = ENexusRescueRole::None;

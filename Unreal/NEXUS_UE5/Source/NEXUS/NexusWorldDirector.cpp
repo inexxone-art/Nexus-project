@@ -6,6 +6,7 @@
 #include "NexusRescueTarget.h"
 #include "NexusIndustrySite.h"
 #include "NexusSaveGame.h"
+#include "NexusStarterHome.h"
 #include "NexusCampaignComponent.h"
 #include "NexusSimulationComponent.h"
 #include "NexusCinematicScenery.h"
@@ -31,7 +32,8 @@
 
 ANexusWorldDirector::ANexusWorldDirector()
 {
-    PrimaryActorTick.bCanEverTick=false;
+    PrimaryActorTick.bCanEverTick=true;
+    PrimaryActorTick.TickInterval=1.f;
     bReplicates=true;
     WorldMemory=CreateDefaultSubobject<UNexusSimulationComponent>(TEXT("NEXUS_WORLD_MEMORY"));
     Story=CreateDefaultSubobject<UNexusCampaignComponent>(TEXT("NEXUS_STORY_DIRECTOR"));
@@ -47,8 +49,13 @@ void ANexusWorldDirector::BeginPlay()
     GetWorld()->SpawnActor<ANexusCinematicLook>();
     if(!HasAuthority())return;
     WorldMemory->InitializeWorld();
+    UnlockTopic(TEXT("welcome"));
+    UnlockTopic(TEXT("bridge_intro"));
+    UnlockTopic(TEXT("military_training"));
     PublishInventory();
     CreateStageWorld();
+    StarterHome=GetWorld()->SpawnActor<ANexusStarterHome>(ANexusStarterHome::StaticClass(),
+        FVector(-9900.f,4100.f,2380.f),FRotator::ZeroRotator);
     GetWorld()->SpawnActor<ANexusCinematicScenery>();
     River=GetWorld()->SpawnActor<ANexusAlpineRiver>();
     // Underwater recorder is physically on the riverbed, not floating
@@ -100,7 +107,7 @@ void ANexusWorldDirector::BeginPlay()
             RescueHelpers.Add(Ally);
         }
     }
-    Inform(TEXT("ADLERKLAMM: Steige mit E ein und fahre ueber die Bruecke."));
+    Inform(TEXT("WILLKOMMEN ZUHAUSE: B im Buero oeffnet die Pinnwand. Du kannst Adlerklamm frei erkunden."));
 }
 void ANexusWorldDirector::CreateSceneryBox(FVector Pos,FVector Scale,FRotator Rotation,const TCHAR* Name)
 {
@@ -168,14 +175,15 @@ void ANexusWorldDirector::CreateFactories()
     const ENexusIndustry Types[]={
         ENexusIndustry::LoggingCamp,ENexusIndustry::Quarry,ENexusIndustry::Smelter,
         ENexusIndustry::OilPlatform,ENexusIndustry::Refinery,ENexusIndustry::CementPlant,
-        ENexusIndustry::AsphaltPlant
+        ENexusIndustry::AsphaltPlant,ENexusIndustry::GoldMine,ENexusIndustry::Sawmill
     };
     const FVector Locations[]={
         FVector(8100,1450,1970),FVector(8050,-1450,1970),FVector(7100,1450,1970),
         FVector(9400,-1650,1970),FVector(6400,-1450,1970),
-        FVector(5750,1500,1970),FVector(5400,-1650,1970)
+        FVector(5750,1500,1970),FVector(5400,-1650,1970),
+        FVector(-11900,4200,2390),FVector(-6700,4700,2390)
     };
-    for(int32 Index=0;Index<7;++Index)
+    for(int32 Index=0;Index<9;++Index)
     {
         auto* Site=GetWorld()->SpawnActor<ANexusIndustrySite>(ANexusIndustrySite::StaticClass(),Locations[Index],FRotator::ZeroRotator);
         if(!Site) continue;
@@ -277,6 +285,11 @@ bool ANexusWorldDirector::TryInteract(ANexusExplorer* Explorer)
 {
     if(!Explorer) return false;
     const FVector P=Explorer->GetActorLocation();
+    if(StarterHome && StarterHome->IsNearPinboard(P))
+    {
+        Inform(FString::Join(GetDiscoveredBoardLines(),TEXT(" | ")));
+        return true;
+    }
     // Real underwater gameplay: dive through the fast current to the
     // submerged, flashing black box. A normal surface E press cannot loot it.
     if(Evidence && Evidence->bAvailable && !Evidence->bRecovered &&
@@ -305,7 +318,13 @@ bool ANexusWorldDirector::TryInteract(ANexusExplorer* Explorer)
         return TryReconstruct();
     for(TObjectPtr<ANexusIndustrySite> Site:Industry)
         if(Site && FVector::Dist2D(P,Site->GetActorLocation())<850.f)
+        {
+            if(Site->Facility==ENexusIndustry::GoldMine)UnlockTopic(TEXT("goldmine"));
+            if(Site->Facility==ENexusIndustry::Sawmill)UnlockTopic(TEXT("sawmill"));
+            if(Site->Facility==ENexusIndustry::Quarry)UnlockTopic(TEXT("quarry"));
+            if(Site->Facility==ENexusIndustry::OilPlatform)UnlockTopic(TEXT("oil_rig"));
             return TryBuildOrOperate(Site);
+        }
     Inform(TEXT("Zur Rettungsmarkierung, Industrieanlage oder zum Fahrzeug gehen und E druecken."));
     return false;
 }
@@ -328,6 +347,8 @@ bool ANexusWorldDirector::TryBuildOrOperate(ANexusIndustrySite* Site)
         case ENexusIndustry::Refinery: Need.Add(TEXT("Wood"),2);Need.Add(TEXT("Iron"),2);MoneyCost=280;break;
         case ENexusIndustry::CementPlant: Need.Add(TEXT("Wood"),2);Need.Add(TEXT("Iron"),2);MoneyCost=240;break;
         case ENexusIndustry::AsphaltPlant: Need.Add(TEXT("Wood"),2);Need.Add(TEXT("Iron"),2);MoneyCost=260;break;
+        case ENexusIndustry::GoldMine: Need.Add(TEXT("Wood"),4);Need.Add(TEXT("Iron"),3);MoneyCost=370;break;
+        case ENexusIndustry::Sawmill: Need.Add(TEXT("Wood"),3);Need.Add(TEXT("Iron"),2);MoneyCost=220;break;
         default:break;
         }
         if(Credits<MoneyCost || !Stock.Spend(Need))
@@ -361,6 +382,8 @@ bool ANexusWorldDirector::TryBuildOrOperate(ANexusIndustrySite* Site)
         Need.Add(TEXT("Limestone"),3);Need.Add(TEXT("Sand"),1);Output.Add(TEXT("Cement"),3);break;
     case ENexusIndustry::AsphaltPlant:
         Need.Add(TEXT("Gravel"),3);Need.Add(TEXT("Bitumen"),1);Output.Add(TEXT("Asphalt"),4);break;
+    case ENexusIndustry::GoldMine: Output.Add(TEXT("GoldOre"),2);Output.Add(TEXT("IronOre"),1);break;
+    case ENexusIndustry::Sawmill: Need.Add(TEXT("Wood"),3);Output.Add(TEXT("Planks"),5);break;
     }
     if(!Stock.Spend(Need))
     {
@@ -437,6 +460,8 @@ void ANexusWorldDirector::SaveProgress()
     auto* Save=Cast<UNexusSaveGame>(UGameplayStatics::CreateSaveGameObject(UNexusSaveGame::StaticClass()));
     if(!Save)return;
     Save->Stock=Stock;
+    Save->DiscoveredTopics=DiscoveredTopics;
+    Save->RentalProperties=RentalProperties;
     Save->Credits=Credits;
     Save->Phase=Phase;
     Save->Role=Role;
@@ -473,6 +498,8 @@ void ANexusWorldDirector::LoadProgress()
     auto* Save=Cast<UNexusSaveGame>(UGameplayStatics::LoadGameFromSlot(TEXT("NEXUS_UNREAL_V1"),0));
     if(!Save){Inform(TEXT("Kein Unreal-Spielstand vorhanden."));return;}
     Stock=Save->Stock;PublishInventory();Credits=Save->Credits;Phase=Save->Phase;
+    if(!Save->DiscoveredTopics.IsEmpty())DiscoveredTopics=Save->DiscoveredTopics;
+    RentalProperties=Save->RentalProperties;
     Role=Save->Role;RebuildStage=Save->RebuildStage;bPaidRescue=Save->bRewardPaid;
     if(Evidence)
     {
@@ -501,6 +528,12 @@ void ANexusWorldDirector::LoadProgress()
     }
     if(Phase==ENexusIncidentPhase::Complete && Bridge)Bridge->Reconstruct();
     Inform(TEXT("NEXUS: Spielstand geladen."));
+}
+void ANexusWorldDirector::TeleportToStarterHome(ANexusExplorer* Explorer)
+{
+    if(!Explorer)return;
+    Explorer->SetActorLocation(StarterHome?StarterHome->StarterSpawnLocation():FVector(-9900.f,3830.f,2495.f));
+    Inform(TEXT("START ZUHAUSE: B im Buero fuer entdeckte Auftraege, M fuer das Handy, F11 zur Brueckenmission."));
 }
 void ANexusWorldDirector::TeleportToApproach(ANexusExplorer* Explorer)
 {
@@ -558,6 +591,8 @@ void ANexusWorldDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
     DOREPLIFETIME(ANexusWorldDirector,River);
     DOREPLIFETIME(ANexusWorldDirector,Evidence);
     DOREPLIFETIME(ANexusWorldDirector,Credits);
+    DOREPLIFETIME(ANexusWorldDirector,DiscoveredTopics);
+    DOREPLIFETIME(ANexusWorldDirector,RentalProperties);
     DOREPLIFETIME(ANexusWorldDirector,ReplicatedInventory);
     DOREPLIFETIME(ANexusWorldDirector,Phase);
     DOREPLIFETIME(ANexusWorldDirector,Role);
@@ -565,6 +600,101 @@ void ANexusWorldDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
     DOREPLIFETIME(ANexusWorldDirector,RadioMessage);
 }
 
+void ANexusWorldDirector::UnlockTopic(FName Topic)
+{
+    if(HasAuthority() && Topic!=NAME_None && !DiscoveredTopics.Contains(Topic))
+    {
+        DiscoveredTopics.Add(Topic);
+        ForceNetUpdate();
+    }
+}
+TArray<FString> ANexusWorldDirector::GetDiscoveredBoardLines() const
+{
+    TArray<FString> Lines;
+    for(FName Topic:DiscoveredTopics)
+    {
+        if(Topic==TEXT("welcome"))Lines.Add(TEXT("Dein Haus und Buero erkunden"));
+        else if(Topic==TEXT("bridge_intro"))Lines.Add(TEXT("Adlerklamm: Notruf an der Bruecke"));
+        else if(Topic==TEXT("military_training"))Lines.Add(TEXT("Militaeruebung: vor Sektor 31 vorbereiten (geplant)"));
+        else if(Topic==TEXT("goldmine"))Lines.Add(TEXT("Entdeckt: Goldmine. Erz foerdern und verkaufen"));
+        else if(Topic==TEXT("sawmill"))Lines.Add(TEXT("Entdeckt: Saegewerk. Bretter fertigen"));
+        else if(Topic==TEXT("quarry"))Lines.Add(TEXT("Entdeckt: Steinbruch. Zement fuer die Bruecke"));
+        else if(Topic==TEXT("oil_rig"))Lines.Add(TEXT("Entdeckt: Oelplattform. Foerderung und Raffinerie"));
+    }
+    return Lines;
+}
+bool ANexusWorldDirector::SellGoldOre()
+{
+    if(!HasAuthority())return false;
+    if(Stock.Get(TEXT("GoldOre"))<1)
+    {
+        Inform(TEXT("HANDEL: Kein Golderz vorhanden. Suche die Goldmine!"));
+        return false;
+    }
+    Stock.Add(TEXT("GoldOre"),-1);
+    Credits+=180; // gross 200 credits, 20 credits logistics fee
+    PublishInventory();
+    Inform(TEXT("HANDEL: 1 Golderz verkauft, +180 Credits nach 20 Liefergebuehr."));
+    return true;
+}
+bool ANexusWorldDirector::PurchaseRentalProperty()
+{
+    if(!HasAuthority())return false;
+    if(!RentalProperties.IsEmpty())
+    {
+        Inform(TEXT("IMMOBILIEN: Du besitzt bereits die erste Mietimmobilie."));
+        return false;
+    }
+    if(Credits<1500)
+    {
+        Inform(TEXT("IMMOBILIEN: 1.500 Credits fuer das erste Mietobjekt erforderlich."));
+        return false;
+    }
+    Credits-=1500;
+    FNexusRentalProperty Property;
+    Property.PropertyId=TEXT("adlerklamm_apartment_01");
+    Property.PurchasePrice=1500;
+    Property.GrossRentPerDay=170;
+    Property.UpkeepPerDay=45;
+    Property.LastPaidDay=WorldMemory?WorldMemory->GameDay:1;
+    RentalProperties.Add(Property);
+    Inform(TEXT("IMMOBILIEN: Mietobjekt erworben. +125 Credits netto pro Spieltag."));
+    ForceNetUpdate();
+    return true;
+}
+void ANexusWorldDirector::SettleRentAtMidnight()
+{
+    if(!HasAuthority() || !WorldMemory)return;
+    const int32 Today=WorldMemory->GameDay;
+    int32 Earned=0;
+    for(auto& Property:RentalProperties)
+    {
+        if(Property.LastPaidDay<Today)
+        {
+            // Bounded payout prevents runaway overflow after bad save data.
+            const int32 Days=FMath::Clamp(Today-Property.LastPaidDay,0,90);
+            Earned+=Days*Property.NetPerDay();
+            Property.LastPaidDay=Today;
+        }
+    }
+    if(Earned!=0)
+    {
+        Credits=FMath::Max(0,Credits+Earned);
+        Inform(FString::Printf(TEXT("MIETEINNAHMEN: %d Credits netto (inkl. Kosten)."),Earned));
+    }
+}
+void ANexusWorldDirector::Tick(float Dt)
+{
+    Super::Tick(Dt);
+    if(!HasAuthority() || !WorldMemory || !Weather)return;
+    const int32 Minute=Weather->MinuteOfDay;
+    if(PreviousClockMinutes>=1300 && Minute<=120)
+    {
+        WorldMemory->GameDay++;
+        SettleRentAtMidnight();
+    }
+    PreviousClockMinutes=Minute;
+}
 void ANexusWorldDirector::CommandRescueHelpers(int32 OrderCode)
 {
     if(!HasAuthority())return;

@@ -41,3 +41,10 @@ UE5.8 ist in dieser Ausführungsumgebung **nicht installiert**; die Unreal-C++-K
 
 ## Herkunft
 Die Albedo-Quellbilder stammen aus den im NEXUS-Projekt vorhandenen KI-generierten Oberflächen. Normal-/Roughness-/AO-Karten werden aus der Bildhelligkeit **heuristisch abgeleitet** – keine gemessenen Materialwerte und keine 3D-Photogrammetrie. Das Bild mit Bus, Rettungshelikopter und HUD ist ausschließlich die **Art-Direction-Referenz**, kein Gameplay-Screenshot.
+
+## Neuer Open-World-Prototyp (02.11.2026)
+- START: Spieler startet im begehbaren Platzhalter-Haus (in Adlerklamm; südliche Tür, Büro mit Pinnwand). **B** direkt im Büro zeigt nur entdeckte Aufgaben; **E** an der Pinnwand liest sie als Funktext.
+- **M** Smartphone öffnen/schließen, **K** 1 Golderz für 180 Credits nach Handelsgebühren verkaufen, **U** erste Mietwohnung für 1.500 Credits kaufen. 170 Credits Miete pro Spieltag minus 45 Unterhalt = 125 netto am Tageswechsel. Welt-/Koop-Konto ist derzeit gemeinsam, nicht pro Spieler.
+- Zwei neue Baustellen/Produktionsstätten: **Goldmine** (+2 Golderz und +1 Eisenerz pro Zyklus) und **Sägewerk** (3 Holz → 5 Bretter). Ein Bau kostet Rohstoffe und Geld; Startprodukte erscheinen nicht automatisch.
+- **F11** bleibt schnelle Rückkehr zur Adlerklamm-Brückenmission; **V** Kamera wechseln, **F5/F9** speichert/lädt Mietobjekt und Pinwand-Entdeckungen.
+- **Grenze:** Haus ist begehbarer Unreal-Cube-Blockout oder importiertes `SM_NEXUS_StarterHome`, nicht fotorealistische Architektur. Goldmine ist momentan eine interaktive Produktionsstätte, **kein** unterirdisch begehbares Höhlennetz; Mietwohnung ist eine wirtschaftliche Buchung, kein eigenes begehbares Gebäude. Das wird erst mit weiteren Level- und Interieur-Assets umgesetzt.

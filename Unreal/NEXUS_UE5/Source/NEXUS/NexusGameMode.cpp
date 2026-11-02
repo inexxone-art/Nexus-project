@@ -24,7 +24,7 @@ void ANexusGameMode::StartPlay()
             Explorer=GetWorld()->SpawnActor<ANexusExplorer>(FVector(-7300,310,2200),FRotator::ZeroRotator);
             if(Explorer)PC->Possess(Explorer);
         }
-        if(Explorer)Director->TeleportToApproach(Explorer);
+        if(Explorer)Director->TeleportToStarterHome(Explorer);
     }
 }
 void ANexusGameMode::EnterVehicle(ANexusVehicle* Vehicle,ANexusExplorer* Passenger)
@@ -91,6 +91,10 @@ void ANexusGameMode::PostLogin(APlayerController* NewPlayer)
             FVector(-7300.f+float(GetNumPlayers())*150.f,300.f,2200.f),FRotator::ZeroRotator);
         if(NewExplorer) NewPlayer->Possess(NewExplorer);
     }
-    if(NewExplorer)NewExplorer->SetActorLocation(FVector(-7300.f+float(GetNumPlayers())*150.f,310.f,2200.f));
+    if(NewExplorer && Director)
+    {
+        Director->TeleportToStarterHome(NewExplorer);
+        NewExplorer->AddActorWorldOffset(FVector(float(GetNumPlayers())*130.f,0.f,0.f),true);
+    }
     if(!Explorer)Explorer=NewExplorer;
 }
