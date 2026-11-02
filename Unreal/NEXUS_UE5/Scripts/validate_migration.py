@@ -40,7 +40,8 @@ for filename in ("import_nexus_pbr.py", "import_nexus_geometry.py"):
 assert "SM_NEXUS_BridgeSpan_6p83m" in all_src["NexusBridge.cpp"]
 assert "SM_NEXUS_RescueBus_12m" in all_src["NexusBus.cpp"]
 assert "SM_NEXUS_FireRescue_Truck" in all_src["NexusVehicle.cpp"]
-assert "SM_NEXUS_RescueHelicopter" in all_src["NexusWorldDirector.cpp"]
+# Vehicle class centrally selects rescue helicopter mesh, including optional V6 animated body.
+assert "SM_NEXUS_RescueHelicopter" in all_src["NexusVehicle.cpp"]
 assert "GetTimerManager().SetTimer" in all_src["NexusBridge.cpp"]
 assert "RolePilot" in all_src["NexusVehicle.cpp"] and "RoleMedic" in all_src["NexusVehicle.cpp"]
 assert "RoleGround" in all_src["NexusVehicle.cpp"]
