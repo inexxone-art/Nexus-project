@@ -112,9 +112,12 @@ void ANexusWorldDirector::CreateStageWorld()
     CreateSceneryBox(FVector(8400,0,1945),FVector(43.f,26.f,1.f),FRotator::ZeroRotator,TEXT("EastApproachRoad"));
     CreateSceneryBox(FVector(-8400,0,1270),FVector(44.f,65.f,11.f),FRotator::ZeroRotator,TEXT("WestCliffPlateau"));
     CreateSceneryBox(FVector(8400,0,1270),FVector(44.f,65.f,11.f),FRotator::ZeroRotator,TEXT("EastCliffPlateau"));
-    CreateSceneryBox(FVector(0,-4700,700),FVector(168.f,35.f,18.f),FRotator(FMath::DegreesToRadians(0),0,0),TEXT("NorthCliffFace"));
-    CreateSceneryBox(FVector(0,4700,700),FVector(168.f,35.f,18.f),FRotator::ZeroRotator,TEXT("SouthCliffFace"));
-    CreateSceneryBox(FVector(0,0,-600),FVector(170.f,50.f,7.f),FRotator::ZeroRotator,TEXT("RiverBase"));
+    // River runs from south to north through the canyon; west/east cliff
+    // walls border it. The actual procedural riverbed now owns collision.
+    CreateSceneryBox(FVector(-4700,0,700),FVector(35.f,168.f,18.f),
+        FRotator::ZeroRotator,TEXT("WestCliffFace"));
+    CreateSceneryBox(FVector(4700,0,700),FVector(35.f,168.f,18.f),
+        FRotator::ZeroRotator,TEXT("EastCliffFace"));
     // Actual approach roads now meet the 82m bridge at X = +/-4100cm.
     // These geometry pillars are nonproduction visual/physics placeholders.
     for(int32 I=-3;I<=3;I+=2)
