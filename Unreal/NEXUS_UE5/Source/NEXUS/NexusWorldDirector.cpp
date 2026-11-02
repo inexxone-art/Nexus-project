@@ -43,13 +43,13 @@ void ANexusWorldDirector::BeginPlay()
 {
     Super::BeginPlay();
     Story->LoadCampaignData(); // local read on all clients; replicated phase comes from the server
+    // A local-only actor must be created by each process, not only the server.
+    GetWorld()->SpawnActor<ANexusCinematicLook>();
     if(!HasAuthority())return;
     WorldMemory->InitializeWorld();
     PublishInventory();
     CreateStageWorld();
     GetWorld()->SpawnActor<ANexusCinematicScenery>();
-    // Local post-process and physically modelled atmosphere; no baked screenshot.
-    GetWorld()->SpawnActor<ANexusCinematicLook>();
     River=GetWorld()->SpawnActor<ANexusAlpineRiver>();
     // Underwater recorder is physically on the riverbed, not floating
     // at an arbitrary world coordinate. Recoverable only after the crash.

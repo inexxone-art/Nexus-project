@@ -43,7 +43,7 @@ void ANexusHUD::DrawHUD()
     if(!D)return;
     const float X=Canvas->ClipX/1600.f,Y=Canvas->ClipY/900.f;
     APawn* Pawn=PlayerOwner?PlayerOwner->GetPawn():nullptr;
-    ANexusExplorer* LocalExplorer=Cast<ANexusExplorer>(Pawn);
+    ANexusExplorer* LocalExplorer=PlayerOwner?Cast<ANexusExplorer>(PlayerOwner->GetPawn()):nullptr;
     ANexusVehicle* LocalVehicle=Cast<ANexusVehicle>(Pawn);
     const ENexusIncidentPhase Phase=D->Phase;
 

@@ -20,3 +20,6 @@ Das vom Nutzer übermittelte Adlerklamm-Bild ist die **Art-Direction**: österre
 `python -m unittest discover -s Unreal/NEXUS_UE5/Scripts -p "test_*.py"`
 
 Unreal-Engine-Version und ausgewählte Render-Einstellungen: siehe `Config/DefaultEngine.ini`.
+
+### Co-op-Korrektur
+Der Cinematic-Look wird **auf Server und Clients lokal** erzeugt, damit replizierte Missionen ohne einen nichtreplizierten rein serverseitigen Sichtfilter dargestellt werden.
