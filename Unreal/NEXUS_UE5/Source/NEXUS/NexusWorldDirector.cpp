@@ -8,6 +8,7 @@
 #include "NexusSaveGame.h"
 #include "NexusCampaignComponent.h"
 #include "NexusSimulationComponent.h"
+#include "NexusCinematicScenery.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
@@ -40,6 +41,7 @@ void ANexusWorldDirector::BeginPlay()
     WorldMemory->InitializeWorld();
     Story->LoadCampaignData();
     CreateStageWorld();
+    GetWorld()->SpawnActor<ANexusCinematicScenery>();
     CreateLighting();
     Bridge=GetWorld()->SpawnActor<ANexusBridge>(ANexusBridge::StaticClass(),FVector(0,0,1950),FRotator::ZeroRotator);
     Bus=GetWorld()->SpawnActor<ANexusBus>(ANexusBus::StaticClass(),FVector(0,0,2440),FRotator::ZeroRotator);
