@@ -16,3 +16,8 @@ Alien-Meteoritenmaterial lässt Sektor 31 im isolierten Militärlabor infizieren
 
 ## Qualität und Abnahme
 UE5 C++-Build auf einer geeigneten GPU, echte Gameplay-/Render-Aufnahmen, Figuren und Innenräume, Level-Streaming, Netzwerk- und Persistenztest, Performanceprofil. Für Intel-UHD-620-Klassenrechner ist der AAA-Fotorealismus nicht nachgewiesen. Kein Screenshot aus dem KI-Konzept wird als tatsächliches Game ausgegeben.
+
+## Reale Bibliotheksassets – Paket am 02.11.2026 erstellt
+Sechs bereits vorhandene NEXUS-Library-ZIPs wurden in ein geprüftes, nicht-destruktives SourceArt-Importpaket vereinigt: **4** selbst erzeugte Bus-/Brücke-/Feuerwehr-/Hubschrauber-GLB-Prototypen, **9** Geländevorschaukacheln, **5** Fichten/Sträucher/Fels-GLBs, **1** echter Poly-Haven-CC0-Felsscan (mit Provenienz), **72** Bildkarten für 18 Materialfamilien und eine 2017×2017 16-bit Adlerklamm-Heightmap samt Masken. Das Importpaket enthält eine sichere PowerShell-Kopierhilfe und die Ausführungsreihenfolge der vorhandenen UE5-Editor-Skripte.
+
+**Wichtig:** Das Chat-Downloadpaket ist nicht als .uasset oder .umap in GitHub importiert worden, da UE5 nur im Editor die Originalfiles in Engine-Assets umwandelt. Quellarchive sind keine AAA-Modelle; Hero-GLBs sind reproduzierbare Prototypen. Weitere Wunsch-Features mit 53 vorgesehenen Slots sind nicht durch die sechs ZIPs automatisch erfüllt.

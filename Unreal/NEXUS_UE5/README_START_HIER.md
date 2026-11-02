@@ -48,3 +48,11 @@ Die Albedo-Quellbilder stammen aus den im NEXUS-Projekt vorhandenen KI-generiert
 - Zwei neue Baustellen/Produktionsstätten: **Goldmine** (+2 Golderz und +1 Eisenerz pro Zyklus) und **Sägewerk** (3 Holz → 5 Bretter). Ein Bau kostet Rohstoffe und Geld; Startprodukte erscheinen nicht automatisch.
 - **F11** bleibt schnelle Rückkehr zur Adlerklamm-Brückenmission; **V** Kamera wechseln, **F5/F9** speichert/lädt Mietobjekt und Pinwand-Entdeckungen.
 - **Grenze:** Haus ist begehbarer Unreal-Cube-Blockout oder importiertes `SM_NEXUS_StarterHome`, nicht fotorealistische Architektur. Goldmine ist momentan eine interaktive Produktionsstätte, **kein** unterirdisch begehbares Höhlennetz; Mietwohnung ist eine wirtschaftliche Buchung, kein eigenes begehbares Gebäude. Das wird erst mit weiteren Level- und Interieur-Assets umgesetzt.
+
+## Quell-Asset-Bundle vom 02.11.2026
+Das in dieser Unterhaltung bereitgestellte **NEXUS_UE5_ALLE_VORHANDENEN_ASSETS_IMPORTPAKET.zip** wurde aus 6 vorhandenen Bibliotheks-ZIPs geprüft und enthält die korrekte Ordnerstruktur `Content/SourceArt`. Bitte nicht mit fertig importierten Unreal-`.uasset`-Dateien verwechseln.
+1. ZIP separat entpacken und `Install_NEXUS_SourceArt.ps1 -ProjectFolder "C:\\Pfad\\Nexus-project\\Unreal\\NEXUS_UE5"` ausführen (oder die SourceArt-Ordner manuell kopieren).
+2. UE Editor 5.8 mit Python Editor Script Plugin starten.
+3. In **Tools > Execute Python Script** `Scripts/import_nexus_all_verified.py` ausführen – die Pipeline importiert PBR, Hero-Meshes, Terrain-Vorschauen, Foliage und CC0-Felsscan soweit verfügbar.
+4. Das `Content/SourceArt/Heightmap/Adlerklamm_Landscape_2017x2017_16bit.png` im Landscape-Tool als echte Landschaft importieren; nicht als glatte Terrain-Mesh-Vorschau behandeln.
+5. Nach Import Assets prüfen, Maße/Materialien, Kollision, Lumen/Nanite-FPS testen. Noch keine Real-UE-Renderfreigabe.

@@ -27,7 +27,7 @@ def import_texture(path, category, channel):
         task.set_editor_property("filename", str(path))
         task.set_editor_property("destination_path", DEST_TEX)
         task.set_editor_property("destination_name", asset_name)
-        task.set_editor_property("replace_existing", True)
+        task.set_editor_property("replace_existing", False)
         task.set_editor_property("automated", True)
         task.set_editor_property("save", True)
         TOOLS.import_asset_tasks([task])
